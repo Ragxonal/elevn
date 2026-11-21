@@ -1,0 +1,20 @@
+# One-off check that GitHub's runners can reach every live source (runs when race/ changes).
+name: Feed race probe
+on:
+  push:
+    paths: ['race/**', '.github/workflows/feedrace-probe.yml']
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Poll every source twice
+        env: { RACE_ALL: '1', RACE_ONCE: '1', RACE_DIR: /tmp/probe }
+        run: |
+          node race/feedrace.js 11 > /dev/null 2> probe.log || true
+          node -e "const S=require('/tmp/probe/ledger/race-11.json');const m='polls '+JSON.stringify(S.polls)+' errors '+JSON.stringify(S.errors)+' last '+(S.lastErr||'none')+' keys '+Object.keys(S.first).length;console.log((Object.keys(S.errors).length?'::error::':'::notice::')+m);if(Object.keys(S.errors).length)process.exit(1)"
