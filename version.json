@@ -1,7 +1,7 @@
 {
-  "version": "3.65",
+  "version": "3.66",
   "date": "2026-11-21",
-  "notes": "Live clock with seconds, goal minutes, tap a match for events, stats and stadium.",
+  "notes": "Match statistics fit on phones.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
