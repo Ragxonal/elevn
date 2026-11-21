@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.72.0
+// @version      3.73.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.72';
+  const ELEVN_VER = '3.73';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -5255,6 +5255,10 @@ b.kn .picon{margin:0}
 .toast{position:relative;overflow:visible}
 .updbar{flex:1 1 100%;order:99;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;border-radius:10px;background:rgba(69,208,143,.12);border:1px solid rgba(69,208,143,.45);font-size:14px;line-height:1.4}
 .updbar[hidden]{display:none}
+#updb{position:relative}#updb .upddot{position:absolute;top:3px;right:3px;width:8px;height:8px;border-radius:50%;background:#45d08f;box-shadow:0 0 0 2px var(--bg,#0b1220)}#updb .upddot[hidden]{display:none}#updb.spin svg{animation:updspin 1s linear infinite}@keyframes updspin{to{transform:rotate(360deg)}}
+.updbar ol{margin:4px 0 0;padding-left:18px}.updbar button.updrel{background:var(--acc);color:#0b1220;font-weight:700;border:0}
+.mdl{display:grid;gap:6px;margin-top:6px}.mdl div{border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:13px;line-height:1.45}.mdl b{display:block;font-size:13px}.mdl .l3{border-style:dashed;opacity:.9}
+.lens{display:block;margin-top:6px;font-size:13px;color:var(--mut)}.lens b{color:inherit}
 .updbar b{color:var(--acc)}
 .updbar .updtxt{flex:1 1 220px;min-width:0}
 .updbar a.updget{background:var(--acc);color:#0b1220;font-weight:700;padding:6px 14px;border-radius:8px;text-decoration:none;white-space:nowrap}
@@ -5325,7 +5329,7 @@ b.kn .picon{margin:0}
   .seg.nfilt,.subnav .seg{max-width:100%;overflow-x:auto;flex-wrap:nowrap}
   .brand b,.seg.nfilt button{white-space:nowrap}
   .gwpill2{order:2;padding:5px 10px}
-  #setb{order:3}
+  #setb,#updb{order:3}
   #x{order:4}
   .top form{order:5;width:100%}
   .top form input{flex:1;width:auto}
@@ -6159,7 +6163,7 @@ a.pn[data-pi]{padding:5px 0;margin:-5px 0}
 .hlmore summary::-webkit-details-marker{display:none}
 .hlmore[open] summary{display:none}
 /* 14: tablet header: countdown sits on the Team ID row */
-@media (min-width:641px) and (max-width:980px){.top>.brand{flex:1 1 100%}.top>#gwpill{order:3}.top>form{order:2}.top>#setb{order:4}.top>#x{order:5}}
+@media (min-width:641px) and (max-width:980px){.top>.brand{flex:1 1 100%}.top>#gwpill{order:3}.top>form{order:2}.top>#updb{order:4}.top>#setb{order:4}.top>#x{order:5}}
 /* 16: next gameweek strip */
 .nextgw{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 0;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:13px}
 .nextgw span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--acc)}
@@ -6542,6 +6546,7 @@ table.cmpt small.d{display:block;font-size:11px}
     <div class="brand"><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#2b0f45"/><g fill="#45d08f"><circle cx="50" cy="16" r="5.5"/><circle cx="40" cy="30" r="5.5"/><circle cx="60" cy="30" r="5.5"/><circle cx="30" cy="44" r="5.5"/><circle cx="50" cy="44" r="5.5"/><circle cx="70" cy="44" r="5.5"/><circle cx="20" cy="58" r="5.5"/><circle cx="50" cy="58" r="5.5"/><circle cx="80" cy="58" r="5.5"/><circle cx="50" cy="72" r="5.5"/></g><circle cx="50" cy="86" r="5.5" fill="#f6c343"/></svg><div><b>Elevn <small class="ver">v${ELEVN_VER}</small></b><span id="sub">FPL assistant · enter any team ID</span></div></div><span class="gwpill2" id="gwpill" hidden></span>
     <form id="f"><label for="tid">Team ID</label><span class="idw"><input id="tid" inputmode="numeric" autocomplete="off" placeholder="e.g. 123456"><button class="idb" id="idb" type="button" aria-label="My team and saved friends" aria-haspopup="menu" aria-expanded="false" title="My team and saved friends"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4zm8 0c-.3 0-.7 0-1.1.1 1.2.9 2.1 2.1 2.1 3.9v2h7v-2c0-2.7-5.3-4-8-4z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button><div class="idmenu" id="idmenu" role="menu" hidden></div></span><button class="go" type="submit">Analyse</button><button class="x rf" id="rf" type="button" title="Reload all data now" aria-label="Refresh data">⟳</button></form>
     <button class="x" id="setb" type="button" aria-label="Display settings" title="Display settings"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button class="x" id="updb" type="button" aria-label="Check GitHub for a newer version" title="Check GitHub for a newer version"><svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 3v11m0 0l-4.5-4.5M12 14l4.5-4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="upddot" hidden></i></button>
     <button class="x" id="x" aria-label="Close analyst">×</button>
     <div class="updbar" id="updbar" role="status" hidden></div>
   </div>
@@ -6581,6 +6586,7 @@ table.cmpt small.d{display:block;font-size:11px}
   const XSKIP = /^(fplAnalystPast|fplAnalystAccuracy|fplAnalystNews|fplAnalystPriceSnap)/;
   function exportCode() { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^fplAnalyst/.test(k) && !XSKIP.test(k)) o[k] = localStorage.getItem(k); } return 'FPLA1:' + btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
   function importCode(s) { try { const m = String(s || '').trim().match(/^FPLA1:([A-Za-z0-9+/=]+)$/); if (!m) return -1; const o = JSON.parse(decodeURIComponent(escape(atob(m[1])))); let n = 0; Object.entries(o).forEach(([k, v]) => { if (/^fplAnalyst/.test(k) && typeof v === 'string') { localStorage.setItem(k, v); n++; } }); return n; } catch (e) { return -1; } }
+  $('#updb').onclick = (ev) => updNow(ev.currentTarget);
   $('#setb').onclick = () => {
     const sb = $('#sheetbody'); const seg = (k, opts) => `<div class="seg" role="radiogroup">${opts.map(([v, l]) => `<button type="button" role="radio" aria-checked="${UI[k] === v}" class="${UI[k] === v ? 'on' : ''}" data-ui="${k}:${v}">${l}</button>`).join('')}</div>`;
     const paint = () => { sb.innerHTML = `<div class="shgrab" data-close></div><div class="shh"><div><b>Settings</b><small>Saved on this device</small></div><button type="button" class="x" data-close aria-label="Close">×</button></div>
@@ -6598,11 +6604,14 @@ ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) =>
   return `<div class="setrow"><div><b>Free bookmaker odds</b><small>Used when no key is saved below.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(oddsFreeOn() ? 'on' : 'off') === v}" class="${(oddsFreeOn() ? 'on' : 'off') === v ? 'on' : ''}" data-oddsfree="${v}">${l}</button>`).join('')}</div></div>
 <div class="setrow col"><div><b>Bookmaker odds</b><small>Adds betting-market win, draw and goals odds to the projections (half market, half model) for matches that have prices. Free odds from one bookmaker load automatically on every device. For an average of many bookmakers, add your own free key from the-odds-api.com (about 2–4 requests a day). The key stays on this device and is not included in the transfer code below.</small></div>
 <div class="xrow"><input id="odds-key" type="password" autocomplete="off" spellcheck="false" placeholder="${k ? 'Key saved · paste a new one to replace it' : 'Paste your API key'}" aria-label="The Odds API key"><button type="button" class="mbtn" data-odds="save">Save</button>${k ? '<button type="button" class="mbtn ghost" data-odds="test">Refresh now</button><button type="button" class="mbtn ghost" data-odds="del">Remove</button>' : ''}</div><small class="oddst">${st}</small></div>`; })()}
+<div class="setrow"><div><b>Version</b><small>You have v${ELEVN_VER}. New versions are published on GitHub.</small></div><button type="button" class="mbtn" data-updchk>Check for update</button></div>
+<div class="setrow col"><div><b>How the numbers are built</b><small>Three separate layers. Only the first two produce numbers.</small></div><div class="mdl"><div><b>1 · Projection engine</b>Expected points per player per match from measured data only: expected goals and assists per 90 (shrunk toward position averages), minutes reliability, a Poisson goals model from each team's attack and defence strength by venue, bookmaker prices where available, set pieces, and availability (FPL flags and injury news).</div><div><b>2 · Decision optimiser</b>Turns projections into choices with constraints: squad solver (budget, 3-per-club, formation), transfer gain minus hits, chip timing, captain = highest expected points.</div><div class="l3"><b>3 · Crowd context (not an input)</b>Ownership, captaincy share and effective ownership. Shown so you can test scenarios (protect a lead, chase a rival). It never changes a projection or the default captain and transfers. Prices are the one exception: FPL moves prices on transfer counts, so the price predictor reads them.</div></div></div>
 <div class="setrow col"><div><b>Move your plan to another device</b><small>Planned transfers, chips, saved teams and settings. Copy the code here, paste it on the other phone or computer.</small></div>
 <div class="xrow"><button type="button" class="mbtn" data-xp="1">⇪ Copy my code</button><button type="button" class="mbtn ghost" data-xi="1">⇩ Paste a code</button></div>
 <textarea id="xcode" rows="3" placeholder="Your code appears here, or paste a code from another device" spellcheck="false"></textarea><button type="button" class="mbtn big" data-xgo="1" hidden>Import this code</button></div>`; };
     paint(); sheet.hidden = false;
-    sb.onclick = (ev) => { const u = ev.target.closest('[data-ui]'); if (u) { const [k, v] = u.dataset.ui.split(':'); UI[k] = v; saveUI(); applyUI(); paint(); ev.stopPropagation(); return; }
+    sb.onclick = (ev) => { const uc = ev.target.closest('[data-updchk]'); if (uc) { ev.stopPropagation(); updNow(uc); return; }
+      const u = ev.target.closest('[data-ui]'); if (u) { const [k, v] = u.dataset.ui.split(':'); UI[k] = v; saveUI(); applyUI(); paint(); ev.stopPropagation(); return; }
       const ofb = ev.target.closest('[data-oddsfree]'); if (ofb) { ev.stopPropagation(); try { localStorage.setItem(ODDS_FREE, ofb.dataset.oddsfree); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; paint(); const v2 = $('#tid').value.trim(); fetchOdds(true).then(() => { paint(); if (v2) run(+v2, { quiet: true }); }); return; }
       const fmb = ev.target.closest('[data-fm]'); if (fmb) { ev.stopPropagation(); try { localStorage.setItem(FMK, fmb.dataset.fm); } catch (e) {} paint(); return; }
       const fb = ev.target.closest('[data-fast]'); if (fb) { ev.stopPropagation(); try { localStorage.setItem(FASTK, fb.dataset.fast); } catch (e) {} if (fb.dataset.fast === 'on' && LASTA) { clearTimeout(FASTT); FASTT = null; fastTick(); } else { clearTimeout(FASTT); FASTT = null; } paint(); if (LASTA) { LASTA.live = LASTA.gwCmp && LASTA.gwCmp.liveC ? liveScore(LASTA.cur, LASTA.gwCmp) : LASTA.live; if (LASTA.live) fastApply(LASTA, LASTA.live); paintLiveNow(LASTA); } return; }
@@ -8342,9 +8351,18 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const weeks = {}; Object.keys(stored).forEach((g) => { if (+g >= A.startGw) weeks[g] = stored[g]; });   // weeks already played are dropped
     if (!keep.tab) UNDO = [];
     PLAN = { tab: keep.tab || 'do', A, weeks, gw: A.startGw, sel: null, buying: null, q: '', msg: '', hist: null, swaps: [], chipIn: [], chipOut: [] };
-    const lastG = A.GWS[A.GWS.length - 1];
-    loadWeek(keep.gw && keep.gw >= A.startGw && keep.gw <= lastG ? keep.gw : A.startGw);
+    const lastG = A.GWS[A.GWS.length - 1], first = A.entry.started_event || 1;
+    const cur = BS.events.find((x) => x.is_current), liveG = cur && cur.id < A.startGw && cur.id >= first && !cur.data_checked ? cur.id : 0;
+    const want = keep.gw || liveG || A.startGw;
+    loadWeek(want >= A.startGw && want <= lastG ? want : A.startGw);
+    if (want < A.startGw && want >= first) { PLAN.gw = want; HIST(want).then((d) => { if (PLAN && PLAN.A === A && PLAN.gw === want) { PLAN.hist = d; renderPlanner(); } }); }
   }
+  // While a live gameweek is open in My Team, refresh its points every minute
+  setInterval(() => { try {
+    if (!PLAN || !PLAN.A || PLAN.gw >= PLAN.A.startGw || !PLAN.hist || document.hidden) return;
+    const g = PLAN.gw, ev = BS && BS.events.find((x) => x.id === g); if (!ev || ev.data_checked) return;
+    HIST(g).then((d) => { if (PLAN && PLAN.gw === g && d && d.live !== PLAN.hist.live) { const box = R.getElementById('planner'); const scr = () => (box ? [...box.querySelectorAll('*')].filter((x) => x.scrollHeight > x.clientHeight + 2) : []); const sc = scr().map((x) => x.scrollTop); PLAN.hist = d; renderPlanner(); scr().forEach((x, i) => { if (sc[i]) x.scrollTop = sc[i]; }); } });
+  } catch (e) {} }, 60e3);
   // Your real lineup in FPL order: starting XI, bench goalkeeper, bench outfield
   function origLine() {
     const A = PLAN.A; const byEl = {}; A.sq.forEach((s) => (byEl[s.e.id] = { e: s.e, sell: s.sell }));
@@ -8646,23 +8664,41 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   const verNum = (v) => String(v || '').replace(/^v/, '').split('.').map((x) => +x || 0).reduce((a, x, i) => a + x * [1e6, 1e3, 1][i], 0);
   const updKind = () => (hasNative() ? 'apk' : extId() ? 'zip' : 'userscript');
   async function checkUpdate(force) {
-    let st = {}; try { st = JSON.parse(localStorage.getItem(UPD_K) || '{}') || {}; } catch (e) {}
+    let st = {}, ok = false; try { st = JSON.parse(localStorage.getItem(UPD_K) || '{}') || {}; } catch (e) {}
+    if (force) delete st.skip;
     if (!force && st.at && Date.now() - st.at < 864e5) return showUpdate(st);
     try {
       let txt; try { const r = await withTimeout(fetch(UPD_REPO + 'version.json?t=' + Math.floor(Date.now() / 36e5), { credentials: 'omit', cache: 'no-store' }), 8000); if (!r.ok) throw new Error('HTTP ' + r.status); txt = await r.text(); }
       catch (e) { const d = directText(); if (!d) throw e; txt = await withTimeout(d(UPD_REPO + 'version.json'), 9000); }
-      const j = JSON.parse(txt); st = Object.assign(st, { at: Date.now(), latest: j.version, notes: j.notes || '', files: j.files || {} });
+      const j = JSON.parse(txt); st = Object.assign(st, { at: Date.now(), latest: j.version, notes: j.notes || '', files: j.files || {} }); ok = true;
     } catch (e) { st.at = Date.now() - 864e5 + 36e5; } // try again in an hour
     try { localStorage.setItem(UPD_K, JSON.stringify(st)); } catch (e) {}
     showUpdate(st);
+    return ok ? st : null;
+  }
+  // v3.73: the update button in the header (and in Settings) checks GitHub now instead of once a day
+  async function updNow(btn) {
+    if (btn) { btn.classList.add('spin'); btn.disabled = true; }
+    let st = null; try { st = await checkUpdate(true); } catch (e) {}
+    if (btn) { btn.classList.remove('spin'); btn.disabled = false; }
+    if (!st) toast('Couldn\'t reach GitHub', 'Check your connection and try again.', 'bad');
+    else if (verNum(st.latest) <= verNum(ELEVN_VER)) toast('Elevn is up to date', `You have v${ELEVN_VER}, the newest version on GitHub.`, 'good');
+    else { const bar = R.getElementById('updbar'); if (bar) bar.scrollIntoView({ block: 'nearest' }); }
+  }
+  // Chrome: after the new files are unzipped over the Elevn folder, reload the extension from disk without visiting chrome://extensions
+  function updReload() {
+    try { chrome.runtime.sendMessage({ type: 'elevn-reload' }, () => void chrome.runtime.lastError); } catch (e) {}
+    setTimeout(() => location.reload(), 2500);
   }
   function showUpdate(st) {
     const bar = R.getElementById('updbar'); if (!bar) return;
+    const dot = R.querySelector('#updb .upddot'); if (dot) dot.hidden = !(st && st.latest && verNum(st.latest) > verNum(ELEVN_VER));
     if (!st || !st.latest || verNum(st.latest) <= verNum(ELEVN_VER) || st.skip === st.latest) { bar.hidden = true; return; }
     const k = updKind(), file = (st.files || {})[k], url = file ? (/^https?:/.test(file) ? file : UPD_REPO + file) : 'https://github.com/Ragxonal/elevn';
-    const how = k === 'apk' ? 'Download and install it over this app.' : k === 'zip' ? 'Download, unzip over your Elevn folder, then press Reload on chrome://extensions.' : 'Your Userscripts app updates it automatically, or tap Download.';
-    bar.innerHTML = `<span class="updtxt"><b>Elevn v${esc(st.latest)} is available</b> (you have v${ELEVN_VER}). ${st.notes ? esc(st.notes) + ' ' : ''}${how}</span><a class="updget" href="${esc(url)}" target="_blank" rel="noopener">Download</a><button type="button" data-updskip>Not now</button>`;
+    const how = k === 'apk' ? 'Download and install it over this app.' : k === 'zip' ? '<ol><li>Press <b>Download</b>.</li><li>Unzip it and copy the files over your current Elevn folder (replace all).</li><li>Press <b>Reload Elevn</b>. No need to open chrome://extensions.</li></ol>' : 'Your Userscripts app updates it automatically, or tap Download.';
+    bar.innerHTML = `<span class="updtxt"><b>Elevn v${esc(st.latest)} is on GitHub</b> (you have v${ELEVN_VER}). ${st.notes ? esc(st.notes) + ' ' : ''}${how}</span><a class="updget" href="${esc(url)}" target="_blank" rel="noopener">Download</a>${k === 'zip' ? '<button type="button" class="updrel" data-updrel>Reload Elevn</button>' : ''}<button type="button" data-updskip>Not now</button>`;
     bar.hidden = false;
+    const rl = bar.querySelector('[data-updrel]'); if (rl) rl.onclick = updReload;
     bar.querySelector('[data-updskip]').onclick = () => { st.skip = st.latest; try { localStorage.setItem(UPD_K, JSON.stringify(st)); } catch (e) {} bar.hidden = true; };
   }
   function toast(title, body, tone, act) {
@@ -8877,7 +8913,7 @@ ${danger.length ? `<div class="rvd"><small>Their extra players</small>${danger.m
     const rows = [...ids].map((id) => ({ e: A.E[id], l: lc[id] || 0, s: ok ? (S.cap[id] || 0) / S.n : 0, tc: ok ? S.tc[id] || 0 : 0 })).filter((r) => r.e).sort((a, b) => b.s - a.s || b.l - a.l).slice(0, 10);
     if (!rows.length) return `<div class="capbox"><div class="wch"><b>Captains · GW${gw}</b></div><p class="muted">${S && S.busy ? 'Counting captains in the top 10k…' : S && S.err ? 'Couldn\'t load captain picks right now.' : 'Captain picks show after the deadline.'}</p></div>`;
     const top = rows[0].s || 1; const nm = (e) => `<a class="pn" href="#" data-pi="1" data-pid="${e.id}">${esc(e.web_name)}</a>`;
-    return `<div class="capbox"><div class="wch"><b>Captains · GW${gw}</b><span class="muted">${ok ? `Top 10k: sample of ${S.n} managers` : S && S.busy ? 'Counting the top 10k…' : ''}${D ? ` · <bdi>${esc(D.name)}</bdi>: ${ln} teams` : ''}</span></div>
+    return `<div class="capbox"><div class="wch"><b>Captains · GW${gw}</b><span class="muted">Crowd context, not used in projections · ${ok ? `Top 10k: sample of ${S.n} managers` : S && S.busy ? 'Counting the top 10k…' : ''}${D ? ` · <bdi>${esc(D.name)}</bdi>: ${ln} teams` : ''}</span></div>
 <div class="capl">${rows.map((r) => `<div class="capr${myC && myC.e.id === r.e.id ? ' mine' : ''}">${pface(r.e)}<span class="capn">${nm(r.e)}<small>${esc(A.T[r.e.team].short_name)} · owned ${r.e.selected_by_percent}%${myC && myC.e.id === r.e.id ? ' · <b>your captain</b>' : ''}</small></span><span class="capbar"><i style="width:${Math.round((r.s / top) * 100)}%"></i></span><span class="capv"><b>${ok ? Math.round(r.s * 100) + '%' : '–'}</b><small>top 10k${r.tc ? ` · ${r.tc} TC` : ''}</small></span>${D ? `<span class="capv"><b>${r.l} of ${ln}</b><small>your league</small></span>` : ''}</div>`).join('')}</div></div>`;
   }
   function eoHtml(A) {
@@ -8985,7 +9021,7 @@ ${FIXTAB === 'ticker' ? ticker : FIXTAB === 'h2h' ? h2hHtml() : `<div class="rot
   // ================= Strategies =================
   // Safe: leans to popular players (fewer surprises). Balanced: pure projected points.
   // Differential: rewards players your rivals (or most managers) don't own, because only those gain you rank.
-  const STRATS = [['safe', 'Safe', 'Popular, reliable picks. Lower risk of falling behind.'], ['balanced', 'Balanced', 'Highest projected points, ownership ignored.'], ['diff', 'Differential', 'Avoids what rivals own. More upside to climb.']];
+  const STRATS = [['safe', 'Safe', 'Crowd lens: leans to popular picks. Lower risk of falling behind.'], ['balanced', 'Balanced', 'Pure projection (default). Ownership ignored.'], ['diff', 'Differential', 'Crowd lens: avoids what rivals own. More upside to climb.']];
   function stratValue(kind, base, ownF) {
     if (kind === 'safe') return (e) => base(e) * (1 + 0.25 * ownF(e));
     if (kind === 'diff') return (e) => base(e) * (1 + 0.55 * (1 - ownF(e)) - 0.2);
@@ -9099,15 +9135,16 @@ ${riv ? `<div class="wcs"><span>Beat league median</span><b class="${o.k === bBe
     const att = rows.filter((r) => r.p >= best.p * 0.85).reduce((a, r) => (r.gain > a.gain ? r : a), best);
     const me = D ? null : null; let pos = '';
     if (LG.data && LASTA) { const lr = allLeagues(LASTA).find((l) => l.key === LG.data.key); if (lr && lr.rank) pos = lr.rank <= 2 ? 'ahead' : lr.last && lr.rank > lr.last ? 'behind' : lr.rank > 3 ? 'behind' : ''; }
-    const pick = pos === 'ahead' ? shield : pos === 'behind' ? att : best;
-    const why = pick === best && pick === shield ? 'Highest projection and the popular choice: the safe and the best pick at once.' : pos === 'ahead' ? `You're near the top of ${esc(LG.data.name)}: copy the popular captain so a rival's haul can't overtake you.` : pos === 'behind' ? `You need to catch up in ${esc(LG.data.name)}: a less-captained pick gains you ground every time he scores.` : 'Highest projected points this week.';
+    const pick = best;   // v3.73: the projection alone decides; crowd data is a scenario lens only
+    const why = `Highest expected points: <b>${f1(best.p)}</b>. Built from expected goals and assists, minutes, opponent strength and odds. Ownership and captaincy are not inputs.`;
+    const lens = pos === 'ahead' && shield !== best ? `<span class="lens">Scenario lens (crowd data): leading <bdi>${esc(LG.data.name)}</bdi>? <b>${esc(shield.e.web_name)}</b> is the most-owned option within 1 pt, which limits a rival's haul against you.</span>` : pos === 'behind' && att !== best ? `<span class="lens">Scenario lens (crowd data): chasing in <bdi>${esc(LG.data.name)}</bdi>? <b>${esc(att.e.web_name)}</b> is worth ${f1(att.gain)} vs the field against ${f1(best.gain)}.</span>` : '';
     const cur = PLAN.cap && PLAN.cap.e;
     const card = (r, tag) => `<div class="capc ${r === pick ? 'rec' : ''}"><div class="ck">${kitImg(T[r.e.team].short_name, r.e.element_type === 1, 66, 'capk')}</div><div class="cm"><b>${esc(r.e.web_name)}${tag ? ` <span class="ctag">${tag}</span>` : ''}</b><small>${T[r.e.team].short_name} · ${fxCell(A, r.e.team, g0)}</small></div>
 <div class="cs"><span><b>${f1(r.p)}</b><small>proj</small></span><span><b>${Math.round(r.eoO * 100)}%</b><small>EO all</small></span>${r.eoL != null ? `<span><b>${Math.round(r.eoL * 100)}%</b><small>EO league</small></span>` : ''}<span><b class="${r.gain >= best.p ? 'up' : ''}">${f1(r.gain)}</b><small>vs field</small></span></div>
 ${cur && cur.id === r.e.id ? '<span class="pill p-core">Captain</span>' : `<button class="try" type="button" data-cap="c:${r.e.id}">Captain</button>`}</div>`;
-    const tagOf = (r) => [r === best ? 'Most points' : '', r === shield && r !== best ? 'Safe' : '', r === att && r !== best ? 'Differential' : ''].filter(Boolean).join(' · ');
-    return `<div class="caprec"><small class="eyebrow">Recommended for GW${g0}</small><b>${esc(pick.e.web_name)}</b><span>${why}</span></div>
-<p class="note" style="margin:6px 0 8px">EO = effective ownership: how many points the field gets when he scores (owners count once, captains twice). "vs field" = what he's worth to you as captain after removing what everyone else also gets.${D ? '' : ' Open Live › Mini-league once to add your league\'s numbers.'}</p>
+    const tagOf = (r) => [r === best ? 'Most points' : '', r === shield && r !== best ? 'Crowd lens: shield' : '', r === att && r !== best ? 'Crowd lens: chase' : ''].filter(Boolean).join(' · ');
+    return `<div class="caprec"><small class="eyebrow">Model output · GW${g0}</small><b>${esc(pick.e.web_name)}</b><span>${why}</span>${lens}</div>
+<p class="note" style="margin:6px 0 8px">EO = effective ownership: how many points the field gets when he scores (owners count once, captains twice). "vs field" = his projection after removing what everyone else also gets. These are context for scenarios and never change the projection.${D ? '' : ' Open Live › Mini-league once to add your league\'s numbers.'}</p>
 <div class="stack">${rows.map((r) => card(r, tagOf(r))).join('')}</div>`;
   }
   function buyList() {
@@ -9222,7 +9259,7 @@ ${(() => { const alt = path.alt, maxS = st.filter((s) => !s.chip).pop() || st[0]
     const A = PLAN.A, g = PLAN.gw, lastG = A.GWS[A.GWS.length - 1], first = A.entry.started_event || 1;
     const tl = planTimeline(); const CH = { wildcard: 'WC', freehit: 'FH', bboost: 'BB', '3xc': 'TC' };
     const hitSum = tl.reduce((a, x) => a + x.hit, 0), nSum = tl.reduce((a, x) => a + x.nT, 0);
-    return `<div class="gwnav"><button class="gwb" id="gw-prev" type="button" aria-label="Previous gameweek" ${g <= first ? 'disabled' : ''}>${CHEV(1)}</button><div class="gwt"><b>Gameweek ${g}</b><small>${g < A.startGw ? ((BS.events.find((x) => x.id === g) || {}).finished ? 'Finished · your real points' : '<span class="gwlive"></span>Live · points add up as matches are played') : g === A.startGw ? 'Next deadline · planning' : 'Future week · planning'}</small></div><button class="gwb" id="gw-next" type="button" aria-label="Next gameweek" ${g >= lastG ? 'disabled' : ''}>${CHEV(0)}</button>${nSum ? `<small class="gwsum">${nSum} transfer${nSum === 1 ? '' : 's'} planned${hitSum ? ` · −${hitSum} hits` : ''}</small>` : ''}</div>`;
+    return `<div class="gwnav"><button class="gwb" id="gw-prev" type="button" aria-label="Previous gameweek" ${g <= first ? 'disabled' : ''}>${CHEV(1)}</button><div class="gwt"><b>Gameweek ${g}</b><small>${g < A.startGw ? ((BS.events.find((x) => x.id === g) || {}).data_checked ? 'Finished · your real points' : (BS.events.find((x) => x.id === g) || {}).finished ? '<span class="gwlive"></span>Matches done · bonus being confirmed' : '<span class="gwlive"></span>Live · points add up as matches are played') : g === A.startGw ? 'Next deadline · planning' : 'Future week · planning'}</small></div><button class="gwb" id="gw-next" type="button" aria-label="Next gameweek" ${g >= lastG ? 'disabled' : ''}>${CHEV(0)}</button>${nSum ? `<small class="gwsum">${nSum} transfer${nSum === 1 ? '' : 's'} planned${hitSum ? ` · −${hitSum} hits` : ''}</small>` : ''}</div>`;
   }
   // Finished gameweek: the team that played and what every player scored
   const HISTC = {};

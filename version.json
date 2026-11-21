@@ -1,7 +1,7 @@
 {
-  "version": "3.72",
+  "version": "3.73",
   "date": "2026-11-21",
-  "notes": "Announced added time next to the live clock; captaincy % on player profiles.",
+  "notes": "Update button checks GitHub now (Chrome: Download, unzip, Reload Elevn). My Team opens on the live gameweek. Captain is decided by the projection only; crowd data is context.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
