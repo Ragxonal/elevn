@@ -8,8 +8,8 @@ Current version: **3.66** (see [`version.json`](version.json)).
 
 | Device | File | How |
 |---|---|---|
-| Android | [Elevn.apk](https://github.com/Ragxonal/elevn/raw/main/dist/Elevn.apk) | Download and open it. Allow installs from your browser if Android asks. To update, install the new APK over the old one. |
-| Chrome (computer) | [Elevn.zip](https://github.com/Ragxonal/elevn/raw/main/dist/Elevn.zip) | Unzip it. Open `chrome://extensions`, turn on Developer mode, click **Load unpacked** and pick the `Elevn` folder. To update, unzip over the same folder and click **Reload**. |
+| Android | [Elevn-Android-v3-74.apk](https://github.com/Ragxonal/elevn/raw/main/dist/Elevn-Android-v3-74.apk) | Download and open it. Allow installs from your browser if Android asks. To update, install the new APK over the old one. |
+| Chrome (computer) | [Elevn-Chrome-v3-74.zip](https://github.com/Ragxonal/elevn/raw/main/dist/Elevn-Chrome-v3-74.zip) | Unzip it. Open `chrome://extensions`, turn on Developer mode, click **Load unpacked** and pick the `Elevn` folder. On a Mac, Safari may unzip it for you: the `Elevn` folder is then already in Downloads. To update, unzip over the same folder and click **Reload**. |
 | iPhone / iPad (Safari) | [Elevn.user.js](https://raw.githubusercontent.com/Ragxonal/elevn/main/dist/Elevn.user.js) | Install the free **Userscripts** app, open this link in Safari and add the script. It updates itself after that. |
 
 Elevn checks this repository once a day and shows a banner with the right download when a new version is out.

@@ -3,8 +3,8 @@
   "date": "2026-11-21",
   "notes": "FotMob is now the main live source (clock, scorers, added time); ESPN and the PL match centre are backups. Illustrated-player pitch style removed.",
   "files": {
-    "apk": "dist/Elevn.apk",
-    "zip": "dist/Elevn.zip",
+    "apk": "dist/Elevn-Android-v3-74.apk",
+    "zip": "dist/Elevn-Chrome-v3-74.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }
