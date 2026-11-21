@@ -17,3 +17,7 @@ Elevn checks this repository once a day and shows a banner with the right downlo
 ## Privacy
 
 Everything Elevn saves (team IDs, plans, settings, an optional odds key) stays on your own device. This repository holds only the app files.
+
+## Feed race (GitHub Actions)
+
+`.github/workflows/feedrace.yml` runs `race/feedrace.js` every 20 minutes during Premier League matches and records how many seconds before FPL each live source (FotMob, ESPN, Premier League match centre) showed every goal and assist. Results are on the `feedrace-data` branch: `out/feedrace-GW.json` (one row per goal or assist) and `ledger/race-GW.json` (raw first-seen times).

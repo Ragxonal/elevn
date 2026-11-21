@@ -1,0 +1,55 @@
+# Live feed race: times when FotMob, ESPN and the Premier League match centre show each goal and assist, compared with FPL.
+# Runs every 20 minutes. Each run exits within a minute when no match is live or about to start, otherwise it
+# records for up to 5.5 hours. Results are saved to the feedrace-data branch (ledger/race-GW.json, out/feedrace-GW.json),
+# so a new run resumes where the last one stopped.
+name: Feed race
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'
+  workflow_dispatch:
+    inputs:
+      gw:
+        description: 'Gameweek (blank = the one in progress)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: feedrace
+  cancel-in-progress: false
+
+jobs:
+  race:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Get saved results
+        run: |
+          git config --global user.name "elevn-feedrace"
+          git config --global user.email "elevn-feedrace@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin feedrace-data >/dev/null; then
+            git clone --quiet --single-branch --branch feedrace-data "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" data
+          else
+            mkdir data && cd data && git init -q -b feedrace-data && git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+            echo "Feed race results written by the Feed race workflow." > README.md && git add README.md && git commit -qm "Start feed race data" && git push -q origin feedrace-data
+          fi
+      - name: Record
+        env:
+          RACE_DIR: ${{ github.workspace }}/data
+          RACE_MAX_MIN: '330'
+          RACE_IDLE_MIN: '25'
+        run: |
+          save() { cd "$RACE_DIR" && git add -A && { git diff --cached --quiet || { git commit -qm "Feed race $(date -u +%FT%TZ)" && git push -q origin feedrace-data; }; }; cd - >/dev/null; }
+          node race/feedrace.js ${{ github.event.inputs.gw }} > race.out 2> race.log &
+          pid=$!
+          n=0; while kill -0 $pid 2>/dev/null; do sleep 15; n=$((n+1)); if [ $((n % 40)) -eq 0 ]; then save || true; fi; done
+          wait $pid; code=$?
+          tail -20 race.log
+          save
+          exit $code
