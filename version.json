@@ -1,7 +1,7 @@
 {
-  "version": "3.63",
+  "version": "3.64",
   "date": "2026-11-21",
-  "notes": "Half-time and full-time shown and alerted.",
+  "notes": "Chrome now tells you about updates with a notification and a NEW badge.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
