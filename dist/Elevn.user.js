@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.73.0
+// @version      3.74.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.73';
+  const ELEVN_VER = '3.74';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6598,7 +6598,7 @@ table.cmpt small.d{display:block;font-size:11px}
 ${hasAndroid() ? `<div class="setrow"><div><b>Deadline reminders</b><small>Phone notification 24 hours and 2 hours before each deadline</small></div>${aSeg('remind')}</div>
 <div class="setrow"><div><b>Goal alerts with the app closed</b><small>Checks your players during matches (every minute right after you leave the app, then every 15 minutes)</small></div>${aSeg('bg')}</div>` : ''}
 <div class="setrow"><div><b>Fast live feed</b><small>During matches, also reads free live score feeds (no key) and shows goals, assists and cards before FPL counts them, marked ⚡</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fastOn() ? 'on' : 'off') === v}" class="${(fastOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fast="${v}">${l}</button>`).join('')}</div></div>
-<div class="setrow"><div><b>Extra live source</b><small>Adds a third free source of live scores and match events. It is unofficial and may stop working; the other sources carry on if it does.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fmOn() ? 'on' : 'off') === v}" class="${(fmOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fm="${v}"${fastOn() ? '' : ' disabled'}>${l}</button>`).join('')}</div></div>
+<div class="setrow"><div><b>FotMob (main live source)</b><small>The fastest feed in our tests (about 74 s ahead of FPL on goals). Drives the live clock, scorers and added time. ESPN and the Premier League match centre stay on as backups if it stops.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fmOn() ? 'on' : 'off') === v}" class="${(fmOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fm="${v}"${fastOn() ? '' : ' disabled'}>${l}</button>`).join('')}</div></div>
 ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) => { const m = Math.round((Date.now() - t) / 6e4); return m < 60 ? m + ' min ago' : Math.round(m / 60) + 'h ago'; };
   const st = !k ? (!oddsFreeOn() ? 'Off. Projections use the app\'s own model only.' : o && o.free && o.ok ? `On (free odds) · ${o.events.length} matches priced · updated ${agoT(o.at)}` : 'On (free odds). They load the next time you press Analyse.') : o && o.err && (!o.ok || o.errAt > o.at) ? `<span class="dn">Couldn't read odds: ${esc(o.err)}</span>` : o && o.ok ? `On · ${o.events.length} matches priced · updated ${agoT(o.at)}${o.left != null ? ` · ${esc(String(o.left))} requests left this month` : ''}` : 'Key saved. Odds load the next time you press Analyse.';
   return `<div class="setrow"><div><b>Free bookmaker odds</b><small>Used when no key is saved below.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(oddsFreeOn() ? 'on' : 'off') === v}" class="${(oddsFreeOn() ? 'on' : 'off') === v ? 'on' : ''}" data-oddsfree="${v}">${l}</button>`).join('')}</div></div>
@@ -7322,15 +7322,26 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       (T.starters || []).forEach((p) => { const e = fmPlayer(p.name, [t]); if (e) { id2e[p.id] = e; starters.add(e); } });
       (T.subs || []).forEach((p) => { const e = fmPlayer(p.name, [t]); if (e) id2e[p.id] = e; }); });
     const who = (pid, name, side) => id2e[pid] || fmPlayer(name, side ? [side] : [f.team_h, f.team_a]);
-    const ev = {}; const get = (e) => ev[e] || (ev[e] = { g: 0, a: 0, y: 0, r: 0, og: 0, on: starters.has(e) });
+    const ev = {}, goals = []; const get = (e) => ev[e] || (ev[e] = { g: 0, a: 0, y: 0, r: 0, og: 0, on: starters.has(e) });
     ((((d.content || {}).matchFacts || {}).events || {}).events || []).forEach((x) => {
       const side = x.isHome === true ? f.team_h : x.isHome === false ? f.team_a : null;
+      if (x.type === 'Goal' && !x.isPenaltyShootoutEvent) goals.push({ side: x.isHome ? 'h' : 'a', who: x.fullName || x.nameStr || '', min: (x.time || x.timeStr || '') + (x.overloadTime ? '+' + x.overloadTime : '') + "'", og: !!x.ownGoal, pen: /penalty/i.test(String(x.goalDescription || x.goalDescriptionKey || '')) || ((x.shotmapEvent || {}).situation === 'Penalty') });
       if (x.type === 'Goal') { if (x.ownGoal) { const e = who(x.playerId, x.nameStr, null); if (e) get(e).og++; }
         else { const e = who(x.playerId, x.nameStr, side); if (e) get(e).g++; if (x.assistPlayerId || x.assistInput) { const a = who(x.assistPlayerId, x.assistInput, side); if (a) get(a).a++; } } }
       else if (x.type === 'Card') { const e = who(x.playerId, x.nameStr, side); if (e) { const c = String(x.card || ''); if (/red/i.test(c)) { get(e).r++; get(e).y = 0; } else if (/yellow/i.test(c)) get(e).y++; } }
       else if (x.type === 'Substitution' && Array.isArray(x.swap) && x.swap.length === 2) { const [i, out] = x.swap; const ei = who(+i.id, i.name, side), eo = who(+out.id, out.name, side); if (ei) get(ei).on = true; if (eo) get(eo).on = false; }
     });
-    return { ev, starters: [...starters] };
+    return { ev, starters: [...starters], goals };
+  }
+  // v3.74: FotMob is the main live source. Its match list carries the running clock ("67:23"), half, and announced added time.
+  function fmClock(st) {
+    const lt = st.liveTime || {}, sh = String(lt.short || '').replace(/[^\x20-\x7e]/g, '');
+    if (st.finished) return { state: 'post', name: 'STATUS_FULL_TIME', short: 'FT' };
+    if (!st.started) return { state: 'pre', name: 'STATUS_SCHEDULED', short: '' };
+    if (/^HT$/i.test(sh)) return { state: 'in', name: 'STATUS_HALFTIME', short: 'HT', period: 1, clock: 45 * 60 };
+    const mm = String(lt.long || '').match(/^(\d+):(\d{2})$/), base = +lt.basePeriod || 45;
+    const period = base >= 120 ? 4 : base >= 105 ? 3 : base >= 90 ? 2 : 1;
+    return { state: 'in', name: 'STATUS_IN_PROGRESS', short: sh, period, clock: mm ? +mm[1] * 60 + +mm[2] : (parseInt(sh, 10) || 0) * 60, added: +lt.addedTime || 0, base };
   }
   const fastMerge = (a, b, aNewer) => !a ? b : !b ? a : { g: Math.max(a.g, b.g), a: Math.max(a.a, b.a), y: Math.max(a.y, b.y), r: Math.max(a.r, b.r), og: Math.max(a.og, b.og), on: aNewer ? a.on : b.on };
   const FGOAL = [0, 10, 6, 5, 4], FCS = [0, 4, 4, 1, 0];
@@ -7393,15 +7404,23 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         const k = Date.parse(f.kickoff_time); const m = ms.find((x) => x.home && x.away && nameTeam(x.home.name) === f.team_h && nameTeam(x.away.name) === f.team_a && Math.abs(Date.parse((x.status || {}).utcTime) - k) < 6 * 36e5); if (!m) return;
         const o = FD.fx[f.id] || (FD.fx[f.id] = {}); const st = m.status || {};
         const fh = +m.home.score || 0, fa = +m.away.score || 0; if (o.fmH !== fh || o.fmA !== fa) changed = true;
-        o.fmH = fh; o.fmA = fa; o.fmClock = st.liveTime && st.liveTime.short; o.fmAt = Date.now();
+        o.fmH = fh; o.fmA = fa; o.fmCk = fmClock(st); o.fmClock = o.fmCk.short || null; o.fmAt = Date.now(); o.fmId = m.id;
+        if (o.fmCk.state === 'in' && o.fmCk.base) { o.fmAdd = o.fmCk.added; o.fmBase = o.fmCk.base; }
         const sig = fh + ':' + fa; if (st.started && (o.fmSig !== sig || Date.now() - (o.fmDetAt || 0) > 60e3)) {
           const d = await fastGet(FM_API + 'matchDetails?matchId=' + m.id); const r = fmEvents(d, f);
           const lt = (((d || {}).header || {}).status || {}).liveTime || {};
-          Object.assign(o, { fmEv: r.ev, fmStarters: r.starters, fmSig: sig, fmDetAt: Date.now(), fmAdd: +lt.addedTime || 0, fmBase: +lt.basePeriod || 0 }); changed = true; }
+          Object.assign(o, { fmEv: r.ev, fmStarters: r.starters, fmGoals: r.goals, fmSig: sig, fmDetAt: Date.now(), fmAdd: +lt.addedTime || o.fmAdd || 0, fmBase: +lt.basePeriod || o.fmBase || 0 }); changed = true; }
       }));
     } catch (e) { FD.err = (FD.err ? FD.err + ' · ' : '') + 'Live source 2: ' + (e.message || e); }
     // combine the sources, and count which one showed each new goal first
-    live.forEach((f) => { const o = FD.fx[f.id]; if (!o) return; o.h = Math.max(o.eh || 0, o.plH || 0, o.fmH || 0); o.a = Math.max(o.ea || 0, o.plA || 0, o.fmA || 0); o.clock = o.clock || o.fmClock;
+    live.forEach((f) => { const o = FD.fx[f.id]; if (!o) return; o.h = Math.max(o.eh || 0, o.plH || 0, o.fmH || 0); o.a = Math.max(o.ea || 0, o.plA || 0, o.fmA || 0);
+      const fmFresh = o.fmCk && Date.now() - (o.fmAt || 0) < 45e3;
+      if (fmFresh) { const k = o.fmCk; o.clock = k.short === 'HT' || k.short === 'FT' ? k.short : k.state === 'in' ? clkFmt(k.clock, k.period).replace(/:\d\d$/, "'") : o.clock; if (k.state !== 'pre') o.state = k.state; o.src = 'FotMob';
+        const pv = MX[f.id] || (MX[f.id] = { eid: null, venue: '', city: '', att: 0, goals: [] });
+        if (k.state === 'in' && k.name === 'STATUS_IN_PROGRESS') { let clk = k.clock + (Date.now() - o.fmAt) / 1000; if (pv.state === 'in' && pv.period === k.period) { const ext = pv.clock + (Date.now() - pv.at) / 1000; if (ext > clk && ext - clk < 20) clk = ext; } Object.assign(pv, { clock: clk, period: k.period, state: 'in', name: k.name, at: Date.now(), added: o.fmAdd || 0, base: k.base || 0 }); }
+        else Object.assign(pv, { state: k.state, name: k.name, at: Date.now(), period: k.period || pv.period || 0, clock: k.clock || pv.clock || 0 });
+        if (o.fmGoals && o.fmGoals.length >= (pv.goals || []).length) pv.goals = o.fmGoals; pv.src = 'FotMob'; }
+      else o.clock = o.clock || o.fmClock;
       const tot = { 'Live source 1': o.eh != null ? o.eh + o.ea : -1, 'Live source 3': o.plH != null ? o.plH + o.plA : -1, 'Live source 2': o.fmH != null ? o.fmH + o.fmA : -1 }, best = o.h + o.a;
       if (o.best == null) o.best = best; else if (best > o.best) { o.best = best; Object.keys(tot).forEach((s) => { if (tot[s] === best) FD.win[s] = (FD.win[s] || 0) + 1; }); } });
     FD.at = Date.now();
@@ -7455,7 +7474,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const t = `⚡ ${r.e.web_name}: ${r.fastWhat}${sc}`, b = `${good ? '+' : ''}${r.fast * Math.max(1, r.mult)} pts${r.mult > 1 ? ' as captain' : r.mult === 0 ? ' (bench)' : ''}, before FPL has it.`;
       toast(t, b, good ? 'good' : 'bad'); deskNotify(t, b); });
   }
-  const fastStatus = () => { if (!fastOn()) return ''; const avg = FD.lead.length ? Math.round(FD.lead.reduce((a, x) => a + x, 0) / FD.lead.length) : null; return FD.at ? `<span class="fastdot"></span>⚡ Fast feed: ${fmOn() ? 3 : 2} live sources · checked ${Math.max(0, Math.round((Date.now() - FD.at) / 1000))} s ago${avg != null ? ` · ${avg} s ahead of FPL on average (${FD.lead.length} goal${FD.lead.length > 1 ? 's' : ''})` : ''}${Object.keys(FD.win).length ? ` · first with a goal: ${Object.entries(FD.win).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')}` : ''}${FD.err ? ` · <span class="dn">${esc(FD.err)}</span>` : ''}` : '⚡ Fast feed on: starts when a match kicks off'; };
+  const fastStatus = () => { if (!fastOn()) return ''; const avg = FD.lead.length ? Math.round(FD.lead.reduce((a, x) => a + x, 0) / FD.lead.length) : null; return FD.at ? `<span class="fastdot"></span>⚡ Fast feed: ${fmOn() ? 'FotMob (main) + 2 backup sources' : '2 live sources'} · checked ${Math.max(0, Math.round((Date.now() - FD.at) / 1000))} s ago${avg != null ? ` · ${avg} s ahead of FPL on average (${FD.lead.length} goal${FD.lead.length > 1 ? 's' : ''})` : ''}${Object.keys(FD.win).length ? ` · first with a goal: ${Object.entries(FD.win).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')}` : ''}${FD.err ? ` · <span class="dn">${esc(FD.err)}</span>` : ''}` : '⚡ Fast feed on: starts when a match kicks off'; };
   function paintLiveNow(A) {
     const sec = R.getElementById('s-live'); if (sec) { const tmp = document.createElement('div'); NEWSC = {}; tmp.innerHTML = liveSection(A); SCORES = Object.assign({}, SCORES, NEWSC); const ne = tmp.firstElementChild; ne.hidden = VIEW !== 'live'; sec.replaceWith(ne); }
     const tl = R.getElementById('t-live'); if (tl) { const was = +tl.textContent; tl.textContent = A.live.pts; if (A.live.pts > was) { tl.classList.remove('bump'); void tl.offsetWidth; tl.classList.add('bump'); } }
@@ -7481,8 +7500,11 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const dm = String(st.displayClock || '').match(/(\d+)'?\s*\+\s*(\d+)/), added = dm ? +dm[2] : 0; let clk = +st.clock || 0;
     if (dm) clk = Math.max(clk, (+dm[1] + added) * 60);
     const pv = MX[f.id]; if (pv && pv.state === 'in' && ty.state === 'in' && pv.period === (+st.period || 0)) { const ext = pv.clock + (Date.now() - pv.at) / 1000; if (ext > clk && ext - clk < 150) clk = ext; }
-    MX[f.id] = { eid: ev.id, venue: v.fullName || '', city: (v.address || {}).city || '', clock: clk, added, base: dm ? +dm[1] : 0, period: +st.period || 0, state: ty.state || '', name: ty.name || '', at: Date.now(), att: +c.attendance || 0,
+    const nx = { eid: ev.id, venue: v.fullName || '', city: (v.address || {}).city || '', clock: clk, added, base: dm ? +dm[1] : 0, period: +st.period || 0, state: ty.state || '', name: ty.name || '', at: Date.now(), att: +c.attendance || 0,
       goals: (c.details || []).filter((d) => d.scoringPlay).map((d) => ({ side: d.team && d.team.id === H.team.id ? 'h' : 'a', who: ((d.athletesInvolved || [])[0] || {}).displayName || '', min: (d.clock && d.clock.displayValue) || '', og: !!d.ownGoal, pen: !!d.penaltyKick })) };
+    const fo = FD.fx[f.id];
+    if (pv && pv.src === 'FotMob' && fo && fo.fmCk && Date.now() - (fo.fmAt || 0) < 45e3) { Object.assign(pv, { eid: nx.eid, venue: nx.venue, city: nx.city, att: nx.att }); if (nx.goals.length > (pv.goals || []).length) pv.goals = nx.goals; return; }
+    MX[f.id] = nx;
   }
   async function mxLoad(mw) {
     const fxs = FX.filter((f) => f.event === mw && f.kickoff_time); const days = [...new Set(fxs.map((f) => f.kickoff_time.slice(0, 10)))]; let any = false;
@@ -7491,7 +7513,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     try { if (await tvLoad(fxs)) any = true; } catch (e) {}
     return any;
   }
-  async function mxSummary(fid) { const m = MX[fid]; if (!m) return false; const o = MXS[fid]; const live = m.state === 'in'; if (o && (o.busy || Date.now() - o.at < (live ? 30e3 : 6e5))) return false;
+  async function mxSummary(fid) { const m = MX[fid]; if (!m || !m.eid) return false; const o = MXS[fid]; const live = m.state === 'in'; if (o && (o.busy || Date.now() - o.at < (live ? 30e3 : 6e5))) return false;
     MXS[fid] = Object.assign(o || {}, { busy: true }); try { MXS[fid] = { at: Date.now(), d: await fastGet(ESPN_SUM + m.eid) }; return true; } catch (e) { MXS[fid] = { at: Date.now(), err: true }; return true; } }
   const pad2 = (n) => String(Math.max(0, Math.floor(n))).padStart(2, '0');
   const clkFmt = (t, p) => { const base = p >= 4 ? 120 : p === 3 ? 105 : p === 2 ? 90 : 45, m = Math.floor(t / 60), sec = pad2(t % 60); return m >= base ? `${base}+${m - base}:${sec}` : `${m}:${sec}`; };
@@ -9745,7 +9767,7 @@ ${ps.length ? `<h3 class="psh">Previous seasons</h3><div class="tw"><table><thea
   // v3.11: official FPL kits are the default player art ('real'); the choice is stored as art2 so older saved settings don't override it
   let CI = Object.assign({ open: false, art: 'real' }, CI_PRESETS.full);
   const CI_FIXED = () => Object.assign(CI, CI_PRESETS.full, { open: false, art: 'real' });
-  try { const sv = JSON.parse(localStorage.getItem(CI_KEY) || '{}'); ['price', 'badge', 'star', 'code'].forEach((k) => { if (typeof sv[k] === 'boolean') CI[k] = sv[k]; }); if ([0, 1, 2, 3].includes(sv.fx)) CI.fx = sv.fx; if (['real', 'kit', 'player'].includes(sv.art2)) CI.art = sv.art2; } catch (e) {}
+  try { const sv = JSON.parse(localStorage.getItem(CI_KEY) || '{}'); ['price', 'badge', 'star', 'code'].forEach((k) => { if (typeof sv[k] === 'boolean') CI[k] = sv[k]; }); if ([0, 1, 2, 3].includes(sv.fx)) CI.fx = sv.fx; if (['real', 'kit'].includes(sv.art2)) CI.art = sv.art2; } catch (e) {}
   const saveCI = () => { try { localStorage.setItem(CI_KEY, JSON.stringify({ price: CI.price, fx: CI.fx, badge: CI.badge, star: CI.star, code: CI.code, art2: CI.art })); } catch (e) {} };
   const ciPreset = () => Object.keys(CI_PRESETS).find((k) => { const q = CI_PRESETS[k]; return q.price === CI.price && q.fx === CI.fx && q.badge === CI.badge && q.star === CI.star && q.code === CI.code; }) || '';
   const CI_ITEMS = [['price', 'Price'], ['badge', 'Penalty / set-piece'], ['star', 'In-form star'], ['code', 'Club code']];
@@ -9758,7 +9780,7 @@ ${ps.length ? `<h3 class="psh">Previous seasons</h3><div class="tw"><table><thea
     } catch (e) {}
     const pills = (arr, attr) => arr.map(([k, l]) => `<button type="button" class="ipill" ${attr}="${k}">${l}</button>`).join('');
     return `<div class="infobar" id="pl-infopop" hidden>${prev}<div class="ictl">
-<div class="ig"><span>Player art</span><div class="irow">${pills([['real', 'FPL kit'], ['kit', 'Drawn shirt'], ['player', 'Illustrated player']], 'data-ciart')}</div></div>
+<div class="ig"><span>Player art</span><div class="irow">${pills([['real', 'FPL kit'], ['kit', 'Drawn shirt']], 'data-ciart')}</div></div>
 <div class="ig"><span>Quick style</span><div class="irow">${pills([['full', 'Full'], ['compact', 'Compact'], ['minimal', 'Minimal']], 'data-cipre')}</div></div>
 <div class="ig"><span>Show on each player</span><div class="irow">${pills(CI_ITEMS, 'data-ci')}</div></div>
 <div class="ig"><span>Next fixtures</span><div class="irow">${pills([[0, 'Off'], [1, '1'], [2, '2'], [3, '3']], 'data-cifx')}</div></div>
