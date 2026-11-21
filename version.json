@@ -1,7 +1,7 @@
 {
-  "version": "3.71",
+  "version": "3.72",
   "date": "2026-11-21",
-  "notes": "Egypt banner fixed and waving; captains list (top 10k and your league); live bonus badge in My players.",
+  "notes": "Announced added time next to the live clock; captaincy % on player profiles.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",

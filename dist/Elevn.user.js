@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.71.0
+// @version      3.72.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.71';
+  const ELEVN_VER = '3.72';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6070,6 +6070,9 @@ tr.sel td{background:rgba(69,208,143,.07)!important}
 .mwn,.mwp,.hnt small,.chipt span,.chipt em,.chipt span b,.ppk4 small,.ppk4 span,.ppsg small,.capc .cs small,.rvs small,.chiphd small{font-size:11px!important}
 /* v3.69 */
 .bpb{font-style:normal;display:inline-block;margin-left:3px;padding:0 4px;border-radius:5px;background:#f6c343;color:#2a1a00;font:800 10px/1.45 var(--fd);vertical-align:2px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}.hpitch .chip.pc.ro .jval .bpb{font-size:10px;vertical-align:3px;animation:bpbp 2s ease-in-out infinite}@keyframes bpbp{50%{box-shadow:0 0 0 3px rgba(246,195,67,.35)}}.mwmy2 .mwp > b .bpb{font-size:9.5px}
+.addt{display:inline-block;margin-left:5px;padding:0 5px;border-radius:5px;background:#e0162b;color:#fff;font:800 11px/1.5 var(--fd);vertical-align:1px;font-variant-numeric:tabular-nums}
+.ppcap{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:9px 12px;border-radius:12px;border:1px solid rgba(246,195,67,.35);background:linear-gradient(90deg,rgba(246,195,67,.12),rgba(246,195,67,.03))}
+.ppci{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#f6c343;color:#2a1a00;font:900 13px var(--fd)}.ppct{flex:1;min-width:0;font-size:13px;line-height:1.4}.ppct b{font-variant-numeric:tabular-nums}.ppcap>small{flex:none;font-size:11px}
 .capbox{margin-bottom:14px}.capl{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .capr{display:grid;grid-template-columns:auto minmax(0,1.4fr) minmax(60px,1fr) auto auto;align-items:center;column-gap:10px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
 .capr.mine{border-color:rgba(69,208,143,.55);background:rgba(69,208,143,.07)}.capr .picon.face{margin:0}
@@ -7384,7 +7387,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         o.fmH = fh; o.fmA = fa; o.fmClock = st.liveTime && st.liveTime.short; o.fmAt = Date.now();
         const sig = fh + ':' + fa; if (st.started && (o.fmSig !== sig || Date.now() - (o.fmDetAt || 0) > 60e3)) {
           const d = await fastGet(FM_API + 'matchDetails?matchId=' + m.id); const r = fmEvents(d, f);
-          Object.assign(o, { fmEv: r.ev, fmStarters: r.starters, fmSig: sig, fmDetAt: Date.now() }); changed = true; }
+          const lt = (((d || {}).header || {}).status || {}).liveTime || {};
+          Object.assign(o, { fmEv: r.ev, fmStarters: r.starters, fmSig: sig, fmDetAt: Date.now(), fmAdd: +lt.addedTime || 0, fmBase: +lt.basePeriod || 0 }); changed = true; }
       }));
     } catch (e) { FD.err = (FD.err ? FD.err + ' · ' : '') + 'Live source 2: ' + (e.message || e); }
     // combine the sources, and count which one showed each new goal first
@@ -7506,7 +7510,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     return `<span class="tvch" title="${esc(ch.length ? ch.join(', ') : 'beIN SPORTS (Middle East and North Africa)')}">📺 <b>${lbl}</b>${extra.length ? ` <small class="muted">(${esc(extra.join(', '))})</small>` : ''}</span>`; };
   function mxPanel(A, f) {
     const T = A.T, m = MX[f.id], o = MXS[f.id], ko = f.kickoff_time ? new Date(f.kickoff_time) : null;
-    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', tvch(f.id, true), m && m.added ? `⏱️ +${m.added} added` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
+    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', tvch(f.id, true), (() => { const fx = FD.fx && FD.fx[f.id], ann = fx && fx.fmAdd > 0 && m && fx.fmBase === (m.period === 1 ? 45 : 90) ? fx.fmAdd : 0; return ann ? `⏱️ +${ann} added` : m && m.added ? `⏱️ +${m.added} added` : ''; })(), m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
     const up = !f.started && !(m && (m.state === 'in' || m.state === 'post'));
     let body = '';
     if (up) body = ko ? `<div class="mxcd"><small>Kick-off in</small><b data-ko="${+ko}">${cdFmt(+ko - Date.now())}</b></div>` : '';
@@ -7557,7 +7561,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const fin = f.finished || f.finished_provisional || f._state === 'post', live = (f.started || f._state === 'in') && !fin;
       const mx = MX[f.id], ht = (mx && /HALFTIME/.test(mx.name)) || f._clock === 'HT';
       const clk = ht ? 'HT' : mx && mx.state === 'in' && mx.clock ? `<span data-clk="${mx.clock}" data-per="${mx.period}" data-at="${mx.at}">${clkFmt(mx.clock + (Date.now() - mx.at) / 1000, mx.period)}</span>` : f._clock && f._state === 'in' ? esc(f._clock) : (f.minutes || 0) + '′';
-      const left = fin ? 'FT' : live ? `<span class="mwlive">${clk}${f._fast ? ' ⚡' : ''}</span>` : '';
+      const fdx = FD.fx && FD.fx[f.id], addN = !ht && fdx && fdx.fmAdd > 0 && fdx.fmBase === ((mx && mx.period === 1) || (!mx && fdx.fmBase === 45) ? 45 : 90) ? fdx.fmAdd : 0;
+      const left = fin ? 'FT' : live ? `<span class="mwlive">${clk}${addN ? `<span class="addt" title="${addN} minute${addN > 1 ? 's' : ''} of added time announced">+${addN}</span>` : ''}${f._fast ? ' ⚡' : ''}</span>` : '';
       const hs = f._fast ? f._fast.h : f.team_h_score ?? 0, as = f._fast ? f._fast.a : f.team_a_score ?? 0, was = SCORES[f.id], hUp = was && hs > was[0], aUp = was && as > was[1]; NEWSC[f.id] = [hs, as];
       const pill = f.started || f._state === 'in' || f._state === 'post' ? `<span class="mwsc${hUp || aUp ? ' goal' : ''}"><i class="dg${hUp ? ' up' : ''}">${hs}</i> - <i class="dg${aUp ? ' up' : ''}">${as}</i></span>` : `<span class="mwsc mwv">${f.kickoff_time ? new Date(f.kickoff_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'TBC'}</span>`;
       const myIn = MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a);
@@ -8851,6 +8856,17 @@ ${danger.length ? `<div class="rvd"><small>Their extra players</small>${danger.m
     } catch (e) { CAPS[gw] = { err: true, at: Date.now() }; }
     return CAPS[gw];
   }
+  // v3.72: captaincy on the player page
+  function capLine(A, e) {
+    const gw = A && A.cur ? A.cur.id : null; if (!gw || !e) return '';
+    const S = CAPS[gw]; if (!S) capSample(gw);
+    const D = LG.data && LG.data.gw === gw ? LG.data : null; let l = 0, ln = 0;
+    if (D) { D.teams.forEach((t) => { const c = (t.picks || []).find((x) => x.is_captain); if (c) { ln++; if (c.element === e.id) l++; } }); const my = (A.live ? A.live.rows : []).find((r) => r.x && r.x.is_captain); if (my) { ln++; if (my.e.id === e.id) l++; } }
+    const ok = S && S.n; if (!ok && !ln) return '';
+    const pc = ok ? Math.round(((S.cap[e.id] || 0) / S.n) * 100) : null, tc = ok ? S.tc[e.id] || 0 : 0;
+    const my = (A.live ? A.live.rows : []).find((r) => r.x && r.x.is_captain && r.e.id === e.id);
+    return `<div class="ppcap"><span class="ppci">C</span><span class="ppct">${ok ? `Captained by <b>${pc}%</b> of the top 10k${tc ? ` <small>(${tc} triple)</small>` : ''}` : ''}${ok && ln ? '<span class="dotsep">·</span>' : ''}${ln ? `<b>${l} of ${ln}</b> in <bdi>${esc(D.name)}</bdi>` : ''}${my ? '<span class="dotsep">·</span><b class="acc">your captain</b>' : ''}</span><small class="muted">GW${gw}</small></div>`;
+  }
   function capsHtml(A) {
     const gw = A.cur ? A.cur.id : null; if (!gw) return '';
     const S = CAPS[gw]; if (!S) { capSample(gw).then(() => { if (LASTA) paintLeague(LASTA); }); }
@@ -9659,7 +9675,7 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
 <div class="ppchips"><b class="ppp">${money(e.now_cost)}</b>${chg(e.cost_change_event, 'wk')}${chg(e.cost_change_start, 'season')}<span class="sigchip ${sig[1]}">${sig[0]}</span></div>
 ${e.status === 'a' ? '' : `<span class="ppst2"><i class="dot warn"></i>${esc(e.news || 'Flagged')}</span>`}</div>
 <button type="button" class="x ppx" data-ppclose="1" aria-label="Close">×</button></div>
-<div class="ppk4"><div><small>Next GW</small><b class="acc">${f1(Pg(g0))}</b><span>${fxCell(A, e.team, g0)}</span></div><div><small>Next 3</small><b class="acc">${f1(next3)}</b><span>pts</span></div><div><small>Rating</small><b>${ovr}</b><span>${pc}th pct</span></div><div><small>Owned</small><b>${e.selected_by_percent}%</b><span>${owned ? 'in your team' : 'of managers'}</span></div></div>
+<div class="ppk4"><div><small>Next GW</small><b class="acc">${f1(Pg(g0))}</b><span>${fxCell(A, e.team, g0)}</span></div><div><small>Next 3</small><b class="acc">${f1(next3)}</b><span>pts</span></div><div><small>Rating</small><b>${ovr}</b><span>${pc}th pct</span></div><div><small>Owned</small><b>${e.selected_by_percent}%</b><span>${owned ? 'in your team' : 'of managers'}</span></div></div>${capLine(A, e)}
 <div class="pchart"><div class="pch"><b>Points</b><small class="muted">last ${past.length} · next ${fut.length} projected</small></div><div class="pbars">${bars}</div></div>
 <div class="ppr2"><div class="radw">${radar}${rLab('Finisher', rd.fin, 't')}${rLab('Playmaker', rd.cre, 'r')}${rLab(et <= 2 ? 'Defender' : 'Defending', rd.def, 'b')}${rLab('Game time', rd.min, 'l')}</div>
 <div class="ppsg">${stat('Points', e.total_points)}${stat('Per game', e.points_per_game)}${stat('Form', f1(form5))}${et === 1 ? stat('Saves', e.saves) : stat('Goals', e.goals_scored)}${et === 1 ? stat('Clean sh.', e.clean_sheets) : stat('Assists', e.assists)}${et <= 2 ? (et === 1 ? stat('Conceded', e.goals_conceded) : stat('Clean sh.', e.clean_sheets)) : stat('xGI/90', (+e.expected_goal_involvements_per_90 || 0).toFixed(2))}${stat('Mins/game', matches ? Math.round(mins / matches) : '–')}${stat('Pens', spT(e.penalties_order).replace(' choice', ''))}${stat('Starts', e.starts || matches)}</div></div>
