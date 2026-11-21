@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.66.0
+// @version      3.67.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.66';
+  const ELEVN_VER = '3.67';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -5369,6 +5369,13 @@ b.kn .picon{margin:0}
 .mycnt{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;font-size:11px;font-weight:800;color:#04221a;background:var(--acc);box-shadow:0 0 0 2px rgba(69,208,143,.18);flex:none}
 .mwr.tap{cursor:pointer;transition:background .15s}.mwr.tap:hover{background:rgba(255,255,255,.03)}.mwr.open{background:rgba(255,255,255,.035)}
 .mwinfo{text-align:center;font-size:12px;color:var(--mut);margin-top:-2px}.mwinfo b{color:var(--txt);font-variant-numeric:tabular-nums}.dotsep{opacity:.5;margin:0 6px}
+.mwr{position:relative}.gblk{position:absolute;left:0;right:0;top:0;height:100%;max-height:118px;z-index:4;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:8px 12px;pointer-events:none;color:#06281a;background:linear-gradient(110deg,#2fd08a,#7cf0b9 45%,#2fd08a);background-size:220% 100%;box-shadow:0 6px 22px rgba(47,208,138,.45);animation:gblk 9s ease forwards,gsh 1.4s linear infinite;overflow:hidden}
+.gblk b{font-size:24px;font-weight:900;letter-spacing:.06em;animation:gbeat .7s ease-in-out 3}.gblk .gtm{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:14px}.gblk,.gblk b,.gblk small,.gblk span{color:#06281a!important}.gblk small{font-size:13px;font-weight:800;opacity:1}.gblk .gsc{font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;background:rgba(6,40,26,.14);padding:1px 10px;border-radius:8px}
+.gblk .gball{font-size:22px;display:inline-block;animation:groll 1.1s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes gblk{0%{opacity:0;transform:scale(.6)}5%{opacity:1;transform:scale(1.06)}9%{transform:scale(1)}85%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-8px);visibility:hidden}}
+@keyframes gsh{to{background-position:-220% 0}}@keyframes gbeat{50%{transform:scale(1.18)}}@keyframes groll{0%{transform:translateX(-120px) rotate(-540deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){.gblk,.gblk *{animation-duration:.01s!important;animation-iteration-count:1!important}.gblk{animation:gblkr 9s linear forwards}@keyframes gblkr{0%,90%{opacity:1}100%{opacity:0;visibility:hidden}}}
+a.mwp{color:inherit;text-decoration:none}a.mxpn{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}a.mxpn:hover,a.mwp:hover{color:var(--acc)}.mxsec h4 small{font-weight:500;font-size:11px;margin-left:4px}.tvch{white-space:nowrap}
 .gmin{color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
 .mxp{margin-top:6px;border-top:1px solid var(--line);padding:12px 6px 4px;display:flex;flex-direction:column;gap:16px;cursor:default}
 .mxp{grid-column:1/-1;min-width:0;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}.mxp *{box-sizing:border-box}.mxsec{min-width:0}
@@ -7394,13 +7401,17 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   let SCORES = {}, NEWSC = {};
   // v3.65: match details from the free live score feed: clock in seconds, scorers with minutes, stadium, timeline and stats
   const ESPN_SB = 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard', ESPN_SUM = 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/summary?event=';
-  const MX = {}, MXD = {}, MXS = {}, OPENMX = new Set();
+  const MX = {}, MXD = {}, MXS = {}, OPENMX = new Set(), GOALFX = {};
   function mxPut(fxs, ev) {
     const c = (ev.competitions || [])[0]; if (!c) return; const H = c.competitors.find((x) => x.homeAway === 'home'), Aw = c.competitors.find((x) => x.homeAway === 'away'); if (!H || !Aw) return;
     const h = nameTeam(H.team.displayName), a = nameTeam(Aw.team.displayName); const t0 = Date.parse(ev.date);
     const f = fxs.find((x) => x.team_h === h && x.team_a === a && (!x.kickoff_time || !t0 || Math.abs(Date.parse(x.kickoff_time) - t0) < 2 * 864e5)); if (!f) return;
     const st = ev.status || {}, ty = st.type || {}, v = c.venue || {};
-    MX[f.id] = { eid: ev.id, venue: v.fullName || '', city: (v.address || {}).city || '', clock: +st.clock || 0, period: +st.period || 0, state: ty.state || '', name: ty.name || '', at: Date.now(), att: +c.attendance || 0,
+    // v3.67: in stoppage time the feed holds clock at 45:00 / 90:00 and puts the added minutes in displayClock ("90'+3'")
+    const dm = String(st.displayClock || '').match(/(\d+)'?\s*\+\s*(\d+)/), added = dm ? +dm[2] : 0; let clk = +st.clock || 0;
+    if (dm) clk = Math.max(clk, (+dm[1] + added) * 60);
+    const pv = MX[f.id]; if (pv && pv.state === 'in' && ty.state === 'in' && pv.period === (+st.period || 0)) { const ext = pv.clock + (Date.now() - pv.at) / 1000; if (ext > clk && ext - clk < 150) clk = ext; }
+    MX[f.id] = { eid: ev.id, venue: v.fullName || '', city: (v.address || {}).city || '', clock: clk, added, base: dm ? +dm[1] : 0, period: +st.period || 0, state: ty.state || '', name: ty.name || '', at: Date.now(), att: +c.attendance || 0,
       goals: (c.details || []).filter((d) => d.scoringPlay).map((d) => ({ side: d.team && d.team.id === H.team.id ? 'h' : 'a', who: ((d.athletesInvolved || [])[0] || {}).displayName || '', min: (d.clock && d.clock.displayValue) || '', og: !!d.ownGoal, pen: !!d.penaltyKick })) };
   }
   async function mxLoad(mw) {
@@ -7416,10 +7427,14 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   const cdFmt = (ms) => { if (ms <= 0) return 'Kick-off'; const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4), sec = Math.floor((ms % 6e4) / 1e3); return (d ? d + 'd ' : '') + `${pad2(h)}:${pad2(m)}:${pad2(sec)}`; };
   setInterval(() => { try { R.querySelectorAll('[data-clk]').forEach((el) => { el.textContent = clkFmt(+el.dataset.clk + (Date.now() - +el.dataset.at) / 1000, +el.dataset.per); }); R.querySelectorAll('[data-ko]').forEach((el) => { el.textContent = cdFmt(+el.dataset.ko - Date.now()); }); } catch (e) {} }, 1000);
   // FPL short name for a feed name (falls back to the surname)
+  const fplEl = (who, tid) => { const fw = fmFold(who); return BS.elements.find((x) => x.team === tid && (fmFold(x.first_name + ' ' + x.second_name) === fw || fmFold(x.web_name) === fw)) || BS.elements.find((x) => { const l = fmFold(x.second_name).split(' ').pop(); return x.team === tid && l.length > 2 && fw.endsWith(' ' + l); }) || null; };
+  // v3.67: a player's name opens his profile
+  const whoLink = (who, tid) => { const e = who ? fplEl(who, tid) : null; return e ? `<a class="pn mxpn" href="#" data-pi="1" data-pid="${e.id}">${esc(e.web_name)}</a>` : esc(String(who || '').split(' ').pop()); };
   const fplWho = (who, tid) => { const fw = fmFold(who); const e = BS.elements.find((x) => x.team === tid && (fmFold(x.first_name + ' ' + x.second_name) === fw || fmFold(x.web_name) === fw)) || BS.elements.find((x) => { const l = fmFold(x.second_name).split(' ').pop(); return x.team === tid && l.length > 2 && fw.endsWith(' ' + l); }); return e ? e.web_name : String(who).split(' ').pop(); };
+  const TVCH = '<span class="tvch" title="Shown on beIN SPORTS (Middle East and North Africa)">📺 beIN SPORTS</span>';
   function mxPanel(A, f) {
     const T = A.T, m = MX[f.id], o = MXS[f.id], ko = f.kickoff_time ? new Date(f.kickoff_time) : null;
-    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
+    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', TVCH, m && m.added ? `⏱️ +${m.added} added` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
     const up = !f.started && !(m && (m.state === 'in' || m.state === 'post'));
     let body = '';
     if (up) body = ko ? `<div class="mxcd"><small>Kick-off in</small><b data-ko="${+ko}">${cdFmt(+ko - Date.now())}</b></div>` : '';
@@ -7436,20 +7451,20 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         if (/^End Regular Time|^Full ?Time/i.test(ty)) return `<div class="sep">FT ${hs} - ${as}</div>`;
         let ic = '', txt = '';
         const tid = side === 'h' ? f.team_h : f.team_a;
-        if (/^Goal|Penalty - Scored|Own Goal/i.test(ty)) { if (side === 'h') hs++; else if (side === 'a') as++; ic = '⚽'; txt = `<span class="tx"><span><b>${esc(fplWho(ps[0] || '', tid))}</b> (${hs} - ${as})${/own goal/i.test(ty) ? ' og' : /penalty/i.test(ty) ? ' pen' : ''}</span>${ps[1] ? `<small>assist ${esc(fplWho(ps[1], tid))}</small>` : ''}</span>`; }
-        else if (/Yellow Card/i.test(ty)) { ic = '<i class="cdy"></i>'; txt = `<b>${esc(fplWho(ps[0] || '', tid))}</b>`; }
-        else if (/Red Card/i.test(ty)) { ic = '<i class="cdr"></i>'; txt = `<span class="tx"><b>${esc(fplWho(ps[0] || '', tid))}</b>${/second/i.test(ty) ? '<small>second yellow</small>' : ''}</span>`; }
-        else if (/Substitution/i.test(ty)) { ic = '<span class="sub">⇄</span>'; txt = `<span class="tx"><span class="in">${esc(fplWho(ps[0] || '', tid))}</span><span class="out">${esc(fplWho(ps[1] || '', tid))}</span></span>`; }
+        if (/^Goal|Penalty - Scored|Own Goal/i.test(ty)) { if (side === 'h') hs++; else if (side === 'a') as++; ic = '⚽'; txt = `<span class="tx"><span><b>${whoLink(ps[0], tid)}</b> (${hs} - ${as})${/own goal/i.test(ty) ? ' og' : /penalty/i.test(ty) ? ' pen' : ''}</span>${ps[1] ? `<small>assist ${whoLink(ps[1], tid)}</small>` : ''}</span>`; }
+        else if (/Yellow Card/i.test(ty)) { ic = '<i class="cdy"></i>'; txt = `<b>${whoLink(ps[0], tid)}</b>`; }
+        else if (/Red Card/i.test(ty)) { ic = '<i class="cdr"></i>'; txt = `<span class="tx"><b>${whoLink(ps[0], tid)}</b>${/second/i.test(ty) ? '<small>second yellow</small>' : ''}</span>`; }
+        else if (/Substitution/i.test(ty)) { ic = '<span class="sub">⇄</span>'; txt = `<span class="tx"><span class="in">${whoLink(ps[0], tid)}</span><span class="out">${whoLink(ps[1], tid)}</span></span>`; }
         else return '';
         const cell = `<span class="ev">${side === 'h' ? txt + ic : ic + txt}</span>`;
         return side === 'h' ? `<div class="h">${cell}</div><span class="mn">${min}</span><div></div>` : `<div></div><span class="mn">${min}</span><div class="a">${cell}</div>`;
-      }).join('');
+      }).filter(Boolean).reverse().join('');
       const tms = (d.boxscore && d.boxscore.teams) || []; const th = tms.find((x) => x.team && x.team.id === homeId) || tms[0], ta = tms.find((x) => x !== th);
       const sv = (t, lbl) => { const x = ((t && t.statistics) || []).find((q) => q.label === lbl || q.name === lbl); return x ? x.displayValue : null; };
       const ST = [['Possession', 'Possession', '%'], ['Shots', 'SHOTS'], ['Shots on target', 'ON GOAL'], ['Corners', 'Corner Kicks'], ['Fouls', 'Fouls'], ['Yellow cards', 'Yellow Cards'], ['Red cards', 'Red Cards'], ['Offsides', 'Offsides'], ['Saves', 'Saves'], ['Passes', 'Passes'], ['Pass accuracy', 'Pass Completion %', 'pct']];
       const stats = th && ta ? ST.map(([l, k, u]) => { let a = sv(th, k), b = sv(ta, k); if (a == null || b == null) return ''; let x = +a, y = +b; if (u === 'pct') { x = Math.round(x * 100); y = Math.round(y * 100); a = x + '%'; b = y + '%'; } else if (u === '%') { const ra = Math.round(x * 100 / ((x + y) || 1)); a = ra + '%'; b = (100 - ra) + '%'; }
         if (l === 'Red cards' && !x && !y) return ''; const tot = x + y || 1; return `<div class="r"><span class="lb">${l}</span><b>${a}</b><span class="bar"><i class="bh" style="width:${(x / tot) * 100}%"></i><i class="ba" style="width:${(y / tot) * 100}%"></i></span><b class="mxv2">${b}</b></div>`; }).join('') : '';
-      body = (rows ? `<div class="mxsec"><h4>Events</h4><div class="mxtl">${rows}</div></div>` : '') + (stats ? `<div class="mxsec"><h4>Statistics</h4><div class="mxst"><div class="r hd"><b>${esc(T[f.team_h].short_name)}</b><span></span><b class="mxv2">${esc(T[f.team_a].short_name)}</b></div>${stats}</div></div>` : '') || '<p class="muted mxmsg">No events yet.</p>';
+      body = (rows ? `<div class="mxsec"><h4>Events <small class="muted">newest first</small></h4><div class="mxtl">${rows}</div></div>` : '') + (stats ? `<div class="mxsec"><h4>Statistics</h4><div class="mxst"><div class="r hd"><b>${esc(T[f.team_h].short_name)}</b><span></span><b class="mxv2">${esc(T[f.team_a].short_name)}</b></div>${stats}</div></div>` : '') || '<p class="muted mxmsg">No events yet.</p>';
     }
     return `<div class="mxp">${info ? `<div class="mxinfo">${info}</div>` : ''}${body}</div>`;
   }
@@ -7464,8 +7479,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const range = dated.length ? (() => { const a = new Date(dated[0].kickoff_time).toLocaleDateString(undefined, dFmt), b = new Date(dated[dated.length - 1].kickoff_time).toLocaleDateString(undefined, dFmt); return a === b ? a : a + ' – ' + b; })() : 'Dates to be confirmed';
     const chev = (d) => `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     const head = `<div class="mwh"><button class="mwa" type="button" data-mw="-1" aria-label="Previous matchweek" ${mw <= 1 ? 'disabled' : ''}>${chev('M15 5l-7 7 7 7')}</button><div class="mwhc"><b>Matchweek ${mw}</b><span>${range}</span>${(() => { const xi = MINE.filter((r) => r.pos <= 11), m = new Set(fxs.flatMap((f) => MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a).map((r) => r.e.id))); const nx = xi.filter((r) => m.has(r.e.id)).length; return MINE.length ? `<span class="mwyou">You have <b>${m.size}</b> of 15 players in these matches · <b>${nx}</b> of your XI</span>` : ''; })()}${mw !== cur ? `<button class="lnk2" type="button" data-mw="cur">Back to GW${cur}</button>` : ''}</div><button class="mwa" type="button" data-mw="1" aria-label="Next matchweek" ${mw >= total ? 'disabled' : ''}>${chev('M9 5l7 7-7 7')}</button></div>`;
-    const ev = (f, side) => { const mx = MX[f.id]; if (mx && mx.goals.length) { const tid = side === 'h' ? f.team_h : f.team_a; return mx.goals.filter((g) => g.side === side).map((g) => `${esc(g.og ? String(g.who).split(' ').pop() : fplWho(g.who, tid))} <span class="gmin">${esc(String(g.min).replace(/'/g, '′'))}</span>${g.og ? ' (og)' : g.pen ? ' (pen)' : ''}`).join(', '); }
-      const st = f.stats || []; const g = (st.find((x) => x.identifier === 'goals_scored') || {})[side] || []; const og = (st.find((x) => x.identifier === 'own_goals') || {})[side === 'h' ? 'a' : 'h'] || []; const nmOf = (x) => esc((A.E[x.element] || {}).web_name || ''); return [...g.map((x) => nmOf(x) + (x.value > 1 ? ' ×' + x.value : '')), ...og.map((x) => nmOf(x) + ' (og)')].join(', '); };
+    const ev = (f, side) => { const mx = MX[f.id]; if (mx && mx.goals.length) { const tid = side === 'h' ? f.team_h : f.team_a; return mx.goals.filter((g) => g.side === side).map((g) => `${g.og ? esc(String(g.who).split(' ').pop()) : whoLink(g.who, tid)} <span class="gmin">${esc(String(g.min).replace(/'/g, '′'))}</span>${g.og ? ' (og)' : g.pen ? ' (pen)' : ''}`).join(', '); }
+      const st = f.stats || []; const g = (st.find((x) => x.identifier === 'goals_scored') || {})[side] || []; const og = (st.find((x) => x.identifier === 'own_goals') || {})[side === 'h' ? 'a' : 'h'] || []; const nmOf = (x) => { const e = A.E[x.element]; return e ? `<a class="pn mxpn" href="#" data-pi="1" data-pid="${e.id}">${esc(e.web_name)}</a>` : ''; }; return [...g.map((x) => nmOf(x) + (x.value > 1 ? ' ×' + x.value : '')), ...og.map((x) => nmOf(x) + ' (og)')].join(', '); };
     const row = (f) => {
       const fin = f.finished || f.finished_provisional || f._state === 'post', live = (f.started || f._state === 'in') && !fin;
       const mx = MX[f.id], ht = (mx && /HALFTIME/.test(mx.name)) || f._clock === 'HT';
@@ -7475,16 +7490,19 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const pill = f.started || f._state === 'in' || f._state === 'post' ? `<span class="mwsc${hUp || aUp ? ' goal' : ''}"><i class="dg${hUp ? ' up' : ''}">${hs}</i> - <i class="dg${aUp ? ' up' : ''}">${as}</i></span>` : `<span class="mwsc mwv">${f.kickoff_time ? new Date(f.kickoff_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'TBC'}</span>`;
       const myIn = MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a);
       // v3.53: each of your players sits under his own club's side, with a count per side
-      const chipP = (r) => `<span class="mwp${r.mult > 0 ? '' : ' bn'}">${pface(r.e).replace('class="picon face"', 'class="picon face mwf"')}${esc(r.e.web_name)}${r.x.is_captain ? ' <i>C</i>' : r.x.is_vice_captain ? ' <i class="v">V</i>' : ''}${mw === cur && f.started ? ` <b>${r.pts * Math.max(1, r.mult)}</b>` : ''}</span>`;
+      const chipP = (r) => `<a href="#" data-pi="1" data-pid="${r.e.id}" class="pn mwp${r.mult > 0 ? '' : ' bn'}" title="Open ${esc(r.e.web_name)}'s profile">${pface(r.e).replace('class="picon face"', 'class="picon face mwf"')}${esc(r.e.web_name)}${r.x.is_captain ? ' <i>C</i>' : r.x.is_vice_captain ? ' <i class="v">V</i>' : ''}${mw === cur && f.started ? ` <b>${r.pts * Math.max(1, r.mult)}</b>` : ''}</a>`;
       const sideH = (tid) => { const rs = myIn.filter((r) => r.e.team === tid); return rs.length ? rs.map(chipP).join('') : ''; };
       const cnt = (tid) => { const n = myIn.filter((r) => r.e.team === tid).length; return n ? `<span class="mycnt" title="${n} of your players">${n}</span>` : ''; };
       const mineH = myIn.length ? `<div class="mwmy2"><div class="mws2 r">${sideH(f.team_h)}</div><span></span><div class="mws2">${sideH(f.team_a)}</div></div>` : '';
       const eh = f.started ? ev(f, 'h') : '', ea = f.started ? ev(f, 'a') : '';
       const mk = !f.started ? oddsFor(f.team_h, f.team_a, f.kickoff_time) : null; const pc = (x) => Math.round(x * 100) + '%';
       const oddsH = mk ? `<div class="mwodds" title="Bookmaker odds, margin removed, average of ${mk.books} bookmakers. Clean sheet and expected goals are fitted from these prices."><span class="r">Win ${pc(mk.pH)} · CS ${pc(Math.exp(-mk.la))} · xG ${mk.lh.toFixed(1)}</span><span class="c">Draw ${pc(mk.pD)}</span><span>xG ${mk.la.toFixed(1)} · CS ${pc(Math.exp(-mk.lh))} · Win ${pc(mk.pA)}</span></div>` : '';
+      const gk = hs + '-' + as; if ((hUp || aUp) && (!GOALFX[f.id] || GOALFX[f.id].k !== gk)) GOALFX[f.id] = { at: Date.now(), k: gk, side: hUp ? 'h' : 'a' };
+      const gf = GOALFX[f.id], gel = gf ? Date.now() - gf.at : 1e9; let gblk = '';
+      if (gel < 9000) { const gs = gf.side, tid = gs === 'h' ? f.team_h : f.team_a, lg = mx && mx.goals.filter((g) => g.side === gs).pop(); gblk = `<div class="gblk ${gs}" style="animation-delay:-${gel}ms" aria-live="polite"><span class="gball">⚽</span><b>GOAL!</b><span class="gtm">${crest(tid)}${esc(T[tid].name)}</span>${lg && lg.who ? `<small>${esc(lg.og ? String(lg.who).split(' ').pop() + ' (og)' : fplWho(lg.who, tid))} ${esc(String(lg.min).replace(/'/g, '′'))}</small>` : ''}<span class="gsc">${hs} - ${as}</span></div>`; }
       const open = OPENMX.has(f.id); if (open && mw === cur && (f.started || (mx && mx.state === 'in'))) setTimeout(() => mxSummary(f.id).then((ch) => ch && paintMatches(A)), 0);
-      const venue = mx && mx.venue && !open ? `<div class="mwinfo">🏟️ ${esc(mx.venue)}${!f.started && f.kickoff_time && Date.parse(f.kickoff_time) - Date.now() < 864e5 ? ` <span class="dotsep">·</span> in <b data-ko="${Date.parse(f.kickoff_time)}">${cdFmt(Date.parse(f.kickoff_time) - Date.now())}</b>` : ''}</div>` : '';
-      return `<div class="mwr tap ${live ? 'on' : ''}${myIn.length ? ' my' : ''}${open ? ' open' : ''}" data-mx="${f.id}" role="button" tabindex="0" aria-expanded="${open}">${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h">${cnt(f.team_h)}<b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b>${cnt(f.team_a)}</span></div>${venue}${oddsH}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}${open ? mxPanel(A, f) : ''}</div>`;
+      const venue = !open && (mx && mx.venue || !fin) ? `<div class="mwinfo">${mx && mx.venue ? `🏟️ ${esc(mx.venue)}<span class="dotsep">·</span>` : ''}${TVCH}${!f.started && f.kickoff_time && Date.parse(f.kickoff_time) - Date.now() < 864e5 ? ` <span class="dotsep">·</span> in <b data-ko="${Date.parse(f.kickoff_time)}">${cdFmt(Date.parse(f.kickoff_time) - Date.now())}</b>` : ''}</div>` : '';
+      return `<div class="mwr tap ${live ? 'on' : ''}${myIn.length ? ' my' : ''}${open ? ' open' : ''}" data-mx="${f.id}" role="button" tabindex="0" aria-expanded="${open}">${gblk}${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h">${cnt(f.team_h)}<b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b>${cnt(f.team_a)}</span></div>${venue}${oddsH}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}${open ? mxPanel(A, f) : ''}</div>`;
     };
     const days = []; fxs.forEach((f) => { const k = f.kickoff_time ? new Date(f.kickoff_time).toLocaleDateString(undefined, dFmt) : 'Date to be confirmed'; let d = days[days.length - 1]; if (!d || d.k !== k) { d = { k, rows: [] }; days.push(d); } d.rows.push(row(f)); });
     setTimeout(() => mxLoad(mw).then((ch) => { if (ch && LASTA === A) paintMatches(A); }), 0);
@@ -9153,7 +9171,7 @@ ${bench.length ? `<div class="benchbox"><div class="ptitle">Bench</div><div clas
   out.addEventListener('click', (ev) => {
     const t = ev.target; if (!t.closest) return;
     const mxr = t.closest('[data-mx]');
-    if (mxr && !t.closest('.mxp') && !t.closest('[data-mw]') && LASTA && LASTA.live) { const fid = +mxr.dataset.mx; if (OPENMX.has(fid)) OPENMX.delete(fid); else { OPENMX.add(fid); mxSummary(fid).then((ch) => ch && paintMatches(LASTA)); } paintMatches(LASTA); return; }
+    if (mxr && !t.closest('.mxp') && !t.closest('[data-mw]') && !t.closest('a.pn') && LASTA && LASTA.live) { const fid = +mxr.dataset.mx; if (OPENMX.has(fid)) OPENMX.delete(fid); else { OPENMX.add(fid); mxSummary(fid).then((ch) => ch && paintMatches(LASTA)); } paintMatches(LASTA); return; }
     const mwb = t.closest('[data-mw]');
     if (mwb && LASTA && LASTA.live) { ev.preventDefault(); const cur = LASTA.live.gw, total = (BS.events || []).length || 38; if (mwb.dataset.mw === 'cur') MW = null; else { const n = Math.max(1, Math.min(total, (MW == null ? cur : MW) + (+mwb.dataset.mw))); MW = n === cur ? null : n; } paintMatches(LASTA); return; }
     if (t.closest('[data-h2h]')) { cmpFromSwaps(); FIXTAB = 'h2h'; showView('fix', 'h2h'); paintRot(); }

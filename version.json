@@ -1,7 +1,7 @@
 {
-  "version": "3.66",
+  "version": "3.67",
   "date": "2026-11-21",
-  "notes": "Match statistics fit on phones.",
+  "notes": "Stoppage-time clock (90+3:12) and added minutes; events newest first; animated GOAL! block; tap player names for profiles; beIN SPORTS beside the stadium.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
