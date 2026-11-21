@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.59.0
+// @version      3.60.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.59';
+  const ELEVN_VER = '3.60';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6992,7 +6992,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const errs = { model: [], fpl: [], form: [], ppg: [] };
     const myId = (LASTA && LASTA.id) || CURID; const myPicks = {}; const cal = { 1: [0, 0], 2: [0, 0], 3: [0, 0], 4: [0, 0] };
     if (myId) await Promise.all(tests.map((g) => J(`/api/entry/${myId}/event/${g}/picks/`).then((x) => (myPicks[g] = x)).catch(() => null)));
-    const teamRows = [];
+    const teamRows = [], perG = [];
     tests.forEach((g, ti) => {
       // cumulative stats before g
       const prev = done.filter((x) => x < g);
@@ -7025,11 +7025,18 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         const fxs = FX.filter((f) => f.event === g && (f.team_h === e.team || f.team_a === e.team));
         const mult = (w) => fxs.reduce((a, f) => { const home = f.team_h === e.team; const o = home ? f.team_a : f.team_h; const fdr = home ? f.team_h_difficulty : f.team_a_difficulty; const tblD = 1 + (4 * (nT - tb[o].pos)) / (nT - 1); const diff = (1 - w) * fdr + w * tblD; return a + (1 + (3 - diff) * 0.13 + (home ? 0.03 : -0.03)); }, 0);
         const actual = L && L[e.id] ? L[e.id].total_points || 0 : 0;
-        let fm2 = 'fpl'; try { fm2 = localStorage.getItem('fplAnalystFdrMode2') || 'fpl'; } catch (er) {}
-        const pBlend = base * mult(tW), pFpl = base * mult(0), pm = fm2 === 'blend' ? pBlend : pFpl, pf = fm2 === 'blend' ? pFpl : pBlend, pform = form * fxs.length, pppg = (S.p / tg) * fxs.length;
-        preds.push({ e, pm, pf, pform, pppg, actual });
-        if (pm >= 2 && L && L[e.id] && L[e.id].minutes > 0) { cal[et][0] += pm; cal[et][1] += actual; }
+        const pB = base * mult(tW), pF = base * mult(0), pform = form * fxs.length, pppg = (S.p / tg) * fxs.length;
+        preds.push({ e, et, pB, pF, pform, pppg, actual, played: !!(L && L[e.id] && L[e.id].minutes > 0) });
       });
+      perG.push({ g, preds, L });
+      if (onProgress) onProgress(70 + Math.round(((ti + 1) / tests.length) * 30));
+    });
+    // v3.60: the fixture-difficulty rating and the calibration depend only on FPL data (not on this device's earlier
+    // choice), so every phone and computer ends up with the same model
+    const errOf = (k) => { let sm = 0, n = 0; perG.forEach((q) => q.preds.forEach((x) => { sm += Math.abs(x[k] - x.actual); n++; })); return n ? sm / n : 0; };
+    const fdrMode = errOf('pB') < errOf('pF') * 0.995 ? 'blend' : 'fpl', KM = fdrMode === 'blend' ? 'pB' : 'pF', KO = KM === 'pB' ? 'pF' : 'pB';
+    perG.forEach(({ g, preds, L }) => {
+      preds.forEach((x) => { x.pm = x[KM]; x.pf = x[KO]; if (x.pm >= 2 && x.played) { cal[x.et][0] += x.pm; cal[x.et][1] += x.actual; } });
       const mp = myPicks[g]; if (mp && mp.picks) { const by = {}; preds.forEach((x) => (by[x.e.id] = x.pm)); let pj = 0, ac = 0; mp.picks.forEach((q) => { const m = q.multiplier || 0; pj += (by[q.element] || 0) * m; ac += (L && L[q.element] ? L[q.element].total_points || 0 : 0) * m; }); const cap = mp.picks.find((q) => q.is_captain); const ce = cap && BS.elements.find((x) => x.id === cap.element); teamRows.push({ g, pj, ac, hit: (mp.entry_history || {}).event_transfers_cost || 0, cap: ce ? ce.web_name : '' }); }
       const mae = (k) => preds.reduce((a, x) => a + Math.abs(x[k] - x.actual), 0) / (preds.length || 1);
       const top = (k) => preds.slice().sort((a, b) => b[k] - a[k]).slice(0, 5);
@@ -7038,15 +7045,14 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       capOurs += ours; capForm += fm; capBest += best;
       ['model', 'fpl', 'form', 'ppg'].forEach((k, i) => errs[k].push(mae(['pm', 'pf', 'pform', 'pppg'][i])));
       rows.push({ g, n: preds.length, mae: mae('pm'), maeF: mae('pf'), maeForm: mae('pform'), maePpg: mae('pppg'), top5: ours, top5Form: fm, top5Best: best, pick: top('pm')[0] ? top('pm')[0].e.web_name : '', pickPts: top('pm')[0] ? top('pm')[0].actual : 0 });
-      if (onProgress) onProgress(70 + Math.round(((ti + 1) / tests.length) * 30));
     });
     const avg = (a) => a.reduce((x, y) => x + y, 0) / (a.length || 1);
     const calib = {}; [1, 2, 3, 4].forEach((et) => { const [pj, ac] = cal[et]; calib[et] = pj > 20 ? Math.max(0.85, Math.min(1.18, ac / pj)) : 1; });
-    const res = { at: Date.now(), gws: tests, rows, team: teamRows, calib, mae: avg(errs.model), maeF: avg(errs.fpl), maeForm: avg(errs.form), maePpg: avg(errs.ppg), top5: capOurs / tests.length, top5Form: capForm / tests.length, top5Best: capBest / tests.length };
+    const res = { v: 3, at: Date.now(), gws: tests, rows, team: teamRows, calib, mae: avg(errs.model), maeF: avg(errs.fpl), maeForm: avg(errs.form), maePpg: avg(errs.ppg), top5: capOurs / tests.length, top5Form: capForm / tests.length, top5Best: capBest / tests.length };
     // Fixture difficulty: keep FPL's rating alone only if it is clearly better (by more than 0.5%)
     let curM = 'fpl'; try { curM = localStorage.getItem('fplAnalystFdrMode2') || 'fpl'; } catch (e) {}
     // the other rating replaces the one in use only if it is clearly better (by more than 0.5%)
-    res.fdr = res.maeF < res.mae * 0.995 ? (curM === 'fpl' ? 'blend' : 'fpl') : curM; res.cur = curM;
+    res.fdr = fdrMode; res.cur = curM;
     try { localStorage.setItem('fplAnalystFdrMode2', res.fdr); localStorage.setItem(ACC_KEY, JSON.stringify(res)); } catch (e) {}
     ACC = res; return res;
   }
@@ -7379,6 +7385,14 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     } catch (e) {}
     scheduleAuto(A);
   }
+  // v3.60: keep the model's calibration current on every device (once per finished gameweek, in the background)
+  let CALIB_BUSY = false;
+  function autoCalibrate(A) {
+    if (CALIB_BUSY || !BS) return; const last = Math.max(0, ...BS.events.filter((e) => e.finished).map((e) => e.id));
+    if (ACC && ACC.v === 3 && ACC.gws && Math.max(...ACC.gws) >= last) return;
+    CALIB_BUSY = true;
+    runAccuracy().then(() => { CALIB_BUSY = false; const v = A && A.id; if (v && LASTA === A) run(+v, { quiet: true }); }).catch(() => { CALIB_BUSY = false; });
+  }
   function scheduleAuto(A) {
     clearTimeout(AUTO); LASTA = A;
     if (!A.live) return;
@@ -7442,6 +7456,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       CURID = id;
       render(A);
       scheduleAuto(A);
+      autoCalibrate(A);
     } catch (err) {
       if (quiet) throw err;
       const nf = /HTTP 404/.test(err.message), off = /fetch|network|Failed/i.test(err.message) && !nf;
