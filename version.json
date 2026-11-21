@@ -1,7 +1,7 @@
 {
-  "version": "3.70",
+  "version": "3.71",
   "date": "2026-11-21",
-  "notes": "Live bonus points on player tags; live points refresh; Arabic channel names removed.",
+  "notes": "Egypt banner fixed and waving; captains list (top 10k and your league); live bonus badge in My players.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
