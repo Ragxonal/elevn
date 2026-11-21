@@ -1,7 +1,7 @@
 {
-  "version": "3.68",
+  "version": "3.69",
   "date": "2026-11-21",
-  "notes": "beIN SPORTS channel number for every match.",
+  "notes": "Arabic beIN names; live gameweek points and new points panel; side table fixed on desktop; waving flags; tidy player chips.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
