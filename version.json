@@ -1,7 +1,7 @@
 {
-  "version": "3.62",
+  "version": "3.63",
   "date": "2026-11-21",
-  "notes": "Kick-off and goal alerts, faster with the app closed on Android.",
+  "notes": "Half-time and full-time shown and alerted.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",

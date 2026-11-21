@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.62.0
+// @version      3.63.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.62';
+  const ELEVN_VER = '3.63';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6501,7 +6501,7 @@ table.cmpt small.d{display:block;font-size:11px}
 <div class="setrow"><div><b>Theme</b><small>Matchday: poster style · Midnight: calm navy · Pitch: dark green</small></div>${seg('theme', [['matchday', 'Matchday'], ['midnight', 'Midnight'], ['pitch', 'Pitch']])}</div>
 <div class="setrow"><div><b>Motion</b><small>Calm stops the moving background and page wipes</small></div>${seg('motion', [['calm', 'Calm'], ['normal', 'Normal'], ['lively', 'Lively']])}</div>
 <div class="setrow"><div><b>Background</b><small>Club colours follow your captain's club</small></div>${seg('bg', [['flood', 'Floodlit'], ['club', 'Club colours'], ['plain', 'Plain']])}</div>
-<div class="setrow"><div><b>Kick-off alerts</b><small>When a match with one of your players starts</small></div>${alSeg('kickoff')}</div>
+<div class="setrow"><div><b>Kick-off, half-time and full-time alerts</b><small>For matches with one of your players</small></div>${alSeg('kickoff')}</div>
 <div class="setrow"><div><b>All goals</b><small>A short alert for every Premier League goal, not only your players' (about 25–30 on a busy Saturday)</small></div>${alSeg('allgoals')}</div>
 ${hasAndroid() ? `<div class="setrow"><div><b>Deadline reminders</b><small>Phone notification 24 hours and 2 hours before each deadline</small></div>${aSeg('remind')}</div>
 <div class="setrow"><div><b>Goal alerts with the app closed</b><small>Checks your players during matches (every minute right after you leave the app, then every 15 minutes)</small></div>${aSeg('bg')}</div>` : ''}
@@ -7262,7 +7262,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         const st = ev.status && ev.status.type || {}; const o = FD.fx[f.id] || (FD.fx[f.id] = {});
         const hs = +H.score || 0, as = +Aw.score || 0; if (o.h !== hs || o.a !== as) changed = true;
         fastMatchAlerts(A, f, o, st.state, ev, c, H, hs, as);
-        Object.assign(o, { h: Math.max(hs, o.plH || 0), a: Math.max(as, o.plA || 0), eh: hs, ea: as, clock: ev.status.displayClock, state: st.state, src: 'ESPN', at: Date.now(),
+        Object.assign(o, { h: Math.max(hs, o.plH || 0), a: Math.max(as, o.plA || 0), eh: hs, ea: as, clock: /HALFTIME/.test(st.name || '') ? 'HT' : st.state === 'post' ? 'FT' : /^(HT|FT)$/.test(st.shortDetail || '') ? st.shortDetail : ev.status.displayClock, state: st.state, src: 'ESPN', at: Date.now(),
           scorers: (c.details || []).filter((d) => d.scoringPlay).map((d) => ({ side: d.team && d.team.id === H.team.id ? 'h' : 'a', who: ((d.athletesInvolved || [])[0] || {}).displayName || '', min: d.clock && d.clock.displayValue, og: !!d.ownGoal, pen: !!d.penaltyKick })) });
       });
       FD.err = '';
@@ -7317,6 +7317,12 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const t = `⚽ ${sh} ${hs}–${as} ${sa}`, b = `${who}${d.ownGoal ? ' (own goal)' : d.penaltyKick ? ' (penalty)' : ''} ${(d.clock && d.clock.displayValue) || ev.status.displayClock || ''}`.trim();
       toast(t, b, ''); deskNotify(t, b); });
     o.nG = goals.length;
+    // half-time and full-time of your matches
+    const ph = /HALFTIME/.test((ev.status.type || {}).name || '') ? 'ht' : state === 'post' ? 'ft' : state;
+    if (o.ph && o.ph !== ph && (ph === 'ht' || ph === 'ft') && mine.length && alertPref('kickoff')) {
+      const t = `${ph === 'ht' ? '⏸️ Half-time' : '🏁 Full-time'}: ${sh} ${hs}–${as} ${sa}`, b = 'Your players: ' + mine.map((r) => `${r.e.web_name} ${r.pts}`).join(', ') + (ph === 'ht' ? ' pts so far.' : ' pts (bonus to come).');
+      toast(t, b, ''); deskNotify(t, b); }
+    o.ph = ph;
   }
   // Add what the fast feed shows and FPL hasn't counted yet (per player, never below FPL's own numbers)
   function fastApply(A, L) {
