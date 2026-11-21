@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.75.0
+// @version      3.76.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.75';
+  const ELEVN_VER = '3.76';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -9499,7 +9499,7 @@ ${bench.length ? `<div class="benchbox hpitch"><div class="ptitle">Bench</div><d
   function playerStatsHtml(A) {
     const status = PST.error ? `<div class="errbox"><b>Player stats could not be loaded</b><p>${esc(PST.error)}</p><button type="button" class="mbtn" data-ps-retry="1">Retry</button></div>`
       : PST.busy ? `<div class="ps-info ps-status">${PST.mode === 'season' ? 'Loading full-season Premier League stats…' : `Loading player stats for ${esc(PST.rangeLabel)}… This may take a short while.`}</div>`
-      : PST.errors.length ? `<div class="ps-info ps-status ps-partial">Some stats could not be refreshed (${PST.errors.length}); unavailable values show –. <button type="button" class="mbtn ghost" data-ps-retry="1">Retry</button></div>`
+      : PST.errors.length ? `<div class="ps-info ps-status ps-partial">${PST.errors.length === 1 && PST.errors[0].message && /unavailable right now|feed is busy/.test(PST.errors[0].message) ? esc(PST.errors[0].message) : `Some stats could not be refreshed (${PST.errors.length}); unavailable values show –.`} <button type="button" class="mbtn ghost" data-ps-retry="1">Retry</button></div>`
       : '';
     const info = `<div class="ps-info">${PST.mode === 'season' ? 'All-season totals' : esc(PST.rangeLabel)} · M/G: minutes per goal · M/S: minutes per shot · xG metrics from FPL data.</div>`;
     const modes = [['season', 'All Season'], ['last5', 'Last 5 GWs']].map(([k, label]) => `<button type="button" class="${PST.mode === k ? 'on' : ''}" data-psmode="${k}" ${PST.busy ? 'disabled' : ''}>${label}</button>`).join('');
@@ -9529,8 +9529,8 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
   }
   async function plWindowDirect(fromGw, toGw, players) {
     const season = await plSeason();
-    const qs = new URLSearchParams({ comp: '1', compSeasons: String(season.id), page: '0', pageSize: '1000' });
-    const fx = await plGet(`fixtures?${qs}`); const fr = Array.isArray(fx) ? fx : (fx.content || []);
+    const qs = new URLSearchParams({ comps: '1', compSeasons: String(season.id), page: '0', pageSize: '100', statuses: 'C', sort: 'desc' });
+    let fx; try { fx = await plGet(`fixtures?${qs}`); } catch (e) { throw new Error('Premier League fixture list: ' + (e && e.message || e)); } const fr = Array.isArray(fx) ? fx : (fx.content || []);
     const ids = fr.filter((f) => f && f.status === 'C' && Number(f.gameweek && f.gameweek.gameweek) >= fromGw && Number(f.gameweek && f.gameweek.gameweek) <= toGw).map((f) => Number(f.id)).filter(Number.isFinite);
     if (!ids.length) throw new Error(`No completed Premier League fixtures found for GW${fromGw}–GW${toGw}.`);
     const data = {}, failed = [];
@@ -9558,19 +9558,20 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
     PST.rangeLabel = label;
     const cacheKey = `${psCacheKey()}-${mode}-GW${fromGw}-${toGw}`;
     if (!force) { try { const c = JSON.parse(localStorage.getItem(cacheKey) || 'null'); if (c && c.data && Date.now() - c.fetchedAt < 3 * 3600e3) { return { ...c, rangeLabel: label }; } } catch (e) {} }
-    if (!PST.seasonData) {
+    let seasonErr = null;
+    if (!PST.seasonData) try {
       let c = null; try { c = JSON.parse(localStorage.getItem(psCacheKey()) || 'null'); } catch (e) {}
       if (c && c.data && c.data[Object.keys(c.data)[0]] && c.data[Object.keys(c.data)[0]]._plId) PST.seasonData = c;
       else PST.seasonData = await retry5(() => requestPlStats());
       PST.seasonId = PST.seasonData.seasonId; PST.seasonLabel = PST.seasonData.seasonLabel || '';
       try { localStorage.setItem(psCacheKey(), JSON.stringify(PST.seasonData)); } catch (e) {}
-    }
-    const played = new Set(), xData = {};
+    } catch (e) { seasonErr = new Error('Premier League season stats: ' + (e && e.message || e)); }
+    const played = new Set(), xData = {}, fplRow = {};
     for (let gw = fromGw; gw <= toGw; gw++) {
-      const live = await retry5(() => J(`/api/event/${gw}/live/`));
+      let live; try { live = await retry5(() => J(`/api/event/${gw}/live/`)); } catch (e) { throw new Error(`FPL gameweek ${gw} data: ${e && e.message || e}`); }
       for (const el of (live.elements || [])) {
         const id = Number(el.id), stats = el.stats || {};
-        if (Number(stats.minutes) > 0) played.add(id);
+        if (Number(stats.minutes) > 0) { played.add(id); const f = fplRow[id] || (fplRow[id] = { apps: 0, mins: 0, goals: 0 }); f.apps++; f.mins += Number(stats.minutes) || 0; f.goals += Number(stats.goals_scored) || 0; }
         const x = xData[id] || (xData[id] = { xg: 0, xa: 0, xgi: 0, xgc: 0, mins: 0, cbi: 0, tkl: 0, rec: 0, dc: 0, dch: 0, cs: 0, sv: 0 });
         x.cbi += Number(stats.clearances_blocks_interceptions) || 0; x.tkl += Number(stats.tackles) || 0; x.rec += Number(stats.recoveries) || 0; x.dc += Number(stats.defensive_contribution) || 0; x.cs += Number(stats.clean_sheets) || 0; x.sv += Number(stats.saves) || 0;
         (el.explain || []).forEach((fx) => (fx.stats || []).forEach((s) => { if (s.identifier === 'defensive_contribution' && s.points > 0) x.dch++; }));
@@ -9580,8 +9581,12 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
       }
     }
     for (const e of BS.elements) if (!xData[e.id]) xData[e.id] = { xg: 0, xa: 0, xgi: 0, xgc: 0, mins: 0, cbi: 0, tkl: 0, rec: 0, dc: 0, dch: 0, cs: 0, sv: 0 };
-    const players = BS.elements.filter((e) => played.has(e.id) && e.opta_code && PST.seasonData.data[e.opta_code] && PST.seasonData.data[e.opta_code]._plId).map((e) => ({ code: e.opta_code, playerId: PST.seasonData.data[e.opta_code]._plId }));
-    const result = await retry5(() => requestPlWindow(fromGw, toGw, players));
+    const players = !PST.seasonData ? [] : BS.elements.filter((e) => played.has(e.id) && e.opta_code && PST.seasonData.data[e.opta_code] && PST.seasonData.data[e.opta_code]._plId).map((e) => ({ code: e.opta_code, playerId: PST.seasonData.data[e.opta_code]._plId }));
+    let result;
+    try { if (seasonErr) throw seasonErr; result = await retry5(() => requestPlWindow(fromGw, toGw, players)); }
+    catch (e) { // v3.76: Premier League feed down: FPL's own numbers (apps, minutes, goals, expected stats) still fill the table
+      const data = {}; BS.elements.forEach((el) => { const f = fplRow[el.id]; if (f && el.opta_code) data[el.opta_code] = { apps: f.apps, mins: f.mins, goals: f.goals }; });
+      return { seasonId: PST.seasonId, seasonLabel: PST.seasonLabel || '', fromGw, toGw, fetchedAt: Date.now(), data, xData, rangeLabel: label, loaded: ['apps', 'mins', 'goals'], failedCodes: [], errors: [{ message: `Shots and big chances are unavailable right now (${String(e && e.message || e)}). Goals, minutes and expected stats come from FPL. Press Retry later for the rest.` }] }; }
     const value = { ...result, xData, rangeLabel: label };
     try { localStorage.setItem(cacheKey, JSON.stringify(value)); } catch (e) {}
     return value;
