@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.65.0
+// @version      3.66.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.65';
+  const ELEVN_VER = '3.66';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -5371,6 +5371,10 @@ b.kn .picon{margin:0}
 .mwinfo{text-align:center;font-size:12px;color:var(--mut);margin-top:-2px}.mwinfo b{color:var(--txt);font-variant-numeric:tabular-nums}.dotsep{opacity:.5;margin:0 6px}
 .gmin{color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
 .mxp{margin-top:6px;border-top:1px solid var(--line);padding:12px 6px 4px;display:flex;flex-direction:column;gap:16px;cursor:default}
+.mxp{grid-column:1/-1;min-width:0;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}.mxp *{box-sizing:border-box}.mxsec{min-width:0}
+.mxst{max-width:min(560px,100%)!important}.mxst .r{grid-template-columns:46px minmax(0,1fr) 46px!important}.mxst .bar{min-width:0}
+.mxtl{grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr)!important}.mxtl>div{min-width:0}.mxtl .ev{min-width:0;max-width:100%}.mxtl .tx{min-width:0;overflow-wrap:anywhere}
+@media (max-width:700px){.mxinfo{font-size:12px}.mxtl{font-size:12px;column-gap:6px}.mxtl .mn{width:32px;height:32px;font-size:10px}}
 .mxinfo{text-align:center;font-size:13px;color:var(--mut)}
 .mxmsg{text-align:center;margin:0}
 .mxcd{text-align:center;display:flex;flex-direction:column;gap:2px}.mxcd small{color:var(--mut);font-size:12px}.mxcd b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--acc)}
@@ -5383,7 +5387,7 @@ b.kn .picon{margin:0}
 .mxtl .sep{grid-column:1/-1;text-align:center;font-size:12px;font-weight:700;color:var(--mut);border-top:1px solid var(--line);padding-top:8px;margin-top:2px}
 .cdy,.cdr{display:inline-block;width:11px;height:15px;border-radius:2px;background:#facc15}.cdr{background:#ef4444}
 .mxst{display:flex;flex-direction:column;gap:9px;font-size:13px;max-width:560px;margin:0 auto;width:100%}
-.mxst .r{display:grid;grid-template-columns:52px 1fr 52px;column-gap:10px;row-gap:3px;align-items:center}.mxst .rt{text-align:right}.mxst .r b{font-variant-numeric:tabular-nums}
+.mxst .r{display:grid;grid-template-columns:52px 1fr 52px;column-gap:10px;row-gap:3px;align-items:center}.mxst .mxv2{text-align:right;display:block}.mxst .r b{font-variant-numeric:tabular-nums}
 .mxst .lb{grid-column:1/-1;text-align:center;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .mxst .hd b{color:var(--mut);font-size:12px}
 .mxst .bar{display:flex;gap:3px;height:6px}.mxst .bar i{display:block;height:100%;border-radius:3px}.mxst .bh{background:var(--acc)}.mxst .ba{background:#8b6cf6}
@@ -7444,8 +7448,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const sv = (t, lbl) => { const x = ((t && t.statistics) || []).find((q) => q.label === lbl || q.name === lbl); return x ? x.displayValue : null; };
       const ST = [['Possession', 'Possession', '%'], ['Shots', 'SHOTS'], ['Shots on target', 'ON GOAL'], ['Corners', 'Corner Kicks'], ['Fouls', 'Fouls'], ['Yellow cards', 'Yellow Cards'], ['Red cards', 'Red Cards'], ['Offsides', 'Offsides'], ['Saves', 'Saves'], ['Passes', 'Passes'], ['Pass accuracy', 'Pass Completion %', 'pct']];
       const stats = th && ta ? ST.map(([l, k, u]) => { let a = sv(th, k), b = sv(ta, k); if (a == null || b == null) return ''; let x = +a, y = +b; if (u === 'pct') { x = Math.round(x * 100); y = Math.round(y * 100); a = x + '%'; b = y + '%'; } else if (u === '%') { const ra = Math.round(x * 100 / ((x + y) || 1)); a = ra + '%'; b = (100 - ra) + '%'; }
-        if (l === 'Red cards' && !x && !y) return ''; const tot = x + y || 1; return `<div class="r"><span class="lb">${l}</span><b>${a}</b><span class="bar"><i class="bh" style="width:${(x / tot) * 100}%"></i><i class="ba" style="width:${(y / tot) * 100}%"></i></span><b class="rt">${b}</b></div>`; }).join('') : '';
-      body = (rows ? `<div class="mxsec"><h4>Events</h4><div class="mxtl">${rows}</div></div>` : '') + (stats ? `<div class="mxsec"><h4>Statistics</h4><div class="mxst"><div class="r hd"><b>${esc(T[f.team_h].short_name)}</b><span></span><b class="rt">${esc(T[f.team_a].short_name)}</b></div>${stats}</div></div>` : '') || '<p class="muted mxmsg">No events yet.</p>';
+        if (l === 'Red cards' && !x && !y) return ''; const tot = x + y || 1; return `<div class="r"><span class="lb">${l}</span><b>${a}</b><span class="bar"><i class="bh" style="width:${(x / tot) * 100}%"></i><i class="ba" style="width:${(y / tot) * 100}%"></i></span><b class="mxv2">${b}</b></div>`; }).join('') : '';
+      body = (rows ? `<div class="mxsec"><h4>Events</h4><div class="mxtl">${rows}</div></div>` : '') + (stats ? `<div class="mxsec"><h4>Statistics</h4><div class="mxst"><div class="r hd"><b>${esc(T[f.team_h].short_name)}</b><span></span><b class="mxv2">${esc(T[f.team_a].short_name)}</b></div>${stats}</div></div>` : '') || '<p class="muted mxmsg">No events yet.</p>';
     }
     return `<div class="mxp">${info ? `<div class="mxinfo">${info}</div>` : ''}${body}</div>`;
   }
