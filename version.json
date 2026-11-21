@@ -1,0 +1,10 @@
+{
+  "version": "3.59",
+  "date": "2026-11-21",
+  "notes": "Update banner, iPhone script self-updates, fixed version label.",
+  "files": {
+    "apk": "dist/Elevn.apk",
+    "zip": "dist/Elevn.zip",
+    "userscript": "dist/Elevn.user.js"
+  }
+}
