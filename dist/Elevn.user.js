@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.69.0
+// @version      3.70.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.69';
+  const ELEVN_VER = '3.70';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6069,6 +6069,7 @@ tr.sel td{background:rgba(69,208,143,.07)!important}
 .herok small,#s-home .herok small,.hc .kpi small,.eyebrow{font-size:11px!important}
 .mwn,.mwp,.hnt small,.chipt span,.chipt em,.chipt span b,.ppk4 small,.ppk4 span,.ppsg small,.capc .cs small,.rvs small,.chiphd small{font-size:11px!important}
 /* v3.69 */
+.bpb{font-style:normal;display:inline-block;margin-left:3px;padding:0 4px;border-radius:5px;background:#f6c343;color:#2a1a00;font:800 10px/1.45 var(--fd);vertical-align:2px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}.hpitch .chip.pc.ro .jval .bpb{font-size:10px;vertical-align:3px;animation:bpbp 2s ease-in-out infinite}@keyframes bpbp{50%{box-shadow:0 0 0 3px rgba(246,195,67,.35)}}.mwmy2 .mwp > b .bpb{font-size:9.5px}
 .tvar{font-family:'Noto Kufi Arabic','Segoe UI',Tahoma,sans-serif;font-weight:700;font-size:.95em;color:var(--txt);display:inline-block;padding:0 7px;margin-inline-start:6px;border-radius:6px;background:rgba(255,255,255,.07);border:1px solid var(--line);line-height:1.5}
 .mwtv{text-align:center;font-size:12px;color:var(--mut);margin-top:3px}.mwtv .tvch{white-space:normal}
 @media (min-width:861px){#planner .plgrid.hist{grid-template-columns:minmax(0,1.3fr) minmax(300px,1fr)!important;gap:14px!important}}
@@ -7192,8 +7193,9 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
 <p class="muted fine">Tested on GW${R2.gws[0]}–${R2.gws[R2.gws.length - 1]} (${R2.gws.length} weeks), players with 90+ minutes before each week. Lower error is better. Injury news and set-piece duties aren't known historically, so the live app should do slightly better than this. Last run ${new Date(R2.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}.</p>${accTeamHtml(R2)}`;
   }
   const LIVE = async (gw) => {
-    if (LIVEC[gw]) return LIVEC[gw];
-    try { const d = await J(`/api/event/${gw}/live/`); const m = {}; d.elements.forEach((x) => (m[x.id] = x.stats)); return (LIVEC[gw] = m); } catch (e) { return null; }
+    const done = (BS && BS.events ? BS.events.find((x) => x.id === gw) || {} : {}).finished;
+    if (LIVEC[gw] && (done || Date.now() - (LIVEC[gw].__at || 0) < 60e3)) return LIVEC[gw];
+    try { const d = await J(`/api/event/${gw}/live/`); const m = {}; d.elements.forEach((x) => (m[x.id] = x.stats)); Object.defineProperty(m, '__at', { value: Date.now(), enumerable: false }); return (LIVEC[gw] = m); } catch (e) { return LIVEC[gw] || null; }
   };
   // Premier League player page: premierleague.com/en/players/{FPL code}/{name-slug}/overview
   const slug = (s) => s.replace(/[øØ]/g, 'o').replace(/[æÆ]/g, 'ae').replace(/ß/g, 'ss').replace(/[đĐ]/g, 'd').replace(/[łŁ]/g, 'l')
@@ -7485,8 +7487,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   }
   const tvch = (fid, full) => { const ch = (TV[fid] || {}).ch || []; const nums = [...new Set(ch.map((c) => (c.match(/^bein\s*sports?\s*(\d+)$/i) || [])[1]).filter(Boolean))];
     const extra = full ? ch.filter((c) => !/^bein\s*sports?\s*\d+$/i.test(c) && !/connect/i.test(c)).map((c) => c.replace(/^bein\s*(sports?\s*)?/i, '').trim() || c) : [];
-    const lbl = nums.length ? nums.map((n) => 'beIN SPORTS ' + n).join(' / ') : 'beIN SPORTS', ar = nums.length ? nums.map((n) => 'بي إن سبورتس ' + n).join(' / ') : 'بي إن سبورتس';
-    return `<span class="tvch" title="${esc(ch.length ? ch.join(', ') : 'beIN SPORTS (Middle East and North Africa)')}">📺 <b>${lbl}</b> <bdi class="tvar" lang="ar" dir="rtl">${ar}</bdi>${extra.length ? ` <small class="muted">(${esc(extra.join(', '))})</small>` : ''}</span>`; };
+    const lbl = nums.length ? nums.map((n) => 'beIN SPORTS ' + n).join(' / ') : 'beIN SPORTS';
+    return `<span class="tvch" title="${esc(ch.length ? ch.join(', ') : 'beIN SPORTS (Middle East and North Africa)')}">📺 <b>${lbl}</b>${extra.length ? ` <small class="muted">(${esc(extra.join(', '))})</small>` : ''}</span>`; };
   function mxPanel(A, f) {
     const T = A.T, m = MX[f.id], o = MXS[f.id], ko = f.kickoff_time ? new Date(f.kickoff_time) : null;
     const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', tvch(f.id, true), m && m.added ? `⏱️ +${m.added} added` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
@@ -7545,7 +7547,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const pill = f.started || f._state === 'in' || f._state === 'post' ? `<span class="mwsc${hUp || aUp ? ' goal' : ''}"><i class="dg${hUp ? ' up' : ''}">${hs}</i> - <i class="dg${aUp ? ' up' : ''}">${as}</i></span>` : `<span class="mwsc mwv">${f.kickoff_time ? new Date(f.kickoff_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'TBC'}</span>`;
       const myIn = MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a);
       // v3.53: each of your players sits under his own club's side, with a count per side
-      const chipP = (r) => `<a href="#" data-pi="1" data-pid="${r.e.id}" class="pn mwp${r.mult > 0 ? '' : ' bn'}" title="Open ${esc(r.e.web_name)}'s profile">${pface(r.e).replace('class="picon face"', 'class="picon face mwf"')}<span class="mwnm">${esc(r.e.web_name)}${r.x.is_captain ? ' <i>C</i>' : r.x.is_vice_captain ? ' <i class="v">V</i>' : ''}</span>${mw === cur && f.started ? `<b>${r.pts * Math.max(1, r.mult)}</b>` : '<span></span>'}</a>`;
+      const chipP = (r) => `<a href="#" data-pi="1" data-pid="${r.e.id}" class="pn mwp${r.mult > 0 ? '' : ' bn'}" title="Open ${esc(r.e.web_name)}'s profile">${pface(r.e).replace('class="picon face"', 'class="picon face mwf"')}<span class="mwnm">${esc(r.e.web_name)}${r.x.is_captain ? ' <i>C</i>' : r.x.is_vice_captain ? ' <i class="v">V</i>' : ''}</span>${mw === cur && f.started ? `<b>${r.pts * Math.max(1, r.mult)}${(() => { const lb = r.provBonus || (!f.finished && r.st && r.st.bonus) || 0; return lb ? `<i class="bpb" title="Live bonus (provisional)">+${lb}</i>` : ''; })()}</b>` : '<span></span>'}</a>`;
       const sideH = (tid) => { const rs = myIn.filter((r) => r.e.team === tid); return rs.length ? rs.map(chipP).join('') : ''; };
       const cnt = (tid) => { const n = myIn.filter((r) => r.e.team === tid).length; return n ? `<span class="mycnt" title="${n} of your players">${n}</span>` : ''; };
       const mineH = myIn.length ? `<div class="mwmy2"><div class="mws2 r">${sideH(f.team_h)}</div><span></span><div class="mws2">${sideH(f.team_a)}</div></div>` : '';
@@ -9173,7 +9175,10 @@ ${(() => { const alt = path.alt, maxS = st.filter((s) => !s.chip).pop() || st[0]
   function histHtml(A, g, d) {
     if (!d || !d.pk || !d.live) return '<p class="muted">No data for this gameweek. The team may not have played it.</p>';
     const T = A.T, h = (A.hist.current || []).find((x) => x.event === g) || {}; const avg = (BS.events.find((e) => e.id === g) || {}).average_entry_score || 0;
-    const rows = d.pk.picks.map((x) => ({ x, e: A.E[x.element], st: d.live[x.element] || {} })).filter((r) => r.e).map((r) => Object.assign(r, { pts: r.st.total_points || 0 }));
+    // v3.70: live bonus: top 3 BPS in each match not yet confirmed get 3/2/1 (FPL adds it about an hour after full time)
+    const PB = {}; (FX || []).filter((f) => f.event === g && f.started && !f.finished).forEach((f) => { const ps = BS.elements.filter((e) => e.team === f.team_h || e.team === f.team_a).map((e) => ({ id: e.id, s: d.live[e.id] || {} })).filter((x) => (x.s.minutes || 0) > 0).map((x) => ({ id: x.id, b: x.s.bps || 0, cb: x.s.bonus || 0 })).sort((a, b) => b.b - a.b);
+      if (ps.some((x) => x.cb)) return; ps.forEach((x) => { const rk = ps.filter((y) => y.b > x.b).length + 1; if (rk <= 3) PB[x.id] = 4 - rk; }); });
+    const rows = d.pk.picks.map((x) => ({ x, e: A.E[x.element], st: d.live[x.element] || {} })).filter((r) => r.e).map((r) => { const pb = r.st.bonus ? 0 : PB[r.e.id] || 0; const unconf = (FX || []).some((f) => f.event === g && f.started && !f.finished && (f.team_h === r.e.team || f.team_a === r.e.team)); return Object.assign(r, { pb, lb: pb || (unconf ? r.st.bonus || 0 : 0), pts: (r.st.total_points || 0) + pb }); });
     const nm = (e) => `<a class="pn" href="#" data-pid="${e.id}">${esc(e.web_name)}</a>`;
     // v3.69: each player's fixture state this gameweek (not started / live / done), like the official app
     const gfx = (FX || []).filter((f) => f.event === g); const fxOf = (tid) => gfx.filter((f) => f.team_h === tid || f.team_a === tid);
@@ -9182,7 +9187,7 @@ ${(() => { const alt = path.alt, maxS = st.filter((s) => !s.chip).pop() || st[0]
     const card = (r) => { const cnt = r.pts * (r.x.multiplier || 1); const s = r.st; const ev = [s.goals_scored ? s.goals_scored + 'G' : '', s.assists ? s.assists + 'A' : '', s.clean_sheets && r.e.element_type < 4 ? 'CS' : '', s.bonus ? '+' + s.bonus + 'b' : ''].filter(Boolean).join(' ');
       const fs = stOf(r.e.team), ns = fs === 'ns' || (fs === 'blank'), tier = ns ? 'ns' : cnt >= 10 ? 'hi' : cnt >= 4 ? 'ok' : cnt >= 2 ? 'mid' : 'lo';
       const nx = ns && fs !== 'blank' ? nextFx(r.e.team).split(' ') : [];
-      const val = ns ? (fs === 'blank' ? '<b>–</b>' : `<b class="nsfx">${esc(nx.slice(0, 2).join(' '))}</b>`) : `<b>${cnt}</b>`;
+      const val = ns ? (fs === 'blank' ? '<b>–</b>' : `<b class="nsfx">${esc(nx.slice(0, 2).join(' '))}</b>`) : `<b>${cnt}</b>${r.lb ? `<i class="bpb" title="Live bonus: ${r.lb} provisional bonus point${r.lb > 1 ? 's' : ''} from the BPS ranking (counted in the total, confirmed by FPL after the match)">+${r.lb}</i>` : ''}`;
       const sub = fs === 'blank' ? 'No match' : ns ? esc(nx.slice(2).join(' ')) : `${fs === 'live' ? '<i class="ldot"></i>' : ''}${s.minutes || 0}′${ev ? ' · ' + ev : ''}`;
       return `<div class="chip pc ro pt-${tier}${fs === 'live' ? ' plive' : ''}" data-prof="${r.e.id}" role="button" tabindex="0">${jersey(A, r.e, { role: r.x.is_captain ? (r.x.multiplier === 3 ? '3×' : 'C') : r.x.is_vice_captain ? 'V' : '', val, sub })}</div>`; };
     const xi = rows.filter((r) => r.x.multiplier > 0), bench = rows.filter((r) => !r.x.multiplier);
@@ -9191,11 +9196,11 @@ ${(() => { const alt = path.alt, maxS = st.filter((s) => !s.chip).pop() || st[0]
     const sorted = rows.slice().sort((a, b) => b.pts * (b.x.multiplier || 0) - a.pts * (a.x.multiplier || 0) || b.pts - a.pts);
     // v3.69: points add up live from the players' scores (FPL updates the gameweek total later); final weeks use FPL's own total
     const ev = BS.events.find((x) => x.id === g) || {}, liveGw = !ev.finished, sum = xi.reduce((a, r) => a + r.pts * r.x.multiplier, 0);
-    const pts = liveGw ? sum : (h.points ?? sum), hi = ev.highest_score || 0, cost = h.event_transfers_cost || 0;
+    const pbSum = xi.reduce((a, r) => a + (r.lb || 0) * r.x.multiplier, 0), pts = liveGw ? sum : (h.points ?? sum), hi = ev.highest_score || 0, cost = h.event_transfers_cost || 0;
     const nf = gfx.length, nDone = gfx.filter((f) => f.finished || f.finished_provisional).length, nLive = gfx.filter((f) => f.started && !(f.finished || f.finished_provisional)).length;
     const yet = xi.filter((r) => ['ns', 'part'].includes(stOf(r.e.team))).length;
     const cell = (l, v, sub) => `<div class="hcell"><small>${l}</small><b>${v}</b>${sub ? `<em>${sub}</em>` : ''}</div>`;
-    const hstat = `<div class="hst"><div class="hhero${liveGw ? ' live' : ''}"><small>${liveGw ? 'Live points' : 'Final points'}</small><b>${pts}</b><span>${liveGw ? `${nDone}/${nf} matches done${nLive ? ` · ${nLive} live` : ''}${yet ? ` · ${yet} of your XI to play` : ''}` : avg ? `${pts >= avg ? '▲' : '▼'} ${Math.abs(pts - avg)} vs average` : `Gameweek ${g}`}</span>${cost ? `<span class="hhit">−${cost} hit · net ${pts - cost}</span>` : ''}</div><div class="hcells">${cell('Average · Highest', `${avg || '–'} <i class="hsep">/</i> ${hi || '–'}`, avg || hi ? '' : 'after the week')}${cell('GW rank', h.rank ? h.rank.toLocaleString() : '–')}${cell('Overall rank', h.overall_rank ? h.overall_rank.toLocaleString() : '–')}${cell('Transfers', h.event_transfers ?? 0, cost ? `<span class="dn">−${cost} hit</span>` : 'no hit')}${cell('Bench points', liveGw ? bench.reduce((a, r) => a + r.pts, 0) : (h.points_on_bench ?? bench.reduce((a, r) => a + r.pts, 0)))}${cell('Chip', CHN[d.pk.active_chip] || 'None')}</div></div>`;
+    const hstat = `<div class="hst"><div class="hhero${liveGw ? ' live' : ''}"><small>${liveGw ? 'Live points' : 'Final points'}</small><b>${pts}</b><span>${liveGw ? `${nDone}/${nf} matches done${nLive ? ` · ${nLive} live` : ''}${yet ? ` · ${yet} of your XI to play` : ''}${pbSum ? `</span><span class="hhit">incl. +${pbSum} live bonus` : ''}` : avg ? `${pts >= avg ? '▲' : '▼'} ${Math.abs(pts - avg)} vs average` : `Gameweek ${g}`}</span>${cost ? `<span class="hhit">−${cost} hit · net ${pts - cost}</span>` : ''}</div><div class="hcells">${cell('Average · Highest', `${avg || '–'} <i class="hsep">/</i> ${hi || '–'}`, avg || hi ? '' : 'after the week')}${cell('GW rank', h.rank ? h.rank.toLocaleString() : '–')}${cell('Overall rank', h.overall_rank ? h.overall_rank.toLocaleString() : '–')}${cell('Transfers', h.event_transfers ?? 0, cost ? `<span class="dn">−${cost} hit</span>` : 'no hit')}${cell('Bench points', liveGw ? bench.reduce((a, r) => a + r.pts, 0) : (h.points_on_bench ?? bench.reduce((a, r) => a + r.pts, 0)))}${cell('Chip', CHN[d.pk.active_chip] || 'None')}</div></div>`;
     return `<div class="plgrid hist"><div class="plleft">
 ${hstat}
 <div class="pitch hpitch"><div class="row">${row(1)}</div><div class="row">${row(2)}</div><div class="row">${row(3)}</div><div class="row">${row(4)}</div></div>
