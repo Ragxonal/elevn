@@ -1,7 +1,7 @@
 {
-  "version": "3.64",
+  "version": "3.65",
   "date": "2026-11-21",
-  "notes": "Chrome now tells you about updates with a notification and a NEW badge.",
+  "notes": "Live clock with seconds, goal minutes, tap a match for events, stats and stadium.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",

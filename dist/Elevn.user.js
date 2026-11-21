@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.64.0
+// @version      3.65.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.64';
+  const ELEVN_VER = '3.65';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -5365,6 +5365,28 @@ b.kn .picon{margin:0}
 @media (max-width:700px){.mwodds{grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr);column-gap:8px;font-size:11px}}
 .oddst{display:block;margin-top:6px;font-size:12px;color:var(--mut)}#odds-key{flex:1;min-width:0;font:inherit;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
 .faststrip{margin:4px 0 0;font-size:12px;color:var(--mut);display:flex;align-items:center;gap:6px;flex-wrap:wrap}.fastdot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(246,195,67,.2)}.fastp{display:block;color:var(--gold);font-weight:700;font-size:11px}
+@media (max-width:700px){.mycnt{min-width:17px!important;height:17px!important;font-size:10px!important;padding:0 4px!important}}
+.mycnt{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;font-size:11px;font-weight:800;color:#04221a;background:var(--acc);box-shadow:0 0 0 2px rgba(69,208,143,.18);flex:none}
+.mwr.tap{cursor:pointer;transition:background .15s}.mwr.tap:hover{background:rgba(255,255,255,.03)}.mwr.open{background:rgba(255,255,255,.035)}
+.mwinfo{text-align:center;font-size:12px;color:var(--mut);margin-top:-2px}.mwinfo b{color:var(--txt);font-variant-numeric:tabular-nums}.dotsep{opacity:.5;margin:0 6px}
+.gmin{color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
+.mxp{margin-top:6px;border-top:1px solid var(--line);padding:12px 6px 4px;display:flex;flex-direction:column;gap:16px;cursor:default}
+.mxinfo{text-align:center;font-size:13px;color:var(--mut)}
+.mxmsg{text-align:center;margin:0}
+.mxcd{text-align:center;display:flex;flex-direction:column;gap:2px}.mxcd small{color:var(--mut);font-size:12px}.mxcd b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--acc)}
+.mxsec h4{margin:0 0 10px;text-align:center;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.mxtl{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr);row-gap:8px;column-gap:10px;align-items:center;font-size:13px}
+.mxtl .mn{justify-self:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center;font-weight:700;font-size:11px;font-variant-numeric:tabular-nums}
+.mxtl .h{justify-self:end;text-align:right}.mxtl .ev{display:inline-flex;align-items:center;gap:8px}.mxtl .h .ev{flex-direction:row}
+.mxtl .ev b{font-weight:600}.mxtl small{display:block;color:var(--mut);font-size:11px}.mxtl .ev>b+small,.mxtl .ev small{margin-top:1px}
+.mxtl .tx{display:flex;flex-direction:column;line-height:1.3}.mxtl .h .tx{align-items:flex-end}.mxtl .in,.mxtl .out{font-size:12px}.mxtl .in{color:var(--good)}.mxtl .out{color:#f87171}.mxtl .sub{font-size:15px;color:var(--mut)}
+.mxtl .sep{grid-column:1/-1;text-align:center;font-size:12px;font-weight:700;color:var(--mut);border-top:1px solid var(--line);padding-top:8px;margin-top:2px}
+.cdy,.cdr{display:inline-block;width:11px;height:15px;border-radius:2px;background:#facc15}.cdr{background:#ef4444}
+.mxst{display:flex;flex-direction:column;gap:9px;font-size:13px;max-width:560px;margin:0 auto;width:100%}
+.mxst .r{display:grid;grid-template-columns:52px 1fr 52px;column-gap:10px;row-gap:3px;align-items:center}.mxst .rt{text-align:right}.mxst .r b{font-variant-numeric:tabular-nums}
+.mxst .lb{grid-column:1/-1;text-align:center;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.mxst .hd b{color:var(--mut);font-size:12px}
+.mxst .bar{display:flex;gap:3px;height:6px}.mxst .bar i{display:block;height:100%;border-radius:3px}.mxst .bh{background:var(--acc)}.mxst .ba{background:#8b6cf6}
 .mwmy2{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);column-gap:14px;margin-top:8px;align-items:start}
 .mws2{display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}.mws2.r{justify-content:flex-end}
 .mwmy2 .mwp{display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 2px}
@@ -7258,6 +7280,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     try {
       const sb = await fastGet('https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard');
       (sb.events || []).forEach((ev) => { const c = (ev.competitions || [])[0]; if (!c) return; const H = c.competitors.find((x) => x.homeAway === 'home'), Aw = c.competitors.find((x) => x.homeAway === 'away'); if (!H || !Aw) return;
+        mxPut(games, ev);
         const h = nameTeam(H.team.displayName), a = nameTeam(Aw.team.displayName); const f = live.find((x) => x.team_h === h && x.team_a === a); if (!f) return;
         const st = ev.status && ev.status.type || {}; const o = FD.fx[f.id] || (FD.fx[f.id] = {});
         const hs = +H.score || 0, as = +Aw.score || 0; if (o.h !== hs || o.a !== as) changed = true;
@@ -7365,6 +7388,67 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   // ---------- v2.7: matchweek view for the live centre ----------
   // ---------- v3.8: live score roll-up (a score that went up since the last refresh rolls in and the card flashes) ----------
   let SCORES = {}, NEWSC = {};
+  // v3.65: match details from the free live score feed: clock in seconds, scorers with minutes, stadium, timeline and stats
+  const ESPN_SB = 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard', ESPN_SUM = 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/summary?event=';
+  const MX = {}, MXD = {}, MXS = {}, OPENMX = new Set();
+  function mxPut(fxs, ev) {
+    const c = (ev.competitions || [])[0]; if (!c) return; const H = c.competitors.find((x) => x.homeAway === 'home'), Aw = c.competitors.find((x) => x.homeAway === 'away'); if (!H || !Aw) return;
+    const h = nameTeam(H.team.displayName), a = nameTeam(Aw.team.displayName); const t0 = Date.parse(ev.date);
+    const f = fxs.find((x) => x.team_h === h && x.team_a === a && (!x.kickoff_time || !t0 || Math.abs(Date.parse(x.kickoff_time) - t0) < 2 * 864e5)); if (!f) return;
+    const st = ev.status || {}, ty = st.type || {}, v = c.venue || {};
+    MX[f.id] = { eid: ev.id, venue: v.fullName || '', city: (v.address || {}).city || '', clock: +st.clock || 0, period: +st.period || 0, state: ty.state || '', name: ty.name || '', at: Date.now(), att: +c.attendance || 0,
+      goals: (c.details || []).filter((d) => d.scoringPlay).map((d) => ({ side: d.team && d.team.id === H.team.id ? 'h' : 'a', who: ((d.athletesInvolved || [])[0] || {}).displayName || '', min: (d.clock && d.clock.displayValue) || '', og: !!d.ownGoal, pen: !!d.penaltyKick })) };
+  }
+  async function mxLoad(mw) {
+    const fxs = FX.filter((f) => f.event === mw && f.kickoff_time); const days = [...new Set(fxs.map((f) => f.kickoff_time.slice(0, 10)))]; let any = false;
+    for (const d of days) { const live = fxs.some((f) => f.kickoff_time.startsWith(d) && f.started && !f.finished); if (MXD[d] && Date.now() - MXD[d] < (live ? 60e3 : 36e5)) continue; MXD[d] = Date.now();
+      try { const j = await fastGet(ESPN_SB + '?dates=' + d.replace(/-/g, '')); (j.events || []).forEach((ev) => mxPut(fxs, ev)); any = true; } catch (e) {} }
+    return any;
+  }
+  async function mxSummary(fid) { const m = MX[fid]; if (!m) return false; const o = MXS[fid]; const live = m.state === 'in'; if (o && (o.busy || Date.now() - o.at < (live ? 30e3 : 6e5))) return false;
+    MXS[fid] = Object.assign(o || {}, { busy: true }); try { MXS[fid] = { at: Date.now(), d: await fastGet(ESPN_SUM + m.eid) }; return true; } catch (e) { MXS[fid] = { at: Date.now(), err: true }; return true; } }
+  const pad2 = (n) => String(Math.max(0, Math.floor(n))).padStart(2, '0');
+  const clkFmt = (t, p) => { const base = p >= 4 ? 120 : p === 3 ? 105 : p === 2 ? 90 : 45, m = Math.floor(t / 60), sec = pad2(t % 60); return m >= base ? `${base}+${m - base}:${sec}` : `${m}:${sec}`; };
+  const cdFmt = (ms) => { if (ms <= 0) return 'Kick-off'; const d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), m = Math.floor((ms % 36e5) / 6e4), sec = Math.floor((ms % 6e4) / 1e3); return (d ? d + 'd ' : '') + `${pad2(h)}:${pad2(m)}:${pad2(sec)}`; };
+  setInterval(() => { try { R.querySelectorAll('[data-clk]').forEach((el) => { el.textContent = clkFmt(+el.dataset.clk + (Date.now() - +el.dataset.at) / 1000, +el.dataset.per); }); R.querySelectorAll('[data-ko]').forEach((el) => { el.textContent = cdFmt(+el.dataset.ko - Date.now()); }); } catch (e) {} }, 1000);
+  // FPL short name for a feed name (falls back to the surname)
+  const fplWho = (who, tid) => { const fw = fmFold(who); const e = BS.elements.find((x) => x.team === tid && (fmFold(x.first_name + ' ' + x.second_name) === fw || fmFold(x.web_name) === fw)) || BS.elements.find((x) => { const l = fmFold(x.second_name).split(' ').pop(); return x.team === tid && l.length > 2 && fw.endsWith(' ' + l); }); return e ? e.web_name : String(who).split(' ').pop(); };
+  function mxPanel(A, f) {
+    const T = A.T, m = MX[f.id], o = MXS[f.id], ko = f.kickoff_time ? new Date(f.kickoff_time) : null;
+    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
+    const up = !f.started && !(m && (m.state === 'in' || m.state === 'post'));
+    let body = '';
+    if (up) body = ko ? `<div class="mxcd"><small>Kick-off in</small><b data-ko="${+ko}">${cdFmt(+ko - Date.now())}</b></div>` : '';
+    else if (!m) body = '<p class="muted mxmsg">Match details are not available for this match.</p>';
+    else if (!o || o.busy) body = '<p class="muted mxmsg">Loading match details…</p>';
+    else if (o.err) body = '<p class="muted mxmsg">Couldn\'t load match details. Tap the match again to retry.</p>';
+    else {
+      const d = o.d, hid = ((d.header && d.header.competitions && d.header.competitions[0].competitors) || []).find((x) => x.homeAway === 'home');
+      const homeId = hid && (hid.team || {}).id; let hs = 0, as = 0;
+      const rows = (d.keyEvents || []).map((k) => {
+        const ty = (k.type || {}).text || '', min = ((k.clock || {}).displayValue || '').replace(/'$/, '′').replace(/'/g, '′'), side = k.team ? (k.team.id === homeId ? 'h' : 'a') : '';
+        const ps = (k.participants || []).map((p) => (p.athlete || {}).displayName || '');
+        if (/^Halftime/i.test(ty)) return `<div class="sep">HT ${hs} - ${as}</div>`;
+        if (/^End Regular Time|^Full ?Time/i.test(ty)) return `<div class="sep">FT ${hs} - ${as}</div>`;
+        let ic = '', txt = '';
+        const tid = side === 'h' ? f.team_h : f.team_a;
+        if (/^Goal|Penalty - Scored|Own Goal/i.test(ty)) { if (side === 'h') hs++; else if (side === 'a') as++; ic = '⚽'; txt = `<span class="tx"><span><b>${esc(fplWho(ps[0] || '', tid))}</b> (${hs} - ${as})${/own goal/i.test(ty) ? ' og' : /penalty/i.test(ty) ? ' pen' : ''}</span>${ps[1] ? `<small>assist ${esc(fplWho(ps[1], tid))}</small>` : ''}</span>`; }
+        else if (/Yellow Card/i.test(ty)) { ic = '<i class="cdy"></i>'; txt = `<b>${esc(fplWho(ps[0] || '', tid))}</b>`; }
+        else if (/Red Card/i.test(ty)) { ic = '<i class="cdr"></i>'; txt = `<span class="tx"><b>${esc(fplWho(ps[0] || '', tid))}</b>${/second/i.test(ty) ? '<small>second yellow</small>' : ''}</span>`; }
+        else if (/Substitution/i.test(ty)) { ic = '<span class="sub">⇄</span>'; txt = `<span class="tx"><span class="in">${esc(fplWho(ps[0] || '', tid))}</span><span class="out">${esc(fplWho(ps[1] || '', tid))}</span></span>`; }
+        else return '';
+        const cell = `<span class="ev">${side === 'h' ? txt + ic : ic + txt}</span>`;
+        return side === 'h' ? `<div class="h">${cell}</div><span class="mn">${min}</span><div></div>` : `<div></div><span class="mn">${min}</span><div class="a">${cell}</div>`;
+      }).join('');
+      const tms = (d.boxscore && d.boxscore.teams) || []; const th = tms.find((x) => x.team && x.team.id === homeId) || tms[0], ta = tms.find((x) => x !== th);
+      const sv = (t, lbl) => { const x = ((t && t.statistics) || []).find((q) => q.label === lbl || q.name === lbl); return x ? x.displayValue : null; };
+      const ST = [['Possession', 'Possession', '%'], ['Shots', 'SHOTS'], ['Shots on target', 'ON GOAL'], ['Corners', 'Corner Kicks'], ['Fouls', 'Fouls'], ['Yellow cards', 'Yellow Cards'], ['Red cards', 'Red Cards'], ['Offsides', 'Offsides'], ['Saves', 'Saves'], ['Passes', 'Passes'], ['Pass accuracy', 'Pass Completion %', 'pct']];
+      const stats = th && ta ? ST.map(([l, k, u]) => { let a = sv(th, k), b = sv(ta, k); if (a == null || b == null) return ''; let x = +a, y = +b; if (u === 'pct') { x = Math.round(x * 100); y = Math.round(y * 100); a = x + '%'; b = y + '%'; } else if (u === '%') { const ra = Math.round(x * 100 / ((x + y) || 1)); a = ra + '%'; b = (100 - ra) + '%'; }
+        if (l === 'Red cards' && !x && !y) return ''; const tot = x + y || 1; return `<div class="r"><span class="lb">${l}</span><b>${a}</b><span class="bar"><i class="bh" style="width:${(x / tot) * 100}%"></i><i class="ba" style="width:${(y / tot) * 100}%"></i></span><b class="rt">${b}</b></div>`; }).join('') : '';
+      body = (rows ? `<div class="mxsec"><h4>Events</h4><div class="mxtl">${rows}</div></div>` : '') + (stats ? `<div class="mxsec"><h4>Statistics</h4><div class="mxst"><div class="r hd"><b>${esc(T[f.team_h].short_name)}</b><span></span><b class="rt">${esc(T[f.team_a].short_name)}</b></div>${stats}</div></div>` : '') || '<p class="muted mxmsg">No events yet.</p>';
+    }
+    return `<div class="mxp">${info ? `<div class="mxinfo">${info}</div>` : ''}${body}</div>`;
+  }
   function matchesHtml(A) {
     const L = A.live, T = A.T, cur = L.gw, total = (BS.events || []).length || 38;
     const mw = MW == null ? cur : Math.max(1, Math.min(total, MW));
@@ -7376,23 +7460,30 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const range = dated.length ? (() => { const a = new Date(dated[0].kickoff_time).toLocaleDateString(undefined, dFmt), b = new Date(dated[dated.length - 1].kickoff_time).toLocaleDateString(undefined, dFmt); return a === b ? a : a + ' – ' + b; })() : 'Dates to be confirmed';
     const chev = (d) => `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     const head = `<div class="mwh"><button class="mwa" type="button" data-mw="-1" aria-label="Previous matchweek" ${mw <= 1 ? 'disabled' : ''}>${chev('M15 5l-7 7 7 7')}</button><div class="mwhc"><b>Matchweek ${mw}</b><span>${range}</span>${(() => { const xi = MINE.filter((r) => r.pos <= 11), m = new Set(fxs.flatMap((f) => MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a).map((r) => r.e.id))); const nx = xi.filter((r) => m.has(r.e.id)).length; return MINE.length ? `<span class="mwyou">You have <b>${m.size}</b> of 15 players in these matches · <b>${nx}</b> of your XI</span>` : ''; })()}${mw !== cur ? `<button class="lnk2" type="button" data-mw="cur">Back to GW${cur}</button>` : ''}</div><button class="mwa" type="button" data-mw="1" aria-label="Next matchweek" ${mw >= total ? 'disabled' : ''}>${chev('M9 5l7 7-7 7')}</button></div>`;
-    const ev = (f, side) => { const st = f.stats || []; const g = (st.find((x) => x.identifier === 'goals_scored') || {})[side] || []; const og = (st.find((x) => x.identifier === 'own_goals') || {})[side === 'h' ? 'a' : 'h'] || []; const nmOf = (x) => esc((A.E[x.element] || {}).web_name || ''); return [...g.map((x) => nmOf(x) + (x.value > 1 ? ' ×' + x.value : '')), ...og.map((x) => nmOf(x) + ' (og)')].join(', '); };
+    const ev = (f, side) => { const mx = MX[f.id]; if (mx && mx.goals.length) { const tid = side === 'h' ? f.team_h : f.team_a; return mx.goals.filter((g) => g.side === side).map((g) => `${esc(g.og ? String(g.who).split(' ').pop() : fplWho(g.who, tid))} <span class="gmin">${esc(String(g.min).replace(/'/g, '′'))}</span>${g.og ? ' (og)' : g.pen ? ' (pen)' : ''}`).join(', '); }
+      const st = f.stats || []; const g = (st.find((x) => x.identifier === 'goals_scored') || {})[side] || []; const og = (st.find((x) => x.identifier === 'own_goals') || {})[side === 'h' ? 'a' : 'h'] || []; const nmOf = (x) => esc((A.E[x.element] || {}).web_name || ''); return [...g.map((x) => nmOf(x) + (x.value > 1 ? ' ×' + x.value : '')), ...og.map((x) => nmOf(x) + ' (og)')].join(', '); };
     const row = (f) => {
       const fin = f.finished || f.finished_provisional || f._state === 'post', live = (f.started || f._state === 'in') && !fin;
-      const left = fin ? 'FT' : live ? `<span class="mwlive">${f._clock && f._state === 'in' ? esc(f._clock) : (f.minutes || 0) + '′'}${f._fast ? ' ⚡' : ''}</span>` : '';
+      const mx = MX[f.id], ht = (mx && /HALFTIME/.test(mx.name)) || f._clock === 'HT';
+      const clk = ht ? 'HT' : mx && mx.state === 'in' && mx.clock ? `<span data-clk="${mx.clock}" data-per="${mx.period}" data-at="${mx.at}">${clkFmt(mx.clock + (Date.now() - mx.at) / 1000, mx.period)}</span>` : f._clock && f._state === 'in' ? esc(f._clock) : (f.minutes || 0) + '′';
+      const left = fin ? 'FT' : live ? `<span class="mwlive">${clk}${f._fast ? ' ⚡' : ''}</span>` : '';
       const hs = f._fast ? f._fast.h : f.team_h_score ?? 0, as = f._fast ? f._fast.a : f.team_a_score ?? 0, was = SCORES[f.id], hUp = was && hs > was[0], aUp = was && as > was[1]; NEWSC[f.id] = [hs, as];
       const pill = f.started || f._state === 'in' || f._state === 'post' ? `<span class="mwsc${hUp || aUp ? ' goal' : ''}"><i class="dg${hUp ? ' up' : ''}">${hs}</i> - <i class="dg${aUp ? ' up' : ''}">${as}</i></span>` : `<span class="mwsc mwv">${f.kickoff_time ? new Date(f.kickoff_time).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'TBC'}</span>`;
       const myIn = MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a);
       // v3.53: each of your players sits under his own club's side, with a count per side
       const chipP = (r) => `<span class="mwp${r.mult > 0 ? '' : ' bn'}">${pface(r.e).replace('class="picon face"', 'class="picon face mwf"')}${esc(r.e.web_name)}${r.x.is_captain ? ' <i>C</i>' : r.x.is_vice_captain ? ' <i class="v">V</i>' : ''}${mw === cur && f.started ? ` <b>${r.pts * Math.max(1, r.mult)}</b>` : ''}</span>`;
-      const sideH = (tid) => { const rs = myIn.filter((r) => r.e.team === tid); return rs.length ? `<span class="mwn">${rs.length} yours</span>${rs.map(chipP).join('')}` : ''; };
+      const sideH = (tid) => { const rs = myIn.filter((r) => r.e.team === tid); return rs.length ? rs.map(chipP).join('') : ''; };
+      const cnt = (tid) => { const n = myIn.filter((r) => r.e.team === tid).length; return n ? `<span class="mycnt" title="${n} of your players">${n}</span>` : ''; };
       const mineH = myIn.length ? `<div class="mwmy2"><div class="mws2 r">${sideH(f.team_h)}</div><span></span><div class="mws2">${sideH(f.team_a)}</div></div>` : '';
       const eh = f.started ? ev(f, 'h') : '', ea = f.started ? ev(f, 'a') : '';
       const mk = !f.started ? oddsFor(f.team_h, f.team_a, f.kickoff_time) : null; const pc = (x) => Math.round(x * 100) + '%';
       const oddsH = mk ? `<div class="mwodds" title="Bookmaker odds, margin removed, average of ${mk.books} bookmakers. Clean sheet and expected goals are fitted from these prices."><span class="r">Win ${pc(mk.pH)} · CS ${pc(Math.exp(-mk.la))} · xG ${mk.lh.toFixed(1)}</span><span class="c">Draw ${pc(mk.pD)}</span><span>xG ${mk.la.toFixed(1)} · CS ${pc(Math.exp(-mk.lh))} · Win ${pc(mk.pA)}</span></div>` : '';
-      return `<div class="mwr ${live ? 'on' : ''}${myIn.length ? ' my' : ''}">${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h"><b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b></span></div>${oddsH}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}</div>`;
+      const open = OPENMX.has(f.id); if (open && mw === cur && (f.started || (mx && mx.state === 'in'))) setTimeout(() => mxSummary(f.id).then((ch) => ch && paintMatches(A)), 0);
+      const venue = mx && mx.venue && !open ? `<div class="mwinfo">🏟️ ${esc(mx.venue)}${!f.started && f.kickoff_time && Date.parse(f.kickoff_time) - Date.now() < 864e5 ? ` <span class="dotsep">·</span> in <b data-ko="${Date.parse(f.kickoff_time)}">${cdFmt(Date.parse(f.kickoff_time) - Date.now())}</b>` : ''}</div>` : '';
+      return `<div class="mwr tap ${live ? 'on' : ''}${myIn.length ? ' my' : ''}${open ? ' open' : ''}" data-mx="${f.id}" role="button" tabindex="0" aria-expanded="${open}">${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h">${cnt(f.team_h)}<b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b>${cnt(f.team_a)}</span></div>${venue}${oddsH}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}${open ? mxPanel(A, f) : ''}</div>`;
     };
     const days = []; fxs.forEach((f) => { const k = f.kickoff_time ? new Date(f.kickoff_time).toLocaleDateString(undefined, dFmt) : 'Date to be confirmed'; let d = days[days.length - 1]; if (!d || d.k !== k) { d = { k, rows: [] }; days.push(d); } d.rows.push(row(f)); });
+    setTimeout(() => mxLoad(mw).then((ch) => { if (ch && LASTA === A) paintMatches(A); }), 0);
     return head + (days.length ? days.map((d) => `<section class="mwday"><h3 class="mwdh">${d.k}</h3>${d.rows.join('')}</section>`).join('') : '<p class="mwnone">No matches listed for this matchweek.</p>');
   }
   function paintMatches(A) { const w = R.querySelector('#s-live .mwk'); if (w && A && A.live) w.innerHTML = matchesHtml(A); }
@@ -9057,6 +9148,8 @@ ${bench.length ? `<div class="benchbox"><div class="ptitle">Bench</div><div clas
   }
   out.addEventListener('click', (ev) => {
     const t = ev.target; if (!t.closest) return;
+    const mxr = t.closest('[data-mx]');
+    if (mxr && !t.closest('.mxp') && !t.closest('[data-mw]') && LASTA && LASTA.live) { const fid = +mxr.dataset.mx; if (OPENMX.has(fid)) OPENMX.delete(fid); else { OPENMX.add(fid); mxSummary(fid).then((ch) => ch && paintMatches(LASTA)); } paintMatches(LASTA); return; }
     const mwb = t.closest('[data-mw]');
     if (mwb && LASTA && LASTA.live) { ev.preventDefault(); const cur = LASTA.live.gw, total = (BS.events || []).length || 38; if (mwb.dataset.mw === 'cur') MW = null; else { const n = Math.max(1, Math.min(total, (MW == null ? cur : MW) + (+mwb.dataset.mw))); MW = n === cur ? null : n; } paintMatches(LASTA); return; }
     if (t.closest('[data-h2h]')) { cmpFromSwaps(); FIXTAB = 'h2h'; showView('fix', 'h2h'); paintRot(); }
