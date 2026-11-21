@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.74.0
+// @version      3.75.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.74';
+  const ELEVN_VER = '3.75';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -9540,7 +9540,18 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
   function requestPlStats() { if (!extId()) return plStatsDirect(); return new Promise((resolve, reject) => { try { chrome.runtime.sendMessage({ type: 'fpl-pl-player-stats' }, (r) => { const er = chrome.runtime.lastError; if (er || !r || !r.ok) reject(new Error((er && er.message) || (r && r.error) || 'Premier League stats request failed.')); else resolve(r.data); }); } catch (e) { reject(e); } }); }
   function requestPlWindow(fromGw, toGw, players) { if (!extId()) return plWindowDirect(fromGw, toGw, players); return new Promise((resolve, reject) => { try { chrome.runtime.sendMessage({ type: 'fpl-pl-player-window-stats', fromGw, toGw, players }, (r) => { const er = chrome.runtime.lastError; if (er || !r || !r.ok) reject(new Error((er && er.message) || (r && r.error) || 'Premier League gameweek stats request failed.')); else resolve(r.data); }); } catch (e) { reject(e); } }); }
   function psLatestFinishedGw() { return Math.max(0, ...(BS.events || []).filter((g) => g.finished).map((g) => Number(g.id) || 0)); }
+  // v3.75: FPL and the Premier League feed answer 502/503/504 when busy on matchdays: try again before giving up
+  async function retry5(fn, tries = 3) { let err; for (let i = 0; i < tries; i++) { try { return await fn(); } catch (e) { err = e; if (!/HTTP 5\d\d|time(d)? ?out|Failed to fetch|NetworkError|aborted/i.test(String(e && e.message || e)) || i === tries - 1) break; await new Promise((r) => setTimeout(r, [1500, 4000, 8000][i])); } } throw err; }
   async function loadPlayerWindow(force, mode) {
+    try { return await loadPlayerWindow0(force, mode); }
+    catch (e) { // show the last stats that did load (any age) instead of an error
+      let best = null; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith(`${psCacheKey()}-${mode}-GW`)) { const c = JSON.parse(localStorage.getItem(k) || 'null'); if (c && c.data && (!best || c.fetchedAt > best.fetchedAt)) best = c; } } } catch (er) {}
+      if (!best) throw e;
+      const h = Math.max(1, Math.round((Date.now() - best.fetchedAt) / 36e5));
+      return { ...best, errors: [{ message: `The stats feed is busy (${String(e && e.message || e)}). Showing what loaded ${h} hour${h > 1 ? 's' : ''} ago. Press Retry later.` }] };
+    }
+  }
+  async function loadPlayerWindow0(force, mode) {
     const toGw = psLatestFinishedGw();
     if (!toGw) throw new Error('No completed gameweek is available yet.');
     const span = 5, fromGw = Math.max(1, toGw - span + 1), label = `Last 5 GWs · GW${fromGw}–GW${toGw}`;
@@ -9550,13 +9561,13 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
     if (!PST.seasonData) {
       let c = null; try { c = JSON.parse(localStorage.getItem(psCacheKey()) || 'null'); } catch (e) {}
       if (c && c.data && c.data[Object.keys(c.data)[0]] && c.data[Object.keys(c.data)[0]]._plId) PST.seasonData = c;
-      else PST.seasonData = await requestPlStats();
+      else PST.seasonData = await retry5(() => requestPlStats());
       PST.seasonId = PST.seasonData.seasonId; PST.seasonLabel = PST.seasonData.seasonLabel || '';
       try { localStorage.setItem(psCacheKey(), JSON.stringify(PST.seasonData)); } catch (e) {}
     }
     const played = new Set(), xData = {};
     for (let gw = fromGw; gw <= toGw; gw++) {
-      const live = await J(`/api/event/${gw}/live/`);
+      const live = await retry5(() => J(`/api/event/${gw}/live/`));
       for (const el of (live.elements || [])) {
         const id = Number(el.id), stats = el.stats || {};
         if (Number(stats.minutes) > 0) played.add(id);
@@ -9570,7 +9581,7 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
     }
     for (const e of BS.elements) if (!xData[e.id]) xData[e.id] = { xg: 0, xa: 0, xgi: 0, xgc: 0, mins: 0, cbi: 0, tkl: 0, rec: 0, dc: 0, dch: 0, cs: 0, sv: 0 };
     const players = BS.elements.filter((e) => played.has(e.id) && e.opta_code && PST.seasonData.data[e.opta_code] && PST.seasonData.data[e.opta_code]._plId).map((e) => ({ code: e.opta_code, playerId: PST.seasonData.data[e.opta_code]._plId }));
-    const result = await requestPlWindow(fromGw, toGw, players);
+    const result = await retry5(() => requestPlWindow(fromGw, toGw, players));
     const value = { ...result, xData, rangeLabel: label };
     try { localStorage.setItem(cacheKey, JSON.stringify(value)); } catch (e) {}
     return value;
@@ -9584,7 +9595,7 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
     try {
       let result;
       if (mode === 'season') {
-        result = await requestPlStats();
+        result = await retry5(() => requestPlStats());
         if (!result.loaded || !result.loaded.length) throw new Error(result.errors && result.errors[0] ? `Premier League feed error: ${result.errors[0].message}` : 'No player statistics were returned.');
         PST.seasonData = result;
         try { localStorage.setItem(psCacheKey(), JSON.stringify(result)); } catch (e) {}

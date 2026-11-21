@@ -1,10 +1,10 @@
 {
-  "version": "3.74",
+  "version": "3.75",
   "date": "2026-11-21",
-  "notes": "FotMob is now the main live source (clock, scorers, added time); ESPN and the PL match centre are backups. Illustrated-player pitch style removed.",
+  "notes": "Player stats (Last 5 GWs) retries automatically when FPL is busy and falls back to the last loaded stats. Downloads now carry the version in the file name.",
   "files": {
-    "apk": "dist/Elevn-Android-v3-74.apk",
-    "zip": "dist/Elevn-Chrome-v3-74.zip",
+    "apk": "dist/Elevn-Android-v3-75.apk",
+    "zip": "dist/Elevn-Chrome-v3-75.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }
