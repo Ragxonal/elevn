@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.61.0
+// @version      3.62.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.61';
+  const ELEVN_VER = '3.62';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6488,6 +6488,9 @@ table.cmpt small.d{display:block;font-size:11px}
   $('#x').onclick = close;
   const hasAndroid = () => { try { return !!(window.FPLAndroid && FPLAndroid.setPref); } catch (e) { return false; } };
   const aPref = (k, d) => { try { const v = FPLAndroid.getPref(k); return v == null || v === '' ? d : v; } catch (e) { return d; } };
+  // v3.62 alert preferences: kick-offs of your matches, and every goal (phone keeps its own copy for background alerts)
+  const alertPref = (k) => { if (hasAndroid()) return aPref(k, 'on') !== 'off'; try { return localStorage.getItem('elevnAl_' + k) !== 'off'; } catch (e) { return true; } };
+  const alSeg = (k) => { const v = alertPref(k) ? 'on' : 'off'; return `<div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([x, l]) => `<button type="button" role="radio" aria-checked="${v === x}" class="${v === x ? 'on' : ''}" data-alp="${k}:${x}">${l}</button>`).join('')}</div>`; };
   const aSeg = (k) => { const v = aPref(k, 'on'); return `<div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([x, l]) => `<button type="button" role="radio" aria-checked="${v === x}" class="${v === x ? 'on' : ''}" data-ap="${k}:${x}">${l}</button>`).join('')}</div>`; };
   const XSKIP = /^(fplAnalystPast|fplAnalystAccuracy|fplAnalystNews|fplAnalystPriceSnap)/;
   function exportCode() { const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^fplAnalyst/.test(k) && !XSKIP.test(k)) o[k] = localStorage.getItem(k); } return 'FPLA1:' + btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
@@ -6498,6 +6501,8 @@ table.cmpt small.d{display:block;font-size:11px}
 <div class="setrow"><div><b>Theme</b><small>Matchday: poster style · Midnight: calm navy · Pitch: dark green</small></div>${seg('theme', [['matchday', 'Matchday'], ['midnight', 'Midnight'], ['pitch', 'Pitch']])}</div>
 <div class="setrow"><div><b>Motion</b><small>Calm stops the moving background and page wipes</small></div>${seg('motion', [['calm', 'Calm'], ['normal', 'Normal'], ['lively', 'Lively']])}</div>
 <div class="setrow"><div><b>Background</b><small>Club colours follow your captain's club</small></div>${seg('bg', [['flood', 'Floodlit'], ['club', 'Club colours'], ['plain', 'Plain']])}</div>
+<div class="setrow"><div><b>Kick-off alerts</b><small>When a match with one of your players starts</small></div>${alSeg('kickoff')}</div>
+<div class="setrow"><div><b>All goals</b><small>A short alert for every Premier League goal, not only your players' (about 25–30 on a busy Saturday)</small></div>${alSeg('allgoals')}</div>
 ${hasAndroid() ? `<div class="setrow"><div><b>Deadline reminders</b><small>Phone notification 24 hours and 2 hours before each deadline</small></div>${aSeg('remind')}</div>
 <div class="setrow"><div><b>Goal alerts with the app closed</b><small>Checks your players during matches (every minute right after you leave the app, then every 15 minutes)</small></div>${aSeg('bg')}</div>` : ''}
 <div class="setrow"><div><b>Fast live feed</b><small>During matches, also reads free live score feeds (no key) and shows goals, assists and cards before FPL counts them, marked ⚡</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fastOn() ? 'on' : 'off') === v}" class="${(fastOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fast="${v}">${l}</button>`).join('')}</div></div>
@@ -6519,6 +6524,7 @@ ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) =>
         if (act === 'save') { const v = (sb.querySelector('#odds-key').value || '').trim(); if (!/^[A-Za-z0-9]{16,64}$/.test(v)) { toast('That key doesn\'t look right', 'Copy the API key from your the-odds-api.com account page.', 'bad'); return; } try { localStorage.setItem(ODDS_KEY, v); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; od.disabled = true; fetchOdds(true).then(() => { paint(); if (ODDS && ODDS.ok && !ODDS.err) { toast('Odds on', `${ODDS.events.length} matches priced. Re-analysing…`, 'good'); const v2 = $('#tid').value.trim(); if (v2) run(+v2, { quiet: true }); } else toast('Couldn\'t read odds', (ODDS && ODDS.err) || 'Check the key', 'bad'); }); return; }
         if (act === 'test') { od.disabled = true; fetchOdds(true).then(() => { paint(); const v2 = $('#tid').value.trim(); if (v2 && ODDS && ODDS.ok) run(+v2, { quiet: true }); }); return; }
         if (act === 'del') { try { localStorage.removeItem(ODDS_KEY); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; paint(); toast('Odds off', 'Projections use the app\'s own model only.', 'good'); const v2 = $('#tid').value.trim(); if (v2) run(+v2, { quiet: true }); return; } }
+      const alp = ev.target.closest('[data-alp]'); if (alp) { const [k, v] = alp.dataset.alp.split(':'); try { localStorage.setItem('elevnAl_' + k, v); } catch (e) {} if (hasAndroid()) { try { FPLAndroid.setPref(k, v); } catch (e) {} } paint(); ev.stopPropagation(); return; }
       const ap = ev.target.closest('[data-ap]'); if (ap) { const [k, v] = ap.dataset.ap.split(':'); try { FPLAndroid.setPref(k, v); } catch (e) {} if (LASTA) androidSync(LASTA); paint(); ev.stopPropagation(); return; }
       const ta = sb.querySelector('#xcode');
       if (ev.target.closest('[data-xp]')) { const c = exportCode(); ta.value = c; ta.select(); let ok = false; try { if (hasAndroid() && FPLAndroid.copyText) { FPLAndroid.copyText(c); ok = true; } } catch (e) {} if (!ok && navigator.clipboard) navigator.clipboard.writeText(c).then(() => toast('Code copied', 'Paste it in Elevn on your other device (Display settings).', 'good')).catch(() => toast('Code ready', 'Select the text and copy it.', '')); else if (ok) toast('Code copied', 'Paste it in Elevn on your other device (Display settings).', 'good'); ev.stopPropagation(); return; }
@@ -6659,7 +6665,10 @@ ${o.sp ? `<span class="jsp">${o.sp}</span>` : ''}<div class="jname" title="${esc
     const els = {}; BS.elements.forEach((e) => (els[e.id] = [e.web_name, e.element_type]));
     const teams = {}; BS.teams.forEach((x) => (teams[x.id] = x.short_name));
     const elT = {}; BS.elements.forEach((e) => (elT[e.id] = e.team));
-    try { FPLAndroid.setSchedule(JSON.stringify({ entry: MYID || A.id, gw: cur ? cur.id : 0, deadlines: nx.map((e) => ({ gw: e.id, at: e.deadline_time })), summary: summ, kick: cur ? gwK(cur.id) : [], kickNext: nx[0] ? gwK(nx[0].id) : [], nextGw: nx[0] ? nx[0].id : 0, liveNow: !!(A.live && A.live.live > 0), els, teams, elT })); } catch (e) {}
+    const fold = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'and').replace(/\b(fc|afc)\b/g, '').replace(/[^a-z]/g, '');
+    const tkeys = {}; BS.teams.forEach((t) => { tkeys[fold(t.name)] = t.id; tkeys[fold(t.short_name)] = t.id; }); Object.entries(ODDS_ALIAS).forEach(([k, v]) => { const id = oddsTeam(k); if (id) tkeys[fold(k)] = id; });
+    const mySq = (sq || A.sq || []).map((x) => [x.e.id, x.e.team, x.e.web_name, x.e.first_name + ' ' + x.e.second_name, x.e.second_name, x.e.element_type]);
+    try { FPLAndroid.setSchedule(JSON.stringify({ tkeys, mine: mySq, entry: MYID || A.id, gw: cur ? cur.id : 0, deadlines: nx.map((e) => ({ gw: e.id, at: e.deadline_time })), summary: summ, kick: cur ? gwK(cur.id) : [], kickNext: nx[0] ? gwK(nx[0].id) : [], nextGw: nx[0] ? nx[0].id : 0, liveNow: !!(A.live && A.live.live > 0), els, teams, elT })); } catch (e) {}
   }
   function idsLoaded(A) {
     const nm = A.entry.name, mgr = `${A.entry.player_first_name || ''} ${A.entry.player_last_name || ''}`.trim();
@@ -7252,6 +7261,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         const h = nameTeam(H.team.displayName), a = nameTeam(Aw.team.displayName); const f = live.find((x) => x.team_h === h && x.team_a === a); if (!f) return;
         const st = ev.status && ev.status.type || {}; const o = FD.fx[f.id] || (FD.fx[f.id] = {});
         const hs = +H.score || 0, as = +Aw.score || 0; if (o.h !== hs || o.a !== as) changed = true;
+        fastMatchAlerts(A, f, o, st.state, ev, c, H, hs, as);
         Object.assign(o, { h: Math.max(hs, o.plH || 0), a: Math.max(as, o.plA || 0), eh: hs, ea: as, clock: ev.status.displayClock, state: st.state, src: 'ESPN', at: Date.now(),
           scorers: (c.details || []).filter((d) => d.scoringPlay).map((d) => ({ side: d.team && d.team.id === H.team.id ? 'h' : 'a', who: ((d.athletesInvolved || [])[0] || {}).displayName || '', min: d.clock && d.clock.displayValue, og: !!d.ownGoal, pen: !!d.penaltyKick })) });
       });
@@ -7293,6 +7303,20 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     FD.at = Date.now();
     if (A.gwCmp && A.gwCmp.liveC) { const before = A.live.pts; A.live = liveScore(A.cur, A.gwCmp); fastApply(A, A.live); fastAlerts(A); if (changed || A.live.pts !== before) paintLiveNow(A); else { const b = R.getElementById('fastst'); if (b) b.innerHTML = fastStatus(); } }
     FASTT = setTimeout(fastTick, 10e3);
+  }
+  // v3.62: kick-off of your matches and every goal (yours get their own alert with points from fastAlerts)
+  function fastMatchAlerts(A, f, o, state, ev, c, H, hs, as) {
+    if (!ALERTS_ON) return; const T = A.T, sh = T[f.team_h].short_name, sa = T[f.team_a].short_name;
+    const mine = (A.live && A.live.rows || []).filter((r) => r.e.team === f.team_h || r.e.team === f.team_a);
+    if (o.state === 'pre' && state === 'in' && mine.length && alertPref('kickoff')) { const t = `▶️ Kick-off: ${sh} v ${sa}`, b = `Your players: ${mine.map((r) => r.e.web_name).join(', ')}.`; toast(t, b, 'good'); deskNotify(t, b); }
+    const goals = (c.details || []).filter((d) => d.scoringPlay);
+    if (o.nG != null && goals.length > o.nG) goals.slice(o.nG).forEach((d) => {
+      const who = ((d.athletesInvolved || [])[0] || {}).displayName || '', fw = fmFold(who);
+      const isMine = !d.ownGoal && mine.some((r) => { const full = fmFold(r.e.first_name + ' ' + r.e.second_name), last = fmFold(r.e.second_name).split(' ').pop(); return fw === full || (last.length > 2 && fw.endsWith(' ' + last)); });
+      if (isMine || !(alertPref('allgoals') || mine.length)) return;
+      const t = `⚽ ${sh} ${hs}–${as} ${sa}`, b = `${who}${d.ownGoal ? ' (own goal)' : d.penaltyKick ? ' (penalty)' : ''} ${(d.clock && d.clock.displayValue) || ev.status.displayClock || ''}`.trim();
+      toast(t, b, ''); deskNotify(t, b); });
+    o.nG = goals.length;
   }
   // Add what the fast feed shows and FPL hasn't counted yet (per player, never below FPL's own numbers)
   function fastApply(A, L) {

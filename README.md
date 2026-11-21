@@ -2,7 +2,7 @@
 
 Elevn runs on top of the Fantasy Premier League site and helps with your squad, transfers, captain, chips, leagues, live points and news. Enter any FPL team ID.
 
-Current version: **3.61** (see [`version.json`](version.json)).
+Current version: **3.62** (see [`version.json`](version.json)).
 
 ## Install
 
