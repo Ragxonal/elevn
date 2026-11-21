@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.60.0
+// @version      3.61.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.60';
+  const ELEVN_VER = '3.61';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6503,14 +6503,16 @@ ${hasAndroid() ? `<div class="setrow"><div><b>Deadline reminders</b><small>Phone
 <div class="setrow"><div><b>Fast live feed</b><small>During matches, also reads free live score feeds (no key) and shows goals, assists and cards before FPL counts them, marked ⚡</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fastOn() ? 'on' : 'off') === v}" class="${(fastOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fast="${v}">${l}</button>`).join('')}</div></div>
 <div class="setrow"><div><b>Extra live source</b><small>Adds a third free source of live scores and match events. It is unofficial and may stop working; the other sources carry on if it does.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fmOn() ? 'on' : 'off') === v}" class="${(fmOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fm="${v}"${fastOn() ? '' : ' disabled'}>${l}</button>`).join('')}</div></div>
 ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) => { const m = Math.round((Date.now() - t) / 6e4); return m < 60 ? m + ' min ago' : Math.round(m / 60) + 'h ago'; };
-  const st = !k ? 'Off. Projections use the app\'s own model only.' : o && o.err && (!o.ok || o.errAt > o.at) ? `<span class="dn">Couldn't read odds: ${esc(o.err)}</span>` : o && o.ok ? `On · ${o.events.length} matches priced · updated ${agoT(o.at)}${o.left != null ? ` · ${esc(String(o.left))} requests left this month` : ''}` : 'Key saved. Odds load the next time you press Analyse.';
-  return `<div class="setrow col"><div><b>Bookmaker odds</b><small>Adds betting-market win, draw and goals odds to the projections (half market, half model) for matches that have prices. Uses your own free key from the-odds-api.com, about 2–4 requests a day. The key stays on this device and is not included in the transfer code below.</small></div>
+  const st = !k ? (!oddsFreeOn() ? 'Off. Projections use the app\'s own model only.' : o && o.free && o.ok ? `On (free odds) · ${o.events.length} matches priced · updated ${agoT(o.at)}` : 'On (free odds). They load the next time you press Analyse.') : o && o.err && (!o.ok || o.errAt > o.at) ? `<span class="dn">Couldn't read odds: ${esc(o.err)}</span>` : o && o.ok ? `On · ${o.events.length} matches priced · updated ${agoT(o.at)}${o.left != null ? ` · ${esc(String(o.left))} requests left this month` : ''}` : 'Key saved. Odds load the next time you press Analyse.';
+  return `<div class="setrow"><div><b>Free bookmaker odds</b><small>Used when no key is saved below.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(oddsFreeOn() ? 'on' : 'off') === v}" class="${(oddsFreeOn() ? 'on' : 'off') === v ? 'on' : ''}" data-oddsfree="${v}">${l}</button>`).join('')}</div></div>
+<div class="setrow col"><div><b>Bookmaker odds</b><small>Adds betting-market win, draw and goals odds to the projections (half market, half model) for matches that have prices. Free odds from one bookmaker load automatically on every device. For an average of many bookmakers, add your own free key from the-odds-api.com (about 2–4 requests a day). The key stays on this device and is not included in the transfer code below.</small></div>
 <div class="xrow"><input id="odds-key" type="password" autocomplete="off" spellcheck="false" placeholder="${k ? 'Key saved · paste a new one to replace it' : 'Paste your API key'}" aria-label="The Odds API key"><button type="button" class="mbtn" data-odds="save">Save</button>${k ? '<button type="button" class="mbtn ghost" data-odds="test">Refresh now</button><button type="button" class="mbtn ghost" data-odds="del">Remove</button>' : ''}</div><small class="oddst">${st}</small></div>`; })()}
 <div class="setrow col"><div><b>Move your plan to another device</b><small>Planned transfers, chips, saved teams and settings. Copy the code here, paste it on the other phone or computer.</small></div>
 <div class="xrow"><button type="button" class="mbtn" data-xp="1">⇪ Copy my code</button><button type="button" class="mbtn ghost" data-xi="1">⇩ Paste a code</button></div>
 <textarea id="xcode" rows="3" placeholder="Your code appears here, or paste a code from another device" spellcheck="false"></textarea><button type="button" class="mbtn big" data-xgo="1" hidden>Import this code</button></div>`; };
     paint(); sheet.hidden = false;
     sb.onclick = (ev) => { const u = ev.target.closest('[data-ui]'); if (u) { const [k, v] = u.dataset.ui.split(':'); UI[k] = v; saveUI(); applyUI(); paint(); ev.stopPropagation(); return; }
+      const ofb = ev.target.closest('[data-oddsfree]'); if (ofb) { ev.stopPropagation(); try { localStorage.setItem(ODDS_FREE, ofb.dataset.oddsfree); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; paint(); const v2 = $('#tid').value.trim(); fetchOdds(true).then(() => { paint(); if (v2) run(+v2, { quiet: true }); }); return; }
       const fmb = ev.target.closest('[data-fm]'); if (fmb) { ev.stopPropagation(); try { localStorage.setItem(FMK, fmb.dataset.fm); } catch (e) {} paint(); return; }
       const fb = ev.target.closest('[data-fast]'); if (fb) { ev.stopPropagation(); try { localStorage.setItem(FASTK, fb.dataset.fast); } catch (e) {} if (fb.dataset.fast === 'on' && LASTA) { clearTimeout(FASTT); FASTT = null; fastTick(); } else { clearTimeout(FASTT); FASTT = null; } paint(); if (LASTA) { LASTA.live = LASTA.gwCmp && LASTA.gwCmp.liveC ? liveScore(LASTA.cur, LASTA.gwCmp) : LASTA.live; if (LASTA.live) fastApply(LASTA, LASTA.live); paintLiveNow(LASTA); } return; }
       const od = ev.target.closest('[data-odds]'); if (od) { ev.stopPropagation(); const act = od.dataset.odds;
@@ -6802,9 +6804,38 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     return out;
   }
   function oddsLoadCache() { try { const c = JSON.parse(localStorage.getItem(ODDS_CACHE) || 'null'); return c && c.events ? c : null; } catch (e) { return null; } }
+  // v3.61: free odds with no key (one bookmaker, from the live score feed), loaded automatically on every device
+  const ODDS_FREE = 'elevnOddsFree';
+  const oddsFreeOn = () => { try { return localStorage.getItem(ODDS_FREE) !== 'off'; } catch (e) { return true; } };
+  const amDec = (x) => { const v = +String(x == null ? '' : x).replace('+', ''); return !v ? 0 : v > 0 ? 1 + v / 100 : 1 + 100 / -v; };
+  async function freeOddsEvents() {
+    const nx = BS && (BS.events.find((e) => e.is_next) || BS.events.find((e) => e.is_current)); if (!nx) return [];
+    const days = [...new Set(FX.filter((f) => f.event === nx.id && f.kickoff_time && !f.started).map((f) => f.kickoff_time.slice(0, 10).replace(/-/g, '')))];
+    const out = [];
+    for (const day of days) {
+      const d = await fastGet('https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=' + day);
+      (d.events || []).forEach((ev) => { const c = (ev.competitions || [])[0]; const o = c && (c.odds || [])[0]; if (!o || !o.moneyline) return;
+        const nm = (x) => String(x || '').replace(/&/g, 'and'); const H = nm((c.competitors.find((x) => x.homeAway === 'home') || {}).team.displayName), A = nm((c.competitors.find((x) => x.homeAway === 'away') || {}).team.displayName);
+        const cl = (x) => (x && (x.close || x.open) || {}).odds; const ml = o.moneyline;
+        const mk = [{ key: 'h2h', outcomes: [{ name: H, price: amDec(cl(ml.home)) }, { name: A, price: amDec(cl(ml.away)) }, { name: 'Draw', price: amDec(cl(ml.draw)) }] }];
+        if (o.total && +o.overUnder === 2.5) mk.push({ key: 'totals', outcomes: [{ name: 'Over', price: amDec(cl(o.total.over)), point: 2.5 }, { name: 'Under', price: amDec(cl(o.total.under)), point: 2.5 }] });
+        out.push({ home_team: H, away_team: A, commence_time: ev.date, bookmakers: [{ key: 'free', markets: mk }] }); });
+    }
+    return out;
+  }
   async function fetchOdds(force) {
-    const key = oddsKey(); if (!key) { ODDS = null; return null; }
-    const c = oddsLoadCache(); ODDS = c;
+    const key = oddsKey(); const c = oddsLoadCache();
+    if (!key) {
+      if (!oddsFreeOn()) { ODDS = null; return null; }
+      ODDS = c && c.free ? c : null;
+      if (!force && ODDS && ODDS.ok && Date.now() - ODDS.at < 3 * 36e5) return ODDS;
+      try { const ev = await withTimeout(freeOddsEvents(), 12000); ODDS = { ok: true, free: true, at: Date.now(), left: null, events: oddsParse(ev) }; }
+      catch (e) { ODDS = Object.assign({}, ODDS || { events: [] }, { ok: !!(ODDS && ODDS.ok), free: true, err: 'No answer from the free odds feed', errAt: Date.now() }); }
+      try { localStorage.setItem(ODDS_CACHE, JSON.stringify(ODDS)); } catch (e) {}
+      return ODDS;
+    }
+    if (c && c.free) force = true; // a key was just added: replace the free odds
+    ODDS = c && !c.free ? c : null;
     const nx = BS && BS.events.find((e) => e.is_next); const near = nx && Date.parse(nx.deadline_time) - Date.now() < 864e5;
     if (!force && c && c.ok && Date.now() - c.at < (near ? 3 : 12) * 36e5) return c; // about 2-4 requests a day
     const url = 'https://api.the-odds-api.com/v4/sports/soccer_epl/odds/?regions=uk&markets=h2h,totals&oddsFormat=decimal&apiKey=' + encodeURIComponent(key);

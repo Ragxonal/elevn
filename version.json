@@ -1,7 +1,7 @@
 {
-  "version": "3.60",
+  "version": "3.61",
   "date": "2026-11-21",
-  "notes": "Same projections on every device.",
+  "notes": "Free bookmaker odds on every device, no key needed.",
   "files": {
     "apk": "dist/Elevn.apk",
     "zip": "dist/Elevn.zip",
