@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.67.0
+// @version      3.68.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.67';
+  const ELEVN_VER = '3.68';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -5375,7 +5375,7 @@ b.kn .picon{margin:0}
 @keyframes gblk{0%{opacity:0;transform:scale(.6)}5%{opacity:1;transform:scale(1.06)}9%{transform:scale(1)}85%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-8px);visibility:hidden}}
 @keyframes gsh{to{background-position:-220% 0}}@keyframes gbeat{50%{transform:scale(1.18)}}@keyframes groll{0%{transform:translateX(-120px) rotate(-540deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.gblk,.gblk *{animation-duration:.01s!important;animation-iteration-count:1!important}.gblk{animation:gblkr 9s linear forwards}@keyframes gblkr{0%,90%{opacity:1}100%{opacity:0;visibility:hidden}}}
-a.mwp{color:inherit;text-decoration:none}a.mxpn{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}a.mxpn:hover,a.mwp:hover{color:var(--acc)}.mxsec h4 small{font-weight:500;font-size:11px;margin-left:4px}.tvch{white-space:nowrap}
+a.mwp{color:inherit;text-decoration:none}a.mxpn{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}a.mxpn:hover,a.mwp:hover{color:var(--acc)}.mxsec h4 small{font-weight:500;font-size:11px;margin-left:4px}.tvch{white-space:nowrap}.tvch b{font-weight:700;color:var(--txt)}.mxinfo .tvch{white-space:normal}
 .gmin{color:var(--txt);font-weight:700;font-variant-numeric:tabular-nums}
 .mxp{margin-top:6px;border-top:1px solid var(--line);padding:12px 6px 4px;display:flex;flex-direction:column;gap:16px;cursor:default}
 .mxp{grid-column:1/-1;min-width:0;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}.mxp *{box-sizing:border-box}.mxsec{min-width:0}
@@ -7418,6 +7418,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const fxs = FX.filter((f) => f.event === mw && f.kickoff_time); const days = [...new Set(fxs.map((f) => f.kickoff_time.slice(0, 10)))]; let any = false;
     for (const d of days) { const live = fxs.some((f) => f.kickoff_time.startsWith(d) && f.started && !f.finished); if (MXD[d] && Date.now() - MXD[d] < (live ? 60e3 : 36e5)) continue; MXD[d] = Date.now();
       try { const j = await fastGet(ESPN_SB + '?dates=' + d.replace(/-/g, '')); (j.events || []).forEach((ev) => mxPut(fxs, ev)); any = true; } catch (e) {} }
+    try { if (await tvLoad(fxs)) any = true; } catch (e) {}
     return any;
   }
   async function mxSummary(fid) { const m = MX[fid]; if (!m) return false; const o = MXS[fid]; const live = m.state === 'in'; if (o && (o.busy || Date.now() - o.at < (live ? 30e3 : 6e5))) return false;
@@ -7431,10 +7432,24 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   // v3.67: a player's name opens his profile
   const whoLink = (who, tid) => { const e = who ? fplEl(who, tid) : null; return e ? `<a class="pn mxpn" href="#" data-pi="1" data-pid="${e.id}">${esc(e.web_name)}</a>` : esc(String(who || '').split(' ').pop()); };
   const fplWho = (who, tid) => { const fw = fmFold(who); const e = BS.elements.find((x) => x.team === tid && (fmFold(x.first_name + ' ' + x.second_name) === fw || fmFold(x.web_name) === fw)) || BS.elements.find((x) => { const l = fmFold(x.second_name).split(' ').pop(); return x.team === tid && l.length > 2 && fw.endsWith(' ' + l); }); return e ? e.web_name : String(who).split(' ').pop(); };
-  const TVCH = '<span class="tvch" title="Shown on beIN SPORTS (Middle East and North Africa)">📺 beIN SPORTS</span>';
+  // v3.68: beIN SPORTS channel numbers per match (Middle East and North Africa listing, cached on the device)
+  const TVK = 'elevnTv'; let TV = {}; try { TV = JSON.parse(localStorage.getItem(TVK) || '{}') || {}; } catch (e) { TV = {}; }
+  async function tvLoad(fxs) {
+    const need = fxs.filter((f) => f.kickoff_time && (!TV[f.id] || (!f.finished && Date.now() - TV[f.id].at > 6 * 36e5))); if (!need.length) return false;
+    const days = [...new Set(need.map((f) => new Date(Date.parse(f.kickoff_time)).toISOString().slice(0, 10).replace(/-/g, '')))]; const ms = []; let any = false;
+    for (const d of days) { try { const L = await fastGet(FM_API + 'matches?date=' + d); (L.leagues || []).forEach((lg) => { if (lg.primaryId === 47 || lg.id === 47) ms.push(...(lg.matches || [])); }); } catch (e) {} }
+    await Promise.all(need.map(async (f) => { const k = Date.parse(f.kickoff_time); const m = ms.find((x) => x.home && x.away && nameTeam(x.home.name) === f.team_h && nameTeam(x.away.name) === f.team_a && Math.abs(Date.parse((x.status || {}).utcTime) - k) < 6 * 36e5); if (!m) return;
+      try { const t = await fastGet(FM_API + 'tvlisting?matchId=' + m.id + '&countryCode=ma'); TV[f.id] = { at: Date.now(), ch: (t.channels || []).map((c) => String(c.name || '')).filter(Boolean) }; any = true; } catch (e) {} }));
+    if (any) try { localStorage.setItem(TVK, JSON.stringify(TV)); } catch (e) {}
+    return any;
+  }
+  const tvch = (fid, full) => { const ch = (TV[fid] || {}).ch || []; const nums = [...new Set(ch.map((c) => (c.match(/^bein\s*sports?\s*(\d+)$/i) || [])[1]).filter(Boolean))];
+    const extra = full ? ch.filter((c) => !/^bein\s*sports?\s*\d+$/i.test(c) && !/connect/i.test(c)).map((c) => c.replace(/^bein\s*(sports?\s*)?/i, '').trim() || c) : [];
+    const lbl = nums.length ? nums.map((n) => 'beIN SPORTS ' + n).join(' / ') : 'beIN SPORTS';
+    return `<span class="tvch" title="${esc(ch.length ? ch.join(', ') : 'beIN SPORTS (Middle East and North Africa)')}">📺 <b>${lbl}</b>${extra.length ? ` <small class="muted">(${esc(extra.join(', '))})</small>` : ''}</span>`; };
   function mxPanel(A, f) {
     const T = A.T, m = MX[f.id], o = MXS[f.id], ko = f.kickoff_time ? new Date(f.kickoff_time) : null;
-    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', TVCH, m && m.added ? `⏱️ +${m.added} added` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
+    const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', tvch(f.id, true), m && m.added ? `⏱️ +${m.added} added` : '', m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
     const up = !f.started && !(m && (m.state === 'in' || m.state === 'post'));
     let body = '';
     if (up) body = ko ? `<div class="mxcd"><small>Kick-off in</small><b data-ko="${+ko}">${cdFmt(+ko - Date.now())}</b></div>` : '';
@@ -7501,7 +7516,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const gf = GOALFX[f.id], gel = gf ? Date.now() - gf.at : 1e9; let gblk = '';
       if (gel < 9000) { const gs = gf.side, tid = gs === 'h' ? f.team_h : f.team_a, lg = mx && mx.goals.filter((g) => g.side === gs).pop(); gblk = `<div class="gblk ${gs}" style="animation-delay:-${gel}ms" aria-live="polite"><span class="gball">⚽</span><b>GOAL!</b><span class="gtm">${crest(tid)}${esc(T[tid].name)}</span>${lg && lg.who ? `<small>${esc(lg.og ? String(lg.who).split(' ').pop() + ' (og)' : fplWho(lg.who, tid))} ${esc(String(lg.min).replace(/'/g, '′'))}</small>` : ''}<span class="gsc">${hs} - ${as}</span></div>`; }
       const open = OPENMX.has(f.id); if (open && mw === cur && (f.started || (mx && mx.state === 'in'))) setTimeout(() => mxSummary(f.id).then((ch) => ch && paintMatches(A)), 0);
-      const venue = !open && (mx && mx.venue || !fin) ? `<div class="mwinfo">${mx && mx.venue ? `🏟️ ${esc(mx.venue)}<span class="dotsep">·</span>` : ''}${TVCH}${!f.started && f.kickoff_time && Date.parse(f.kickoff_time) - Date.now() < 864e5 ? ` <span class="dotsep">·</span> in <b data-ko="${Date.parse(f.kickoff_time)}">${cdFmt(Date.parse(f.kickoff_time) - Date.now())}</b>` : ''}</div>` : '';
+      const venue = !open && (mx && mx.venue || !fin) ? `<div class="mwinfo">${mx && mx.venue ? `🏟️ ${esc(mx.venue)}<span class="dotsep">·</span>` : ''}${tvch(f.id)}${!f.started && f.kickoff_time && Date.parse(f.kickoff_time) - Date.now() < 864e5 ? ` <span class="dotsep">·</span> in <b data-ko="${Date.parse(f.kickoff_time)}">${cdFmt(Date.parse(f.kickoff_time) - Date.now())}</b>` : ''}</div>` : '';
       return `<div class="mwr tap ${live ? 'on' : ''}${myIn.length ? ' my' : ''}${open ? ' open' : ''}" data-mx="${f.id}" role="button" tabindex="0" aria-expanded="${open}">${gblk}${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h">${cnt(f.team_h)}<b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b>${cnt(f.team_a)}</span></div>${venue}${oddsH}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}${open ? mxPanel(A, f) : ''}</div>`;
     };
     const days = []; fxs.forEach((f) => { const k = f.kickoff_time ? new Date(f.kickoff_time).toLocaleDateString(undefined, dFmt) : 'Date to be confirmed'; let d = days[days.length - 1]; if (!d || d.k !== k) { d = { k, rows: [] }; days.push(d); } d.rows.push(row(f)); });
