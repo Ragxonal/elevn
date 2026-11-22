@@ -79,7 +79,7 @@ function rows() {
     if (FX.length && FX.every((f) => S.done && S.done[f.id])) { await new Promise((r) => setTimeout(r, 1)); break; }
     if (MAXMIN && Date.now() - T0 > MAXMIN * 60e3) { save(); console.error('time limit reached; the next run resumes from the ledger'); return; }
     const L = live();
-    if (!L.length && IDLEMIN) { const soon = FX.some((f) => !(S.done && S.done[f.id]) && Date.parse(f.kickoff_time) - 120e3 - Date.now() < IDLEMIN * 60e3); if (!soon) { save(); console.error('no match live or starting soon; exiting'); return; } }
+    if (!L.length && IDLEMIN) { const soon = FX.some((f) => { const k = Date.parse(f.kickoff_time); return !(S.done && S.done[f.id]) && k > Date.now() - 150 * 60e3 && k - 120e3 - Date.now() < IDLEMIN * 60e3; }); if (!soon) { save(); console.error('no match live or starting soon; exiting'); return; } }
     if (!L.length) { const next = FX.filter((f) => !(S.done && S.done[f.id])).map((f) => Date.parse(f.kickoff_time) - 120e3 - Date.now()).filter((x) => x > 0).sort((a, b) => a - b)[0];
       const wait = Math.min(next == null ? 600e3 : next, 600e3); if (next == null) { try { FX = await get(FPL + 'fixtures/?event=' + GW); FX.forEach((f) => { if (f.finished) (S.done = S.done || {})[f.id] = true; }); save(); } catch (e) {} } await new Promise((r) => setTimeout(r, Math.max(5e3, wait))); continue; }
     n++; const jobs = { fpl: pollFpl, espn: pollEspn, fotmob: pollFotmob }; if (n % 2) jobs.pl = pollPl;
