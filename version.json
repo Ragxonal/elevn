@@ -1,10 +1,10 @@
 {
-  "version": "3.76",
-  "date": "2026-11-21",
-  "notes": "Player stats Last 5 GWs: lighter Premier League request (fixes HTTP 504), and an FPL-only table if that feed is down.",
+  "version": "3.77",
+  "date": "2026-11-25",
+  "notes": "Projections: start likelihood from recent starts; bookmaker odds no longer feed projections (context only); top transfer highlighted; close captain calls shown together with chance of 10+; Premier League match centre before ESPN when FotMob stops.",
   "files": {
-    "apk": "dist/Elevn-Android-v3-76.apk",
-    "zip": "dist/Elevn-Chrome-v3-76.zip",
+    "apk": "dist/Elevn-Android-v3-77.apk",
+    "zip": "dist/Elevn-Chrome-v3-77.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }

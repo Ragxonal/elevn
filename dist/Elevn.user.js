@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.76.0
+// @version      3.77.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.76';
+  const ELEVN_VER = '3.77';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -5543,7 +5543,8 @@ a.pn[data-pi] .picon{margin:0;vertical-align:0}
 .accbar i{display:block;height:100%;background:linear-gradient(90deg,#2f9a68,#45d08f);transition:width .2s}
 .newpill{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:#2c1f47;color:#c49bff;font-size:11px;font-weight:700;vertical-align:1px}
 .ptabs.three{grid-template-columns:repeat(3,1fr)}
-.ptbody .dotab{display:flex;flex-direction:column;gap:8px}.ptbody .dotab .arow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px}
+.ptbody .dotab{display:flex;flex-direction:column;gap:8px}
+.arow.feat,.dotab .arow.feat{border-color:rgba(69,208,143,.55);background:linear-gradient(90deg,rgba(69,208,143,.16),rgba(11,18,32,.55) 70%);box-shadow:0 0 0 1px rgba(69,208,143,.18) inset}.arow.feat .atx{font-size:15px}.ptbody .dotab .arow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px}
 .aprow,.aptl li{gap:10px;align-items:center}
 .aprow{display:flex;flex-wrap:wrap;margin:8px 0}
 .apk{margin:10px 0}
@@ -6598,14 +6599,14 @@ table.cmpt small.d{display:block;font-size:11px}
 ${hasAndroid() ? `<div class="setrow"><div><b>Deadline reminders</b><small>Phone notification 24 hours and 2 hours before each deadline</small></div>${aSeg('remind')}</div>
 <div class="setrow"><div><b>Goal alerts with the app closed</b><small>Checks your players during matches (every minute right after you leave the app, then every 15 minutes)</small></div>${aSeg('bg')}</div>` : ''}
 <div class="setrow"><div><b>Fast live feed</b><small>During matches, also reads free live score feeds (no key) and shows goals, assists and cards before FPL counts them, marked ⚡</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fastOn() ? 'on' : 'off') === v}" class="${(fastOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fast="${v}">${l}</button>`).join('')}</div></div>
-<div class="setrow"><div><b>FotMob (main live source)</b><small>The fastest feed in our tests (about 74 s ahead of FPL on goals). Drives the live clock, scorers and added time. ESPN and the Premier League match centre stay on as backups if it stops.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fmOn() ? 'on' : 'off') === v}" class="${(fmOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fm="${v}"${fastOn() ? '' : ' disabled'}>${l}</button>`).join('')}</div></div>
+<div class="setrow"><div><b>FotMob (main live source)</b><small>The fastest feed in our tests (about 74 s ahead of FPL on goals). Drives the live clock, scorers and added time. If it stops, the Premier League match centre takes over (it also has assists), then ESPN.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fmOn() ? 'on' : 'off') === v}" class="${(fmOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fm="${v}"${fastOn() ? '' : ' disabled'}>${l}</button>`).join('')}</div></div>
 ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) => { const m = Math.round((Date.now() - t) / 6e4); return m < 60 ? m + ' min ago' : Math.round(m / 60) + 'h ago'; };
-  const st = !k ? (!oddsFreeOn() ? 'Off. Projections use the app\'s own model only.' : o && o.free && o.ok ? `On (free odds) · ${o.events.length} matches priced · updated ${agoT(o.at)}` : 'On (free odds). They load the next time you press Analyse.') : o && o.err && (!o.ok || o.errAt > o.at) ? `<span class="dn">Couldn't read odds: ${esc(o.err)}</span>` : o && o.ok ? `On · ${o.events.length} matches priced · updated ${agoT(o.at)}${o.left != null ? ` · ${esc(String(o.left))} requests left this month` : ''}` : 'Key saved. Odds load the next time you press Analyse.';
+  const st = !k ? (!oddsFreeOn() ? 'Off. No market odds shown.' : o && o.free && o.ok ? `On (free odds) · ${o.events.length} matches priced · updated ${agoT(o.at)}` : 'On (free odds). They load the next time you press Analyse.') : o && o.err && (!o.ok || o.errAt > o.at) ? `<span class="dn">Couldn't read odds: ${esc(o.err)}</span>` : o && o.ok ? `On · ${o.events.length} matches priced · updated ${agoT(o.at)}${o.left != null ? ` · ${esc(String(o.left))} requests left this month` : ''}` : 'Key saved. Odds load the next time you press Analyse.';
   return `<div class="setrow"><div><b>Free bookmaker odds</b><small>Used when no key is saved below.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(oddsFreeOn() ? 'on' : 'off') === v}" class="${(oddsFreeOn() ? 'on' : 'off') === v ? 'on' : ''}" data-oddsfree="${v}">${l}</button>`).join('')}</div></div>
-<div class="setrow col"><div><b>Bookmaker odds</b><small>Adds betting-market win, draw and goals odds to the projections (half market, half model) for matches that have prices. Free odds from one bookmaker load automatically on every device. For an average of many bookmakers, add your own free key from the-odds-api.com (about 2–4 requests a day). The key stays on this device and is not included in the transfer code below.</small></div>
+<div class="setrow col"><div><b>Bookmaker odds</b><small>Shows betting-market win, draw and goals odds next to matches as context. They are not used in projections: in our accuracy lab the odds blend scored lower than the model alone. Free odds from one bookmaker load automatically on every device. For an average of many bookmakers, add your own free key from the-odds-api.com (about 2–4 requests a day). The key stays on this device and is not included in the transfer code below.</small></div>
 <div class="xrow"><input id="odds-key" type="password" autocomplete="off" spellcheck="false" placeholder="${k ? 'Key saved · paste a new one to replace it' : 'Paste your API key'}" aria-label="The Odds API key"><button type="button" class="mbtn" data-odds="save">Save</button>${k ? '<button type="button" class="mbtn ghost" data-odds="test">Refresh now</button><button type="button" class="mbtn ghost" data-odds="del">Remove</button>' : ''}</div><small class="oddst">${st}</small></div>`; })()}
 <div class="setrow"><div><b>Version</b><small>You have v${ELEVN_VER}. New versions are published on GitHub.</small></div><button type="button" class="mbtn" data-updchk>Check for update</button></div>
-<div class="setrow col"><div><b>How the numbers are built</b><small>Three separate layers. Only the first two produce numbers.</small></div><div class="mdl"><div><b>1 · Projection engine</b>Expected points per player per match from measured data only: expected goals and assists per 90 (shrunk toward position averages), minutes reliability, a Poisson goals model from each team's attack and defence strength by venue, bookmaker prices where available, set pieces, and availability (FPL flags and injury news).</div><div><b>2 · Decision optimiser</b>Turns projections into choices with constraints: squad solver (budget, 3-per-club, formation), transfer gain minus hits, chip timing, captain = highest expected points.</div><div class="l3"><b>3 · Crowd context (not an input)</b>Ownership, captaincy share and effective ownership. Shown so you can test scenarios (protect a lead, chase a rival). It never changes a projection or the default captain and transfers. Prices are the one exception: FPL moves prices on transfer counts, so the price predictor reads them.</div></div></div>
+<div class="setrow col"><div><b>How the numbers are built</b><small>Three separate layers. Only the first two produce numbers.</small></div><div class="mdl"><div><b>1 · Projection engine</b>Expected points per player per match from measured data only: expected goals and assists per 90 (shrunk toward position averages), minutes reliability and how often he has started lately, a Poisson goals model from each team's attack and defence strength by venue, set pieces, and availability (FPL flags and injury news).</div><div><b>2 · Decision optimiser</b>Turns projections into choices with constraints: squad solver (budget, 3-per-club, formation), transfer gain minus hits, chip timing, captain = highest expected points.</div><div class="l3"><b>3 · Crowd context (not an input)</b>Ownership, captaincy share and effective ownership. Shown so you can test scenarios (protect a lead, chase a rival). It never changes a projection or the default captain and transfers. Prices are the one exception: FPL moves prices on transfer counts, so the price predictor reads them.</div></div></div>
 <div class="setrow col"><div><b>Move your plan to another device</b><small>Planned transfers, chips, saved teams and settings. Copy the code here, paste it on the other phone or computer.</small></div>
 <div class="xrow"><button type="button" class="mbtn" data-xp="1">⇪ Copy my code</button><button type="button" class="mbtn ghost" data-xi="1">⇩ Paste a code</button></div>
 <textarea id="xcode" rows="3" placeholder="Your code appears here, or paste a code from another device" spellcheck="false"></textarea><button type="button" class="mbtn big" data-xgo="1" hidden>Import this code</button></div>`; };
@@ -6618,7 +6619,7 @@ ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) =>
       const od = ev.target.closest('[data-odds]'); if (od) { ev.stopPropagation(); const act = od.dataset.odds;
         if (act === 'save') { const v = (sb.querySelector('#odds-key').value || '').trim(); if (!/^[A-Za-z0-9]{16,64}$/.test(v)) { toast('That key doesn\'t look right', 'Copy the API key from your the-odds-api.com account page.', 'bad'); return; } try { localStorage.setItem(ODDS_KEY, v); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; od.disabled = true; fetchOdds(true).then(() => { paint(); if (ODDS && ODDS.ok && !ODDS.err) { toast('Odds on', `${ODDS.events.length} matches priced. Re-analysing…`, 'good'); const v2 = $('#tid').value.trim(); if (v2) run(+v2, { quiet: true }); } else toast('Couldn\'t read odds', (ODDS && ODDS.err) || 'Check the key', 'bad'); }); return; }
         if (act === 'test') { od.disabled = true; fetchOdds(true).then(() => { paint(); const v2 = $('#tid').value.trim(); if (v2 && ODDS && ODDS.ok) run(+v2, { quiet: true }); }); return; }
-        if (act === 'del') { try { localStorage.removeItem(ODDS_KEY); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; paint(); toast('Odds off', 'Projections use the app\'s own model only.', 'good'); const v2 = $('#tid').value.trim(); if (v2) run(+v2, { quiet: true }); return; } }
+        if (act === 'del') { try { localStorage.removeItem(ODDS_KEY); localStorage.removeItem(ODDS_CACHE); } catch (e) {} ODDS = null; paint(); toast('Odds off', 'Market odds hidden. Projections are unchanged.', 'good'); const v2 = $('#tid').value.trim(); if (v2) run(+v2, { quiet: true }); return; } }
       const alp = ev.target.closest('[data-alp]'); if (alp) { const [k, v] = alp.dataset.alp.split(':'); try { localStorage.setItem('elevnAl_' + k, v); } catch (e) {} if (hasAndroid()) { try { FPLAndroid.setPref(k, v); } catch (e) {} } paint(); ev.stopPropagation(); return; }
       const ap = ev.target.closest('[data-ap]'); if (ap) { const [k, v] = ap.dataset.ap.split(':'); try { FPLAndroid.setPref(k, v); } catch (e) {} if (LASTA) androidSync(LASTA); paint(); ev.stopPropagation(); return; }
       const ta = sb.querySelector('#xcode');
@@ -7392,7 +7393,9 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         (d.events || []).forEach((x) => { if (x.type === 'G' || x.type === 'P') { add(x.personId, 'g'); if (x.assistId) add(x.assistId, 'a'); } else if (x.type === 'O') add(x.personId, 'og'); else if (x.type === 'B') add(x.personId, x.description === 'Y' ? 'y' : 'r'); else if (x.type === 'S') { const e = p2e[x.personId]; if (e) { ev[e] = ev[e] || { g: 0, a: 0, y: 0, r: 0, og: 0, on: starters.has(e) }; ev[e].on = x.description === 'ON'; } } });
         const t = d.teams || []; const ph = t[0] ? +t[0].score || 0 : 0, pa = t[1] ? +t[1].score || 0 : 0;
         if (o.plH !== ph || o.plA !== pa) changed = true;
-        Object.assign(o, { plH: ph, plA: pa, h: Math.max(ph, o.eh || 0), a: Math.max(pa, o.ea || 0), clock: o.clock || (d.clock && d.clock.label), ev, plAt: Date.now(), starters: [...starters] });
+        // v3.77: goal list from the match centre (with assists), used when FotMob is not answering
+        const tH = t[0] && t[0].team ? t[0].team.id : null, plGoals = (d.events || []).filter((x) => x.type === 'G' || x.type === 'P' || x.type === 'O').map((x) => { const e = A.E[p2e[x.personId]]; const own = x.type === 'O'; const side = x.teamId != null && tH != null ? (x.teamId === tH ? 'h' : 'a') : e ? (e.team === f.team_h ? (own ? 'a' : 'h') : (own ? 'h' : 'a')) : 'h'; const sec = x.clock && +x.clock.secs; return { side, who: e ? e.first_name + ' ' + e.second_name : '', min: Number.isFinite(sec) ? Math.floor(sec / 60) + 1 + "'" : ((x.clock && x.clock.label) || ''), og: own, pen: x.type === 'P' }; });
+        Object.assign(o, { plH: ph, plA: pa, h: Math.max(ph, o.eh || 0), a: Math.max(pa, o.ea || 0), clock: o.clock || (d.clock && d.clock.label), ev, plAt: Date.now(), starters: [...starters], plGoals });
       }));
     } catch (e) { FD.err = 'Live source 3: ' + (e.message || e); }
     // FotMob: scores every tick (its data is cached 10 s); match details when its score changes, otherwise every 60 s
@@ -7420,6 +7423,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         if (k.state === 'in' && k.name === 'STATUS_IN_PROGRESS') { let clk = k.clock + (Date.now() - o.fmAt) / 1000; if (pv.state === 'in' && pv.period === k.period) { const ext = pv.clock + (Date.now() - pv.at) / 1000; if (ext > clk && ext - clk < 20) clk = ext; } Object.assign(pv, { clock: clk, period: k.period, state: 'in', name: k.name, at: Date.now(), added: o.fmAdd || 0, base: k.base || 0 }); }
         else Object.assign(pv, { state: k.state, name: k.name, at: Date.now(), period: k.period || pv.period || 0, clock: k.clock || pv.clock || 0 });
         if (o.fmGoals && o.fmGoals.length >= (pv.goals || []).length) pv.goals = o.fmGoals; pv.src = 'FotMob'; }
+      else if (o.plAt && Date.now() - o.plAt < 90e3) { o.src = 'Premier League'; const pv = MX[f.id] || (MX[f.id] = { eid: null, venue: '', city: '', att: 0, goals: [] }); if (o.plGoals && o.plGoals.length >= (pv.goals || []).length) { pv.goals = o.plGoals; pv.src = 'Premier League'; } o.clock = o.clock || o.fmClock; }
       else o.clock = o.clock || o.fmClock;
       const tot = { 'Live source 1': o.eh != null ? o.eh + o.ea : -1, 'Live source 3': o.plH != null ? o.plH + o.plA : -1, 'Live source 2': o.fmH != null ? o.fmH + o.fmA : -1 }, best = o.h + o.a;
       if (o.best == null) o.best = best; else if (best > o.best) { o.best = best; Object.keys(tot).forEach((s) => { if (tot[s] === best) FD.win[s] = (FD.win[s] || 0) + 1; }); } });
@@ -7800,8 +7804,11 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     // Minutes in the last 2 gameweeks: a player who has barely played lately is probably out of the side
     const last2 = (e) => { if (!MIN5) return null; let mins = 0, games = 0; MIN5.gws.slice(0, 2).forEach((g, i) => { const n = teamGames(e.team, g); if (!n) return; games += n; const L = MIN5.live[i]; mins += (L && L[e.id] ? L[e.id].minutes : 0) || 0; }); return games ? mins / (90 * games) : null; };
     const last5 = (e) => { if (!MIN5) return null; let mins = 0, games = 0; MIN5.gws.forEach((g, i) => { const n = teamGames(e.team, g); if (!n) return; games += n; const L = MIN5.live[i]; mins += (L && L[e.id] ? L[e.id].minutes : 0) || 0; }); return games ? mins / (90 * games) : null; };
+    // v3.77: share of the last 5 team matches he started and played 60+ minutes. A player who splits minutes or rotates
+    //     is less likely to start than his average minutes suggest (the accuracy lab found rotating defenders over-projected).
+    const starts5 = (e) => { if (!MIN5) return null; let st = 0, games = 0; MIN5.gws.forEach((g, i) => { const n = teamGames(e.team, g); if (!n) return; games += n; const L = MIN5.live[i]; const m = (L && L[e.id] ? L[e.id].minutes : 0) || 0; st += m >= 60 * n ? n : m >= 60 ? 1 : 0; }); return games ? st / games : null; };
     const relC = {};
-    const rel = (e) => { if (relC[e.id] != null) return relC[e.id]; const share = Math.min(1, e.minutes / (90 * Math.max(1, tb[e.team].P))); const l5 = last5(e); const mix = l5 == null ? share : 0.6 * l5 + 0.4 * share; const l2 = last2(e); return (relC[e.id] = Math.max(0.08, Math.min(1, mix / 0.85)) * (l2 != null && l2 < 0.2 ? MODEL.gate : 1)); };
+    const rel = (e) => { if (relC[e.id] != null) return relC[e.id]; const share = Math.min(1, e.minutes / (90 * Math.max(1, tb[e.team].P))); const l5 = last5(e), s5 = starts5(e); const mix = l5 == null ? share : s5 == null ? 0.6 * l5 + 0.4 * share : 0.45 * l5 + 0.25 * share + 0.3 * s5; const full = s5 != null && s5 >= 0.99; const l2 = last2(e); return (relC[e.id] = Math.max(0.08, Math.min(1, mix / (full ? 0.85 : 0.95))) * (l2 != null && l2 < 0.2 ? MODEL.gate : 1)); };
     // Rates per 90, pulled toward the position average when minutes are low (this season + 2024/25 at 50% + 2023/24 at 25%; past weight fades as this season builds up)
     const K90 = 5; // equivalent of 5 full matches at the position average
     const regs = BS.elements.filter((e) => e.minutes >= 450);
@@ -7925,9 +7932,9 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       ma /= BS.teams.length; md /= BS.teams.length; BS.teams.forEach((t) => { ATT[t.id] /= ma; DEF[t.id] /= md; });
     }
     const lam0 = (t, o, home) => (home ? muH : muA) * ATT[t] * DEF[o];
-    // v3.54: where bookmaker odds exist for the match, half of the expected goals come from the market
-    let oddsUsed = 0;
-    const lam = (t, o, home, ko) => { const m = home ? oddsFor(t, o, ko) : oddsFor(o, t, ko); const own = lam0(t, o, home); if (!m) return own; oddsUsed++; return (1 - ODDS_W) * own + ODDS_W * (home ? m.lh : m.la); };
+    // v3.77: projections come from the model only. Bookmaker odds are shown next to matches as context
+    //     (the accuracy lab scored the odds blend lower on points, transfers and captaincy).
+    const lam = (t, o, home, ko) => lam0(t, o, home);
     const pois = (l, k) => { let p = Math.exp(-l); for (let i = 1; i <= k; i++) p *= l / i; return p; };
     const gcPen = (l) => { let s = 0; for (let k = 2; k <= 10; k++) s += Math.floor(k / 2) * pois(l, k); return s; };
     // (2)(3) Player points from underlying numbers: chance of 60+ minutes, xG and xA per 90 pulled toward the position
@@ -7973,7 +7980,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
           pts *= pl.c; tot += pl.id === capId ? pts * mult : pts; });
         out[n] = tot; }
       const s = Array.from(out).sort((a, b) => a - b), q = (x) => s[Math.min(N - 1, Math.floor(x * N))];
-      return { mean: s.reduce((a, b) => a + b, 0) / N, p10: q(0.1), p50: q(0.5), p90: q(0.9) }; };
+      return { mean: s.reduce((a, b) => a + b, 0) / N, p10: q(0.1), p50: q(0.5), p90: q(0.9), ge: opt.thr != null ? s.filter((x) => x >= opt.thr).length / N : null }; };
     const MODEL4 = { ATT, DEF, muH, muA, CAL4, CALN, simulate, COMP };
     const P = (e, g) => PR[e.id][g - startGw] || 0;
     const S5 = (e) => PR[e.id].slice(0, 5).reduce((a, b) => a + b, 0);
@@ -10276,7 +10283,10 @@ ${n ? n.hits.slice(0, 8).map((it) => `<div class="alt" style="margin-bottom:6px"
     } else {
       plan.push(['Transfer', `No move gains ${A.CONV} pts or more over 5 GWs. <b>Roll the free transfer</b> (${Math.min(5, A.ft + 1)} next week).`, { lab: 'Open planner', attr: 'data-act="planner"' }]);
     }
-    if (caps[0]) plan.push(['Captain', `<b>${name(caps[0].e)}</b> <small class="muted">${f1(P(caps[0].e, g0))} pts projected</small>${caps[1] ? ` · vice <b>${name(caps[1].e)}</b>` : ''}`, { lab: 'Set armband', attr: 'data-act="bestxi"' }]);
+    if (caps[0]) { const p0 = P(caps[0].e, g0); const close = caps.filter((c, i) => i > 0 && P(c.e, g0) >= p0 - Math.max(0.6, p0 * 0.1));
+      const haul = (c) => { try { const r = A.MODEL4.simulate([c.e.id], null, g0, { n: 1500, thr: 10 }); return r && r.ge != null ? Math.round(r.ge * 100) : null; } catch (e) { return null; } };
+      if (close.length) { const opts = [caps[0], ...close]; plan.push(['Captain', `<span title="Projections within ${f1(Math.max(0.6, p0 * 0.1))} pts of each other. The higher chance of 10+ points suits chasing rank; the higher projection suits protecting it.">Close call: ${opts.map((c) => { const h = haul(c); return `<b>${name(c.e)}</b> <small class="muted">${f1(P(c.e, g0))}${h != null ? ` · ${h}% 10+` : ''}</small>`; }).join(' / ')}</span>`, { lab: 'Set armband', attr: 'data-act="bestxi"' }]); }
+      else plan.push(['Captain', `<b>${name(caps[0].e)}</b> <small class="muted">${f1(p0)} pts projected</small>${caps[1] ? ` · vice <b>${name(caps[1].e)}</b>` : ''}`, { lab: 'Set armband', attr: 'data-act="bestxi"' }]); }
     const currentXI = new Set(A.picks.filter((p) => p.position <= 11).map((p) => p.element));
     const ins = now.xi.filter((s) => !currentXI.has(s.e.id));
     const outs = A.picks.filter((p) => p.position <= 11 && !now.xi.some((s) => s.e.id === p.element)).map((p) => A.E[p.element]);
@@ -10470,7 +10480,7 @@ ${A.live && (A.live.live || !A.cur.finished) ? `<button class="livestrip" type="
 <div class="hgrid">
 <div class="card hc alc">${alertsHtml}</div>
 <div class="card hc do"><div class="th"><h3>Do this now</h3><span class="muted">${plan.length} action${plan.length === 1 ? '' : 's'} for GW${g0}</span></div>
-<div class="arows">${plan.slice(0, 3).map(([t, h, a]) => `<div class="arow t-${t.toLowerCase()}"><span class="tag">${t}</span><span class="atx">${h}</span>${a ? `<button class="cta" type="button" ${a.attr}>${a.lab}</button>` : ''}</div>`).join('')}</div>
+<div class="arows">${plan.slice(0, 3).map(([t, h, a], i) => `<div class="arow t-${t.toLowerCase()}${i === 0 && t === 'Transfer' && a && /data-try/.test(a.attr) ? ' feat' : ''}"><span class="tag">${t}</span><span class="atx">${h}</span>${a ? `<button class="cta" type="button" ${a.attr}>${a.lab}</button>` : ''}</div>`).join('')}</div>
 ${plan.length > 3 ? `<details class="more"><summary>${plan.length - 3} more</summary><div class="arows">${plan.slice(3).map(([t, h, a]) => `<div class="arow t-${t.toLowerCase()}"><span class="tag">${t}</span><span class="atx">${h}</span>${a ? `<button class="cta" type="button" ${a.attr}>${a.lab}</button>` : ''}</div>`).join('')}${A.diffs && A.diffs[0] ? `<div class="arow t-diff"><span class="tag">Differential</span><span class="atx"><b>${name(A.diffs[0].e)}</b> <small class="muted">${T[A.diffs[0].e.team].short_name} · ${money(A.diffs[0].e.now_cost)} · ${A.diffs[0].e.selected_by_percent}% owned</small></span><button class="cta" type="button" data-quick="${A.diffs[0].e.id}">Bring in</button></div>` : ''}</div></details>` : ''}</div>
 <div class="card hc lgc" id="hl-box">${homeLeagues(A)}</div>
 <div class="card hc gwc">${gwSection(A) || '<div class="th"><h3>This gameweek</h3></div><p class="muted">No finished gameweek yet.</p>'}</div>
@@ -10479,7 +10489,7 @@ ${seasonChart}<p class="muted fine">Click a bar to open that week's team.</p></d
 <div class="card hc newst"><div class="th"><h3>Latest news</h3><button class="lnk2" type="button" data-view="news">All news</button></div>${newsSlider}</div>
 </div>
 </section>`;
-    const doRow = ([t, h, a]) => `<div class="arow t-${t.toLowerCase()}"><span class="tag">${t}</span><span class="atx">${h}</span>${a ? `<button class="cta" type="button" ${a.attr}>${a.lab}</button>` : ''}</div>`;
+    const doRow = ([t, h, a], i) => `<div class="arow t-${t.toLowerCase()}${i === 0 && t === 'Transfer' && a && /data-try/.test(a.attr) ? ' feat' : ''}"><span class="tag">${t}</span><span class="atx">${h}</span>${a ? `<button class="cta" type="button" ${a.attr}>${a.lab}</button>` : ''}</div>`;
     const doNow = `<p class="note tn">${plan.length} action${plan.length === 1 ? '' : 's'} for GW${g0}, most important first</p><div class="arows dotab">${plan.map(doRow).join('')}${A.diffs && A.diffs[0] ? doRow(['Differential', `<b>${name(A.diffs[0].e)}</b> <small class="muted">${T[A.diffs[0].e.team].short_name} · ${money(A.diffs[0].e.now_cost)} · ${A.diffs[0].e.selected_by_percent}% owned</small>`, { attr: `data-quick="${A.diffs[0].e.id}"`, lab: 'Bring in' }]) : ''}</div>`;
     A.html = { moveCards, diffCards, chipCards, doNow };
     const gp = R.getElementById('gwpill'); if (gp) { const tickGw = () => { const ms = nxt ? new Date(nxt.deadline_time) - Date.now() : 0; const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4); gp.innerHTML = nxt ? `<b>GW${g0}</b> <span class="cdt">${ms > 0 ? cdTxt(ms).replace(ms >= 864e5 ? / (\d\dm \d\ds)$/ : / (\d\ds)$/, '<i class="cs"> $1</i>') : 'deadline passed'}</span>` : 'Season complete'; gp.classList.toggle('hot', ms > 0 && ms < 864e5); }; tickGw(); gp.hidden = false; clearInterval(window.__fplGwT); window.__fplGwT = setInterval(() => { if (!document.getElementById(PID)) return clearInterval(window.__fplGwT); tickGw(); R.querySelectorAll('[data-dl]').forEach((x) => { const ms = +x.dataset.dl - Date.now(); x.textContent = ms > 0 ? cdTxt(ms) + ' left' : 'Deadline passed'; x.classList.toggle('dn', ms < 864e5); }); }, 1000); }
