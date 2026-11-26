@@ -1,10 +1,10 @@
 {
-  "version": "3.83",
+  "version": "3.84",
   "date": "2026-11-26",
-  "notes": "Android: FPL login stays in the app; login hint on Home",
+  "notes": "Live: GW review, Rank swing, mini-league title odds",
   "files": {
-    "apk": "dist/Elevn-Android-v3-83.apk",
-    "zip": "dist/Elevn-Chrome-v3-83.zip",
+    "apk": "dist/Elevn-Android-v3-84.apk",
+    "zip": "dist/Elevn-Chrome-v3-84.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.83.0
+// @version      3.84.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.83';
+  const ELEVN_VER = '3.84';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6554,6 +6554,15 @@ table.cmpt small.d{display:block;font-size:11px}
 .pmp .picon{width:26px;height:26px;flex:0 0 26px}.pmp span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pmp b{font-variant-numeric:tabular-nums}
 .pmp.mine{box-shadow:inset 2px 0 0 var(--good)}.pmp small{font-weight:700;font-size:11.5px}.pmp small.bad{color:var(--bad)}.pmp small.warn{color:#f5c451}
 .pmn{font-size:12.5px;padding:4px 8px}
+.tod{margin-top:18px}.tod h4{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase}.tod h4 small{text-transform:none;letter-spacing:0;font-weight:500;margin-left:6px}.tdn{font-size:13px}
+.tdt td{vertical-align:middle}.tdb{display:inline-block;width:110px;height:8px;border-radius:4px;background:rgba(255,255,255,.07);vertical-align:middle;margin-right:8px;overflow:hidden}.tdb i{display:block;height:100%;background:var(--acc);border-radius:4px}.tdp{font-variant-numeric:tabular-nums}
+.swh p{margin:0 0 4px;font-size:13.5px}.swh .muted{font-size:12px}.swt td{vertical-align:middle}
+.swn{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit}.swn .picon{width:28px;height:28px;flex:0 0 28px}.swn span{display:flex;flex-direction:column;line-height:1.15}.swn small{color:var(--mut);font-size:11px}
+.rwnav{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px}.rwnav b{font-size:16px}.rwnav .mwa{width:34px;height:34px;font-size:20px;line-height:1}
+.rwsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.rwsum>div{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;display:flex;flex-direction:column;gap:2px}.rwsum small{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.05em}.rwsum b{font-size:24px;font-family:var(--fd);font-variant-numeric:tabular-nums}.rwsum span{font-size:11.5px}
+.rwg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.rwt{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.025);box-shadow:inset 3px 0 0 var(--line)}.rwt.good{box-shadow:inset 3px 0 0 var(--good)}.rwt.bad{box-shadow:inset 3px 0 0 var(--bad)}
+.rwt small{color:var(--mut);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}.rwbig b{font-size:26px;font-family:var(--fd)}.rwt p{margin:4px 0 0;font-size:13px;line-height:1.45}
+@media (max-width:640px){.rwsum{grid-template-columns:repeat(2,minmax(0,1fr))}.rwg{grid-template-columns:1fr}.tdb{width:60px}.swt th:nth-child(n+5),.swt td:nth-child(n+5){display:none}.swt th,.swt td{padding-left:6px!important;padding-right:6px!important}.swt th{font-size:10px}.swn small{display:none}.swt,.tdt{table-layout:fixed;width:100%!important;min-width:0!important}.swt th:first-child{width:40%}.swt th:nth-child(2){width:16%}.swt th:nth-child(3){width:18%}.tdt th:first-child{width:44%}.swt td,.tdt td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.swn span{overflow:hidden;text-overflow:ellipsis}.tdt .tdb{display:none}.tdt th:nth-child(3),.tdt td:nth-child(3),.tdt th:nth-child(6),.tdt td:nth-child(6){display:none}}
 #s-home .herok .ftlog{display:block;margin-top:3px;font-size:11.5px;color:var(--acc);text-decoration:underline;text-underline-offset:2px}
 .mwfm{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);column-gap:10px;align-items:center;font-size:11px;color:var(--mut)}.mwfm .r{justify-content:flex-end}.mwfm .c{text-align:center;text-transform:uppercase;letter-spacing:.05em}.mwfm .pmf i{width:16px;height:16px;font-size:9.5px;border-radius:4px;opacity:.9}
 @media (max-width:700px){.mwfm{grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr);column-gap:8px}}
@@ -7813,14 +7822,16 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const tab = (k, lab) => `<button type="button" role="tab" class="${LIVETAB === k ? 'on' : ''}" aria-selected="${LIVETAB === k}" data-ltab="${k}">${lab}</button>`;
     return `<section class="s" id="s-live"><h2>GW${L.gw} live centre</h2><p class="sub">${fastOn() ? 'Fast feed every 10 s + FPL every 15 s during matches · ⚡ = seen live, not in FPL yet' : 'Updates every 15 s during matches'} · * = provisional bonus</p>${fastOn() ? `<p class="faststrip" id="fastst">${fastStatus()}</p>` : ''}
 <div class="livebar" id="livebar2">${liveBar(L)}</div>${nextGwBar(L)}
-<div class="seg tabs" role="tablist">${tab('results', 'Matches')}${tab('players', 'My players')}${tab('eo', 'Ownership & threats')}${tab('leagues', 'Mini-league')}${tab('rivals', 'Rival watch')}</div>
+<div class="seg tabs" role="tablist">${tab('results', 'Matches')}${tab('players', 'My players')}${tab('eo', 'Ownership & threats')}${tab('leagues', 'Mini-league')}${tab('rivals', 'Rival watch')}${tab('swing', 'Rank swing')}${tab('review', 'GW review')}</div>
 <div class="lpanel" data-lpanel="results" ${LIVETAB === 'results' ? '' : 'hidden'}><div class="mwk">${matchesHtml(A)}</div></div>
 <div class="lpanel" data-lpanel="players" ${LIVETAB === 'players' ? '' : 'hidden'}>
 <div class="alertctl"><button class="try" type="button" id="al-toggle" aria-pressed="${ALERTS_ON}">${ALERTS_ON ? 'Goal alerts: on' : 'Goal alerts: off'}</button>${!isExt() && window.Notification && Notification.permission !== 'granted' ? '<button class="try" type="button" id="al-desk">Allow desktop notifications</button>' : ''}<small class="muted">${isExt() ? 'Desktop notifications come from the extension while Chrome is open.' : ''}</small></div>
 <div class="tw"><table><thead><tr><th>Player</th><th>Status</th><th class="n">Mins</th><th class="n">G</th><th class="n">A</th><th class="n">CS</th><th class="n">Saves</th><th class="n">BPS</th><th class="n">Bonus</th><th class="n">Pts</th><th class="n">×</th><th class="n">Counts</th></tr></thead><tbody>${order.map(tr).join('')}</tbody></table></div></div>
 <div class="lpanel" data-lpanel="eo" ${LIVETAB === 'eo' ? '' : 'hidden'}><div id="eo-box">${eoHtml(A) || '<p class="muted">Effective ownership appears once your mini-league has loaded.</p>'}</div></div>
 <div class="lpanel" data-lpanel="leagues" ${LIVETAB === 'leagues' ? '' : 'hidden'}><div class="lgbox" id="lg-box">${leagueHtml(A)}</div></div>
-<div class="lpanel" data-lpanel="rivals" ${LIVETAB === 'rivals' ? '' : 'hidden'}><div id="rv-box">${rivalHtml(A)}</div></div></section>`;
+<div class="lpanel" data-lpanel="rivals" ${LIVETAB === 'rivals' ? '' : 'hidden'}><div id="rv-box">${rivalHtml(A)}</div></div>
+<div class="lpanel" data-lpanel="swing" ${LIVETAB === 'swing' ? '' : 'hidden'}><div id="sw-box">${swingHtml(A)}</div></div>
+<div class="lpanel" data-lpanel="review" ${LIVETAB === 'review' ? '' : 'hidden'}><div id="rw-box">${reviewHtml(A)}</div></div></section>`;
   }
   let MIN5 = null;
   let CURID = null, AUTO = null, LASTA = null, FORM3 = [], LIVETAB = 'results', FIXTAB = 'ticker', MW = null;
@@ -8349,7 +8360,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       if (v.startsWith('chip:')) { PLAN.tab = 'chips'; planChip(v.slice(5)); return; }
       renderPlanner(); return; }
     const nf = t.closest('[data-nf]'); if (nf) { const f = nf.dataset.nf; R.querySelectorAll('[data-nf]').forEach((b) => { const on = b === nf; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); NFS.k = f; nfApply(); return; }
-    const lt = t.closest('[data-ltab]'); if (lt) { LIVETAB = lt.dataset.ltab; const sec = R.getElementById('s-live'); sec.querySelectorAll('[data-ltab]').forEach((b) => { const on = b.dataset.ltab === LIVETAB; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); sec.querySelectorAll('[data-lpanel]').forEach((p) => { p.hidden = p.dataset.lpanel !== LIVETAB; }); return; }
+    const rwb = t.closest('[data-rwg]'); if (rwb && LASTA) { RWG = +rwb.dataset.rwg; const bx = R.getElementById('rw-box'); if (bx) bx.innerHTML = reviewHtml(LASTA); reviewLoad(LASTA); return; }
+    const lt = t.closest('[data-ltab]'); if (lt) { LIVETAB = lt.dataset.ltab; const sec = R.getElementById('s-live'); sec.querySelectorAll('[data-ltab]').forEach((b) => { const on = b.dataset.ltab === LIVETAB; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); sec.querySelectorAll('[data-lpanel]').forEach((p) => { p.hidden = p.dataset.lpanel !== LIVETAB; }); if (LASTA && LIVETAB === 'swing') swingLoad(LASTA); if (LASTA && LIVETAB === 'review') reviewLoad(LASTA); return; }
     const ft = t.closest('[data-ftab]'); if (ft) { FIXTAB = ft.dataset.ftab; paintRot(); return; }
     const fa = t.closest('[data-fanchor]'); if (fa) { ROT.anchor = +fa.dataset.fanchor; FIXTAB = 'pairs'; SUBV.fix = 'pairs'; paintRot(); showView('fix', 'pairs'); return; }
     if (t.closest('#wc-clearlb')) { PLAN.wc.locks = []; PLAN.wc.bans = []; PLAN.wcLocks = []; PLAN.wcBans = []; renderPlanner(); return; }
@@ -9041,7 +9053,7 @@ ${vs ? `<div class="cuplive"><div><small class="muted">GW${D.gw} match</small><b
     const mv = (r) => { if (!r.rank || (outside && r.me)) return ''; const d = r.rank - r.lrank; return d > 0 ? `<span class="up">▲${d}</span>` : d < 0 ? `<span class="dn">▼${-d}</span>` : '<span class="muted">–</span>'; };
     return `<div class="wch"><b>Live mini-league · ${esc(D.name)}</b>${sel}</div>
 <div class="tw"><table class="lgt"><thead><tr><th class="n">#</th><th></th><th>Team</th><th class="n">GW live</th><th class="n">Total</th><th>Captain</th><th class="n">To play</th></tr></thead><tbody>${rows.map((r, i) => `${i === gapAt ? `<tr class="lggap"><td colspan="7">⋯ ${(meRow.rank - topMax - 1).toLocaleString()} more managers ⋯</td></tr>` : ''}<tr class="${r.me ? 'mine me' : 'lgopen'} ${topCls(r.lrank)}" ${r.me || !r.entry ? '' : `data-entry="${r.entry}" data-tname="${esc(r.name)}" tabindex="0" role="link" title="Open ${esc(r.name)}"`}><td class="n"><b>${r.lrank.toLocaleString()}</b></td><td>${mv(r)}</td><td>${topIco(r.lrank)}<b>${esc(r.name)}</b> <small class="muted">${esc(r.player || '')}</small></td><td class="n"><b>${r.live}</b></td><td class="n">${r.tot.toLocaleString()}</td><td>${capTxt(r)}</td><td class="n">${r.left}</td></tr>`).join('')}</tbody></table></div>
-<p class="note">Top ${D.teams.length} rivals of the league plus you. Rivals' scores use their picked lineup with provisional bonus; their automatic substitutions are added by FPL after the matches. Arrows compare with the league table before this gameweek. Tap a team to open its account.</p>`;
+<p class="note">Top ${D.teams.length} rivals of the league plus you. Rivals' scores use their picked lineup with provisional bonus; their automatic substitutions are added by FPL after the matches. Arrows compare with the league table before this gameweek. Tap a team to open its account.</p>${oddsHtml(A, D, rows)}`;
   }
   // EO = how many points-weight the league holds in a player: owners count 1, captains 2 (triple captain 3), benched 0.
   // You gain on the league average by (your multiplier − EO) for every point he scores.
@@ -9176,6 +9188,161 @@ ${(() => { if (!lg.length) return '<p class="muted">Not in any league or cup.</p
       return `<div class="hlist">${top.map(row).join('')}</div>${rest.length ? `<details class="hlmore"><summary>Show all ${lg.length}</summary><div class="hlist">${rest.map(row).join('')}</div></details>` : ''}`; })()}`;
   }
   out.addEventListener('click', (ev) => { const b = ev.target.closest && ev.target.closest('[data-lgopen]'); if (!b || !LASTA) return; LG.lid = b.dataset.lgopen; LIVETAB = 'leagues'; showView('live'); const sec = R.getElementById('s-live'); if (sec) { sec.querySelectorAll('[data-ltab]').forEach((x) => { const on = x.dataset.ltab === 'leagues'; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); }); sec.querySelectorAll('[data-lpanel]').forEach((p) => { p.hidden = p.dataset.lpanel !== 'leagues'; }); } refreshLeague(LASTA, true); });
+
+  // ======================= v3.84: 1. mini-league title odds =======================
+  // Each manager's points per gameweek (after hits) give a mean and a spread. The mean leans on recent form, is pulled towards the
+  // league average (k = 4 gameweeks) and carries its own uncertainty (sd / sqrt(n)). The rest of the season is simulated 10,000 times.
+  // Managers share players, so their weekly scores move together: the independent part of the spread is scaled by 0.75.
+  const TOD = {};
+  function oddsHtml(A, D, rows) {
+    if (!D || D.kind !== 'classic') return '';
+    const cur = A.cur ? A.cur.id : A.startGw - 1, left = 38 - cur;
+    if (left <= 0) return '';
+    if (!D.full) return `<div class="tod"><h4>Title odds</h4><p class="muted tdn">Title odds need the whole league; this one has more than ${D.teams.length + 1} teams, so only its top is loaded.</p></div>`;
+    const ck = D.key + ':' + A.id + ':' + cur, o = TOD[ck];
+    if (!o) { setTimeout(() => oddsLoad(A, D, ck), 0); return `<div class="tod"><h4>Title odds</h4><p class="muted tdn"><span class="spin"></span> Simulating the rest of the season…</p></div>`; }
+    if (o.busy) return `<div class="tod"><h4>Title odds</h4><p class="muted tdn"><span class="spin"></span> Simulating the rest of the season…</p></div>`;
+    if (o.err) return `<div class="tod"><h4>Title odds</h4><p class="muted tdn">${esc(o.err)}</p></div>`;
+    const pc = (x) => (x >= 0.995 ? '>99%' : x < 0.005 ? (x > 0 ? '<1%' : '0%') : Math.round(x * 100) + '%');
+    const top = Math.max(...o.res.map((r) => r.p1));
+    return `<div class="tod"><h4>Title odds <small class="muted">${left} gameweeks left · ${o.n.toLocaleString()} simulated seasons</small></h4>
+<div class="tw"><table class="lgt tdt"><thead><tr><th>Team</th><th class="n">Now</th><th class="n">Per GW</th><th>Title</th><th class="n">Top 3</th><th class="n">Avg finish</th></tr></thead><tbody>${o.res.map((r) => `<tr class="${r.me ? 'mine me' : ''}"><td><b>${esc(r.name)}</b>${r.me ? ' <small class="muted">you</small>' : ''}</td><td class="n">${r.tot}</td><td class="n" title="Expected points per gameweek from here (after hits)">${f1(r.mu)}</td><td><span class="tdb"><i style="width:${top ? (r.p1 / top) * 100 : 0}%"></i></span><b class="tdp">${pc(r.p1)}</b></td><td class="n">${pc(r.p3)}</td><td class="n">${r.avg.toFixed(1)}</td></tr>`).join('')}</tbody></table></div>
+<p class="note">Simulation from each manager's points per gameweek so far (after hits), weighted towards the last 6, pulled towards the league average and with room for how uncertain that is. It assumes each team keeps a similar strength; chips, transfers and luck are inside the spread, not predicted.</p></div>`;
+  }
+  async function oddsLoad(A, D, ck) {
+    if (TOD[ck]) return; TOD[ck] = { busy: true };
+    try {
+      const cur = A.cur ? A.cur.id : A.startGw - 1, left = 38 - cur;
+      const mem = [{ entry: A.id, name: A.entry.name, me: true }, ...D.teams.map((t) => ({ entry: t.entry, name: t.name }))];
+      const hs = await Promise.all(mem.map((m) => J(`/api/entry/${m.entry}/history/`).catch(() => null)));
+      const L = A.live; const liveTot = {}; liveTot[A.id] = A.entry.summary_overall_points - (L ? L.pts : 0) + (L ? L.pts : 0);
+      D.teams.forEach((t) => { const r = rivalLive(A, t); liveTot[t.entry] = t.total - t.ev + r.pts; });
+      const P = mem.map((m, i) => { const h = hs[i]; const g = h && h.current ? h.current.filter((x) => x.event <= cur && x.event < (L && L.gw === cur && !L.done ? cur : 99)).map((x) => x.points - (x.event_transfers_cost || 0)) : [];
+        const n = g.length, mall = n ? g.reduce((a, b) => a + b, 0) / n : 50, l6 = g.slice(-6), m6 = l6.length ? l6.reduce((a, b) => a + b, 0) / l6.length : mall;
+        const sd = n > 1 ? Math.sqrt(g.reduce((a, b) => a + (b - mall) * (b - mall), 0) / (n - 1)) : 15;
+        return { ...m, n, raw: 0.6 * m6 + 0.4 * mall, sd: Math.max(10, Math.min(25, sd)), tot: liveTot[m.entry] ?? (h && h.current && h.current.length ? h.current[h.current.length - 1].total_points : 0) }; });
+      const lm = P.reduce((a, b) => a + b.raw, 0) / P.length;
+      P.forEach((x) => { x.mu = (x.n * x.raw + 4 * lm) / (x.n + 4); x.su = x.sd / Math.sqrt(Math.max(1, x.n)); });
+      const N = 10000, k = P.length, w1 = new Float64Array(k), w3 = new Float64Array(k), rs = new Float64Array(k), sc = new Float64Array(k);
+      const z = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+      const idx = [...Array(k).keys()];
+      for (let s = 0; s < N; s++) {
+        for (let i = 0; i < k; i++) { const x = P[i]; sc[i] = x.tot + left * (x.mu + x.su * z()) + Math.sqrt(left) * x.sd * 0.75 * z(); }
+        idx.sort((a, b) => sc[b] - sc[a]); idx.forEach((i, r) => { if (r === 0) w1[i]++; if (r < 3) w3[i]++; rs[i] += r + 1; });
+      }
+      const res = P.map((x, i) => ({ name: x.name, me: x.me, tot: x.tot, mu: x.mu, p1: w1[i] / N, p3: w3[i] / N, avg: rs[i] / N })).sort((a, b) => b.p1 - a.p1 || a.avg - b.avg);
+      TOD[ck] = { res, n: N };
+    } catch (e) { TOD[ck] = { err: "Couldn't load the managers' histories. Try refresh." }; }
+    const b = R.getElementById('lg-box'); if (b && LASTA) b.innerHTML = leagueHtml(LASTA);
+  }
+
+  // ======================= v3.84: 2. rank swing =======================
+  // Ranks move by (your multiplier − EO) × his points, where EO is measured among managers ranked near you (their picks are public
+  // once the deadline has passed). Before the deadline FPL's overall ownership stands in. Places per point come from the overall
+  // league table 50,000 places above and below you.
+  const SW = {};
+  const GOALP = [0, 10, 6, 5, 4], CSP = [0, 4, 4, 1, 0];
+  function swingGw(A) { const L = A.live; if (L && L.fixtures && L.fixtures.some((f) => !f.finished && !f.finished_provisional)) return L.gw; return A.startGw; }
+  async function swingLoad(A) {
+    const gw = swingGw(A), ck = A.id + ':' + gw; if (SW[ck]) return; SW[ck] = { busy: true };
+    try {
+      const rank = A.entry.summary_overall_rank || 0, pg = Math.max(1, Math.ceil(rank / 50));
+      const page = (p) => J(`/api/leagues-classic/314/standings/?page_standings=${Math.max(1, p)}`).then((d) => (d.standings && d.standings.results) || []).catch(() => []);
+      const [a, m, b] = await Promise.all([page(pg - 1000), page(pg), page(pg + 1000)]);
+      let dens = null; if (a.length && b.length) { const ra = a[0].rank, rb = b[0].rank, ta = a[0].total, tb = b[0].total; if (ta > tb) dens = (rb - ra) / (ta - tb); }
+      const pub = BS.events.find((e) => e.id === gw); const after = pub && (pub.is_current || pub.finished) && Date.now() > Date.parse(pub.deadline_time);
+      let eo = null, sample = 0;
+      if (after) {
+        const near = [...a, ...m, ...b].filter((r) => r.entry !== A.id); const pick = near.filter((_, i) => i % 2 === 0).slice(0, 60);
+        const ps = await Promise.all(pick.map((r) => J(`/api/entry/${r.entry}/event/${gw}/picks/`).catch(() => null)));
+        const ok = ps.filter((x) => x && x.picks); sample = ok.length;
+        if (sample >= 20) { eo = {}; ok.forEach((x) => x.picks.forEach((q) => { eo[q.element] = (eo[q.element] || 0) + (q.multiplier || 0) / sample; })); }
+      }
+      SW[ck] = { gw, dens, eo, sample, rank, after };
+    } catch (e) { SW[ck] = { err: "Couldn't load the overall table near your rank. Try refresh." }; }
+    const bx = R.getElementById('sw-box'); if (bx && LASTA) bx.innerHTML = swingHtml(LASTA);
+  }
+  function swingHtml(A) {
+    const gw = swingGw(A), o = SW[A.id + ':' + gw];
+    if (!o || o.busy) { if (!o && LIVETAB === 'swing') setTimeout(() => swingLoad(A), 0); return `<p class="muted"><span class="spin"></span> Reading the overall table around your rank…</p>`; }
+    if (o.err) return `<p class="muted">${esc(o.err)}</p>`;
+    const fx = FX.filter((f) => f.event === gw && !f.finished && !f.finished_provisional), teams = new Set(fx.flatMap((f) => [f.team_h, f.team_a]));
+    if (!teams.size) return '<p class="muted">No matches left this gameweek.</p>';
+    const L = A.live; const mine = {};
+    if (L && L.gw === gw) L.rows.forEach((r) => { if (r.e) mine[r.e.id] = r.mult || 0; });
+    if (!Object.keys(mine).length) { const sq = (A.picks || []); sq.forEach((q) => (mine[q.element] = q.multiplier || 0)); }
+    const E = Object.values(A.E).filter((e) => teams.has(e.team) && e.status !== 'u');
+    const eoOf = (e) => (o.eo ? o.eo[e.id] || 0 : (+e.selected_by_percent || 0) / 100);
+    const cand = E.filter((e) => (mine[e.id] || 0) > 0 || eoOf(e) >= 0.12);
+    const dens = o.dens; const plc = (pts) => { if (!dens) return `${pts > 0 ? '+' : ''}${f1(pts)} pts`; const v = Math.round(pts * dens); const a = Math.abs(v); const t = a >= 1e6 ? (a / 1e6).toFixed(1) + 'M' : a >= 1e3 ? Math.round(a / 1e3) + 'k' : a; return v === 0 ? '<span class="muted">0</span>' : v > 0 ? `<span class="up">▲ ${t}</span>` : `<span class="dn">▼ ${t}</span>`; };
+    const rowsH = cand.map((e) => { const my = mine[e.id] || 0, x = eoOf(e), st = my - x; return { e, my, x, st, g: st * GOALP[e.element_type], as: st * 3, cs: st * CSP[e.element_type] }; })
+      .map((r) => { let pp = 0; try { pp = A.P(r.e, gw) || 0; } catch (x) {} r.w = Math.abs(r.st) * pp; return r; }).sort((a, b) => b.w - a.w).slice(0, 18);
+    const stake = (r) => (r.my ? (r.my >= 3 ? 'TC ×3' : r.my === 2 ? 'C ×2' : '×1') : '<span class="muted">–</span>');
+    const nm = (e) => `<a href="#" class="pn swn" data-pi="1" data-pid="${e.id}">${pface(e)}<span>${esc(e.web_name)}<small>${POS[e.element_type]} · ${esc(A.T[e.team].short_name)}</small></span></a>`;
+    const head = dens ? `Around your rank (${o.rank.toLocaleString()}), one point is worth about <b>${Math.round(dens).toLocaleString()}</b> places.` : 'Shown in points, because the places-per-point rate around your rank could not be measured.';
+    const src = o.eo ? `EO measured from ${o.sample} managers ranked near you (captains count twice).` : `Before the deadline: EO is FPL's overall ownership; captaincy is unknown until the deadline, so popular captains will swing more than shown.`;
+    return `<div class="swh"><p>${head}</p><p class="muted">${src}</p></div>
+<div class="tw"><table class="lgt swt"><thead><tr><th>Player</th><th class="n">You</th><th class="n">${o.eo ? 'EO' : 'Owned'}</th><th class="n">Goal</th><th class="n">Assist</th><th class="n">Clean sheet</th></tr></thead><tbody>${rowsH.map((r) => `<tr class="${r.my ? 'mine' : ''}"><td>${nm(r.e)}</td><td class="n">${stake(r)}</td><td class="n">${Math.round(r.x * 100)}%</td><td class="n">${plc(r.g)}</td><td class="n">${plc(r.as)}</td><td class="n">${CSP[r.e.element_type] ? plc(r.cs) : '<span class="muted">–</span>'}</td></tr>`).join('')}</tbody></table></div>
+<p class="note">GW${gw}. Places = (your multiplier − EO) × the points for that event × places per point. Your players and anyone owned by 12%+ near you, sorted by expected impact (stake × projected points); bonus points not included. Your multipliers come from your team as Elevn last read it${A.ftExact ? '' : ' (log in to FPL to include changes you have made since the last deadline)'}.</p>`;
+  }
+
+  // ======================= v3.84: 3. gameweek review =======================
+  // Hindsight on the same 15: captain (best counted player vs yours), lineup (best legal XI vs yours), transfers (in − out − hit), chip.
+  const RW = {}; let RWG = null;
+  function reviewGw(A) { const f = BS.events.filter((e) => e.finished || e.data_checked).map((e) => e.id); const last = f.length ? Math.max(...f) : 0; if (RWG && RWG <= last && RWG >= 1) return { g: RWG, last }; return { g: last, last }; }
+  async function reviewLoad(A) {
+    const { g } = reviewGw(A); if (!g) return; const ck = A.id + ':' + g; if (RW[ck]) return; RW[ck] = { busy: true };
+    try {
+      const [pk, live, trs, pkPrev] = await Promise.all([J(`/api/entry/${A.id}/event/${g}/picks/`), J(`/api/event/${g}/live/`), J(`/api/entry/${A.id}/transfers/`).catch(() => []), g > 1 ? J(`/api/entry/${A.id}/event/${g - 1}/picks/`).catch(() => null) : null]);
+      const pts = {}, mins = {}; (live.elements || []).forEach((x) => { pts[x.id] = x.stats.total_points || 0; mins[x.id] = x.stats.minutes || 0; });
+      RW[ck] = { g, pk, pts, mins, trs: (trs || []).filter((t) => t.event === g), pkPrev };
+    } catch (e) { RW[ck] = { err: "Couldn't load that gameweek. Try refresh." }; }
+    const bx = R.getElementById('rw-box'); if (bx && LASTA) bx.innerHTML = reviewHtml(LASTA);
+  }
+  function bestXI(list) { // list: [{e, v}] → best legal XI total (1 GK, DEF 3-5, MID 2-5, FWD 1-3)
+    const by = (t) => list.filter((x) => x.e.element_type === t).sort((a, b) => b.v - a.v);
+    const gk = by(1), d = by(2), m = by(3), f = by(4); if (!gk.length) return { sum: 0, xi: [] };
+    const xi = [gk[0], ...d.slice(0, 3), ...m.slice(0, 2), ...f.slice(0, 1)];
+    const cap = { 2: 5, 3: 5, 4: 3 }, cnt = { 2: 3, 3: 2, 4: 1 };
+    const rest = [...d.slice(3), ...m.slice(2), ...f.slice(1)].sort((a, b) => b.v - a.v);
+    for (const x of rest) { if (xi.length >= 11) break; const t = x.e.element_type; if (cnt[t] < cap[t]) { xi.push(x); cnt[t]++; } }
+    return { sum: xi.reduce((a, x) => a + x.v, 0), xi };
+  }
+  function reviewHtml(A) {
+    const { g, last } = reviewGw(A); if (!g) return '<p class="muted">No gameweek has finished yet.</p>';
+    const o = RW[A.id + ':' + g];
+    const nav = `<div class="rwnav"><button class="mwa" type="button" data-rwg="${g - 1}" ${g <= 1 ? 'disabled' : ''} aria-label="Previous gameweek">‹</button><b>GW${g} review</b><button class="mwa" type="button" data-rwg="${g + 1}" ${g >= last ? 'disabled' : ''} aria-label="Next gameweek">›</button></div>`;
+    if (!o || o.busy) { if (!o && LIVETAB === 'review') setTimeout(() => reviewLoad(A), 0); return nav + '<p class="muted"><span class="spin"></span> Loading the gameweek…</p>'; }
+    if (o.err) return nav + `<p class="muted">${esc(o.err)}</p>`;
+    const { pk, pts } = o, E = A.E, eh = pk.entry_history || {}, chip = pk.active_chip;
+    const sq = pk.picks.map((q) => ({ q, e: E[q.element], v: pts[q.element] || 0 })).filter((x) => x.e);
+    const counted = sq.filter((x) => x.q.multiplier > 0);
+    const capX = sq.find((x) => x.q.multiplier >= 2) || sq.find((x) => x.q.is_captain); const cm = capX ? capX.q.multiplier || 2 : 2;
+    const bestC = counted.slice().sort((a, b) => b.v - a.v)[0];
+    const capCost = capX && bestC ? (bestC.v - capX.v) * (cm - 1) : 0;
+    const xiNow = counted.reduce((a, x) => a + x.v, 0), best = bestXI(sq), bench = chip === 'bboost' ? 0 : Math.max(0, best.sum - xiNow);
+    const benchPts = sq.filter((x) => x.q.position > 11).reduce((a, x) => a + x.v, 0);
+    const hit = eh.event_transfers_cost || 0;
+    const trs = o.trs.map((t) => ({ i: E[t.element_in], o: E[t.element_out], d: (pts[t.element_in] || 0) - (pts[t.element_out] || 0) })).filter((t) => t.i && t.o);
+    const trNet = trs.reduce((a, t) => a + t.d, 0) - hit;
+    let chipT = '', chipV = null;
+    if (chip === '3xc' && capX) { chipV = capX.v; chipT = `Triple Captain on ${esc(capX.e.web_name)} added <b>${capX.v}</b>.`; }
+    else if (chip === 'bboost') { chipV = benchPts; chipT = `Bench Boost added <b>${benchPts}</b> from your bench.`; }
+    else if (chip === 'freehit' && o.pkPrev && o.pkPrev.picks) { const prev = o.pkPrev.picks.filter((q) => q.position <= 11).reduce((a, q) => a + (pts[q.element] || 0) * (q.is_captain ? 2 : 1), 0); chipV = (eh.points || 0) - prev; chipT = `Free Hit team scored ${eh.points || 0}; your previous team would have scored ${prev}.`; }
+    else if (chip === 'wildcard') chipT = 'Wildcard played: the new squad is judged by the weeks that follow.';
+    const sgn = (v) => (v > 0 ? `<b class="up">+${v}</b>` : v < 0 ? `<b class="dn">${v}</b>` : '<b class="muted">0</b>');
+    const ev = BS.events.find((e) => e.id === g) || {};
+    const maxPts = best.sum + (bestC ? bestC.v * (cm - 1) : 0);
+    const nm = (e) => esc(e.web_name);
+    const tile = (cls, h, big, txt) => `<div class="rwt ${cls}"><small>${h}</small><div class="rwbig">${big}</div><p>${txt}</p></div>`;
+    const capTile = capX ? tile(capCost > 0 ? 'bad' : 'good', 'Captain', capCost > 0 ? sgn(-capCost) : sgn(0), capCost > 0 ? `${nm(capX.e)} scored ${capX.v}. ${nm(bestC.e)} scored ${bestC.v}, so the armband on him would have given ${capCost} more.` : `${nm(capX.e)} (${capX.v}) was the best captain you had.`) : '';
+    const lineTile = tile(bench > 0 ? 'bad' : 'good', 'Lineup', bench > 0 ? sgn(-bench) : sgn(0), chip === 'bboost' ? 'Bench Boost: every player counted.' : bench > 0 ? `Your best legal XI from the same 15 would have scored ${bench} more. Bench total: ${benchPts}.` : `You started the best possible XI. Bench total: ${benchPts}.`);
+    const trTile = tile(trNet > 0 ? 'good' : trNet < 0 ? 'bad' : '', 'Transfers', trs.length || hit ? sgn(trNet) : '<b class="muted">–</b>', trs.length ? trs.map((t) => `${nm(t.o)} → ${nm(t.i)} ${t.d > 0 ? '+' : ''}${t.d}`).join(' · ') + (hit ? ` · hit −${hit}` : '') + '<br><span class="muted">This gameweek only.</span>' : 'No transfers this gameweek.');
+    const chipTile = tile(chipV > 0 ? 'good' : chipV < 0 ? 'bad' : '', 'Chip', chipV != null ? sgn(chipV) : '<b class="muted">–</b>', chipT || 'No chip played.');
+    return nav + `<div class="rwsum"><div><small>You scored</small><b>${(eh.points || 0) - hit}</b>${hit ? `<span class="muted">${eh.points} − ${hit} hit</span>` : ''}</div><div><small>GW average</small><b>${ev.average_entry_score ?? '–'}</b></div><div><small>Best possible, same squad</small><b>${maxPts}</b></div><div><small>Left on the table</small><b class="${maxPts - (eh.points || 0) > 0 ? 'dn' : 'up'}">${Math.max(0, maxPts - (eh.points || 0))}</b></div></div>
+<div class="rwg">${capTile}${lineTile}${trTile}${chipTile}</div>
+<p class="note">Hindsight only, on the 15 you had: it shows what each decision was worth this gameweek, not what you should have known. "Best possible" = best legal XI plus the best captain from it.</p>`;
+  }
   function paintLeague(A) {
     const b = R.getElementById('lg-box'); if (b) b.innerHTML = leagueHtml(A);
     const e = R.getElementById('eo-box'); if (e) e.innerHTML = eoHtml(A) || '<p class="muted">Effective ownership appears once your mini-league has loaded.</p>';
