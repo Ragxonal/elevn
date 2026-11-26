@@ -1,10 +1,10 @@
 {
-  "version": "3.78",
+  "version": "3.79",
   "date": "2026-11-26",
-  "notes": "Tune-up reads the accuracy lab's per-position corrections (shown in Accuracy > Tune-up; applied only once the lab confirms them on a scored gameweek and Tune-up is on).",
+  "notes": "Design review: actions first on phones, one deadline, clearer projected points, slider leads with the advice, readable pitch names, Team ID folds on phones, two-column Live, new Daylight theme.",
   "files": {
-    "apk": "dist/Elevn-Android-v3-78.apk",
-    "zip": "dist/Elevn-Chrome-v3-78.zip",
+    "apk": "dist/Elevn-Android-v3-79.apk",
+    "zip": "dist/Elevn-Chrome-v3-79.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }
