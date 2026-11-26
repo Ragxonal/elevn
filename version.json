@@ -1,10 +1,10 @@
 {
-  "version": "3.77",
-  "date": "2026-11-25",
-  "notes": "Projections: start likelihood from recent starts; bookmaker odds no longer feed projections (context only); top transfer highlighted; close captain calls shown together with chance of 10+; Premier League match centre before ESPN when FotMob stops.",
+  "version": "3.78",
+  "date": "2026-11-26",
+  "notes": "Tune-up reads the accuracy lab's per-position corrections (shown in Accuracy > Tune-up; applied only once the lab confirms them on a scored gameweek and Tune-up is on).",
   "files": {
-    "apk": "dist/Elevn-Android-v3-77.apk",
-    "zip": "dist/Elevn-Chrome-v3-77.zip",
+    "apk": "dist/Elevn-Android-v3-78.apk",
+    "zip": "dist/Elevn-Chrome-v3-78.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }

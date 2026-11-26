@@ -1,0 +1,22 @@
+{
+  "v": 1,
+  "active": false,
+  "gws": [
+    11
+  ],
+  "n": 100,
+  "f": {
+    "1": 0.981,
+    "2": 0.85,
+    "3": 0.942,
+    "4": 0.85
+  },
+  "raw": {
+    "1": 0.963,
+    "2": 0.633,
+    "3": 0.888,
+    "4": 0.674
+  },
+  "at": "2026-11-26T16:24:04.828Z",
+  "note": "Real / projected points per position (1 GK, 2 DEF, 3 MID, 4 FWD) for players in the teams the Elevn accuracy lab tracks. The app applies f only when active is true and Tune-up is on."
+}

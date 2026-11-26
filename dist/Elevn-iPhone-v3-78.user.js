@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.77.0
+// @version      3.78.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.77';
+  const ELEVN_VER = '3.78';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6870,6 +6870,18 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   const gmText = (url) => new Promise((res, rej) => { try { gmFn()({ method: 'GET', url, timeout: 12000, onload: (r) => (r.status >= 200 && r.status < 300 ? res(r.responseText) : rej(new Error('HTTP ' + r.status))), onerror: () => rej(new Error('feed error')), ontimeout: () => rej(new Error('timeout')) }); } catch (e) { rej(e); } });
   const directText = () => (hasNative() ? nativeText : extId() ? extText : gmFn() ? gmText : null);
   setTimeout(() => { try { checkUpdate(false); } catch (e) {} }, 3000);
+  // v3.78: Accuracy lab corrections for Tune-up. lab/calib.json in the Elevn GitHub repository holds per-position factors
+  //     measured by the lab (projected vs real points of the teams it tracks). Read once a day, kept on this device, and used
+  //     only once the lab marks them "active" (confirmed by a scored gameweek). Each factor is limited to -15% / +15%.
+  const LABCAL_K = 'elevnLabCal', LABCAL_URL = 'https://raw.githubusercontent.com/Ragxonal/elevn/main/lab/calib.json';
+  const labCalGet = () => { try { const j = JSON.parse(localStorage.getItem(LABCAL_K) || 'null'); if (!j || !j.f) return null;
+    const f = {}; [1, 2, 3, 4].forEach((t) => { const v = +j.f[t]; f[t] = Number.isFinite(v) ? Math.max(0.85, Math.min(1.15, v)) : 1; });
+    return { f, active: j.active === true, gws: (Array.isArray(j.gws) ? j.gws : []).map(Number).filter(Number.isFinite), n: +j.n || 0, got: +j.got || 0 }; } catch (e) { return null; } };
+  async function labCalRefresh() { const c = labCalGet(); if (c && c.got && Date.now() - c.got < 864e5) return;
+    try { let txt; try { const r = await withTimeout(fetch(LABCAL_URL + '?t=' + Math.floor(Date.now() / 36e5), { credentials: 'omit', cache: 'no-store' }), 8000); if (!r.ok) throw new Error('HTTP ' + r.status); txt = await r.text(); }
+      catch (e) { const d = directText(); if (!d) throw e; txt = await withTimeout(d(LABCAL_URL), 9000); }
+      const j = JSON.parse(txt); if (!j || !j.f) return; j.got = Date.now(); localStorage.setItem(LABCAL_K, JSON.stringify(j)); } catch (e) {} }
+  setTimeout(() => { try { labCalRefresh(); } catch (e) {} }, 1500);
   const readFeed = (url) => { const d = directText(); return d ? withTimeout(d(url), 13000).then((x) => { const its = parseFeed(x); if (!its.length) throw new Error('empty'); return its; }).catch(() => viaRss2json(url)) : viaRss2json(url); };
   const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
   async function fetchNews(gw) {
@@ -7205,8 +7217,9 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const cl = R2.calib || {}; const pcf = (v) => `${v >= 1 ? '+' : '−'}${Math.round(Math.abs(v - 1) * 100)}%`;
     return `<h4 class="acch">Your team: projected vs actual</h4><p class="note" style="margin:0 0 6px">Your real starting XI and captain each week, projected with only what was known before that deadline (hits not included).</p>
 <div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Projected</th><th class="n">Actual</th><th class="n">Diff</th><th>Captain</th></tr></thead><tbody>${R2.team.map((r) => `<tr><td>GW${r.g}</td><td class="n">${f1(r.pj)}</td><td class="n"><b>${r.ac}</b></td><td class="n ${r.ac - r.pj >= 0 ? 'up' : 'dn'}">${r.ac - r.pj >= 0 ? '+' : ''}${f1(r.ac - r.pj)}</td><td>${esc(r.cap || '')}</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${f1(tp)}</b></td><td class="n"><b>${ta}</b></td><td class="n ${ta - tp >= 0 ? 'up' : 'dn'}"><b>${ta - tp >= 0 ? '+' : ''}${f1(ta - tp)}</b></td><td></td></tr></tbody></table></div>
-<h4 class="acch">Tune-up</h4><p class="note" style="margin:0 0 6px">Players who played scored this much more or less than projected, by position. With tune-up on, every projection is scaled by these (limited to −15% / +18%).</p>
-<div class="calrow">${[[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `<span><small>${l}</small><b class="${(cl[k] || 1) >= 1 ? 'up' : 'dn'}">${pcf(cl[k] || 1)}</b></span>`).join('')}<div class="seg"><button type="button" class="${calOn ? 'on' : ''}" data-cal="on">Tune-up on</button><button type="button" class="${calOn ? '' : 'on'}" data-cal="off">Off</button></div></div>`;
+<h4 class="acch">Tune-up</h4><p class="note" style="margin:0 0 6px">Players who played scored this much more or less than projected, by position. With tune-up on, every projection is scaled by these (limited to −15% / +18%), together with the accuracy lab's corrections once the lab has confirmed them.</p>
+<div class="calrow">${[[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `<span><small>${l}</small><b class="${(cl[k] || 1) >= 1 ? 'up' : 'dn'}">${pcf(cl[k] || 1)}</b></span>`).join('')}<div class="seg"><button type="button" class="${calOn ? 'on' : ''}" data-cal="on">Tune-up on</button><button type="button" class="${calOn ? '' : 'on'}" data-cal="off">Off</button></div></div>${(() => { const c = labCalGet(); if (!c) return ''; const ff = [[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `${l} ${pcf(c.f[k])}`).join(' · ');
+  return `<p class="note" style="margin:6px 0 0">Accuracy lab${c.n ? ` (${c.n} players` : ' ('}${c.gws.length ? `${c.n ? ', ' : ''}GW${c.gws.join(', GW')}` : ''}): ${ff} · ${c.active ? (calOn ? 'in use' : 'not used while tune-up is off') : 'still being checked, not applied yet'}.</p>`; })()}`;
   }
   function accHtml() {
     const R2 = ACC;
@@ -7961,8 +7974,11 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     //     correct the model per position (only part of the gap, and within ±15%, so one odd week can't swing it).
     const PLOG_KEY = 'fplAnalystProjLog'; let PLOG = {}; try { PLOG = JSON.parse(localStorage.getItem(PLOG_KEY) || '{}') || {}; } catch (e) {}
     if (!PLOG[startGw]) { const pp = {}; BS.elements.forEach((e) => { const v = RAW[e.id][0]; if (v >= 1) pp[e.id] = Math.round(v * 10); }); PLOG[startGw] = pp; const ks = Object.keys(PLOG).map(Number).sort((a, b) => b - a); ks.slice(10).forEach((k) => delete PLOG[k]); try { localStorage.setItem(PLOG_KEY, JSON.stringify(PLOG)); } catch (e) {} }
-    const CAL4 = [0, 1, 1, 1, 1], CALN = [0, 0, 0, 0, 0];
-    if (MIN5) MIN5.gws.forEach((g, i) => { const L = MIN5.live[i], lg = PLOG[g]; if (!L || !lg) return; const sp = [0, 0, 0, 0, 0], sa = [0, 0, 0, 0, 0];
+    // v3.78: with Tune-up on, the accuracy lab's confirmed factors are the starting point; this device's own learning then
+    //     adds only the gameweeks the lab has not measured, so the same week is never corrected twice.
+    const LC = calOn ? labCalGet() : null, LCon = !!(LC && LC.active);
+    const CAL4 = LCon ? [0, LC.f[1], LC.f[2], LC.f[3], LC.f[4]] : [0, 1, 1, 1, 1], CALN = [0, 0, 0, 0, 0];
+    if (MIN5) MIN5.gws.forEach((g, i) => { if (LCon && LC.gws.includes(g)) return; const L = MIN5.live[i], lg = PLOG[g]; if (!L || !lg) return; const sp = [0, 0, 0, 0, 0], sa = [0, 0, 0, 0, 0];
       Object.entries(lg).forEach(([id, v]) => { const e = E[id], st = L[id]; if (!e || !st) return; sp[e.element_type] += v / 10; sa[e.element_type] += st.total_points || 0; });
       [1, 2, 3, 4].forEach((t) => { if (sp[t] > 20) { CAL4[t] *= Math.pow(sa[t] / sp[t], 0.35); CALN[t]++; } }); });
     [1, 2, 3, 4].forEach((t) => { CAL4[t] = Math.max(0.85, Math.min(1.15, CAL4[t])); });
