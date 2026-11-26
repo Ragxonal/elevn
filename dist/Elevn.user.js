@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.82.0
+// @version      3.83.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.82';
+  const ELEVN_VER = '3.83';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6554,6 +6554,7 @@ table.cmpt small.d{display:block;font-size:11px}
 .pmp .picon{width:26px;height:26px;flex:0 0 26px}.pmp span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pmp b{font-variant-numeric:tabular-nums}
 .pmp.mine{box-shadow:inset 2px 0 0 var(--good)}.pmp small{font-weight:700;font-size:11.5px}.pmp small.bad{color:var(--bad)}.pmp small.warn{color:#f5c451}
 .pmn{font-size:12.5px;padding:4px 8px}
+#s-home .herok .ftlog{display:block;margin-top:3px;font-size:11.5px;color:var(--acc);text-decoration:underline;text-underline-offset:2px}
 .mwfm{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);column-gap:10px;align-items:center;font-size:11px;color:var(--mut)}.mwfm .r{justify-content:flex-end}.mwfm .c{text-align:center;text-transform:uppercase;letter-spacing:.05em}.mwfm .pmf i{width:16px;height:16px;font-size:9.5px;border-radius:4px;opacity:.9}
 @media (max-width:700px){.mwfm{grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr);column-gap:8px}}
 #s-home .herok .fttag{font-style:normal;font:600 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:999px;margin-right:6px;color:var(--warn,#f5c451);background:rgba(245,196,81,.12);border:1px solid rgba(245,196,81,.3);vertical-align:1px}
@@ -10655,7 +10656,7 @@ ${(() => { const rg = REGION[entry.player_region_id], code = rg ? rg[0] : '', in
 <div class="hbtx"><small class="eyebrow">${nxt ? `Next: GW${g0}` : 'Season complete'}</small><h2>${esc(entry.name)}</h2><span class="hbsub">${esc(entry.player_first_name)} ${esc(entry.player_last_name)}${rg ? ' · ' + esc(entry.player_region_name || rg[1]) : ''} · ID ${A.id}</span></div>
 <div class="hbkp"><div><small>Overall rank</small><b>${(entry.summary_overall_rank || 0).toLocaleString()}</b></div><div><small>Points</small><b>${entry.summary_overall_points}</b></div></div></div>`; })()}
 <div class="hero hero2"><div class="hl deadline-head"><small class="eyebrow">${nxt ? `GW${g0} DEADLINE` : 'SEASON COMPLETE'}</small></div>
-<div class="herok"><div><small>Total points</small><b data-count="${entry.summary_overall_points}">${entry.summary_overall_points}</b><span class="hs2">${last && last.event ? `GW${last.event}: ${last.points} pts` : ''}</span></div><div><small>Overall rank</small><b data-count="${entry.summary_overall_rank || 0}">${(entry.summary_overall_rank || 0).toLocaleString()}</b><span class="hs2 ${rmv > 0 ? 'up' : rmv < 0 ? 'dn' : ''}">${rmv > 0 ? '▲' : rmv < 0 ? '▼' : '–'} ${Math.abs(rmv).toLocaleString()} places</span></div><div title="Best 11 from your current 15 with the advised captain, before any transfer. Your lineup as it is set in FPL: ${f1(curNow)}."><small>Projected GW${g0}</small><b>${f1(proj)}</b><span class="hs2">${caps[0] ? 'Best 11 · captain ' + esc(caps[0].e.web_name) : 'Best 11'}${Math.abs(curNow - proj) > 0.05 ? ` · as set: ${f1(curNow)}` : ''}</span></div><div><small>Bank</small><b>${money(A.bank)}</b><span class="hs2">to spend</span></div><div title="${A.ftExact ? 'Taken from your FPL account.' : 'Estimated from this manager’s transfer history. Log in to FPL as this manager for the exact number.'}"><small>Free transfers</small><b>${A.ft}</b><span class="hs2"><i class="fttag${A.ftExact ? ' ok' : ''}">${A.ftExact ? 'Confirmed' : 'Estimated'}</i> extra ones cost 4 pts each</span></div></div></div>
+<div class="herok"><div><small>Total points</small><b data-count="${entry.summary_overall_points}">${entry.summary_overall_points}</b><span class="hs2">${last && last.event ? `GW${last.event}: ${last.points} pts` : ''}</span></div><div><small>Overall rank</small><b data-count="${entry.summary_overall_rank || 0}">${(entry.summary_overall_rank || 0).toLocaleString()}</b><span class="hs2 ${rmv > 0 ? 'up' : rmv < 0 ? 'dn' : ''}">${rmv > 0 ? '▲' : rmv < 0 ? '▼' : '–'} ${Math.abs(rmv).toLocaleString()} places</span></div><div title="Best 11 from your current 15 with the advised captain, before any transfer. Your lineup as it is set in FPL: ${f1(curNow)}."><small>Projected GW${g0}</small><b>${f1(proj)}</b><span class="hs2">${caps[0] ? 'Best 11 · captain ' + esc(caps[0].e.web_name) : 'Best 11'}${Math.abs(curNow - proj) > 0.05 ? ` · as set: ${f1(curNow)}` : ''}</span></div><div><small>Bank</small><b>${money(A.bank)}</b><span class="hs2">to spend</span></div><div title="${A.ftExact ? 'Taken from your FPL account.' : 'Estimated from this manager’s transfer history. Log in to FPL as this manager for the exact number.'}"><small>Free transfers</small><b>${A.ft}</b><span class="hs2"><i class="fttag${A.ftExact ? ' ok' : ''}">${A.ftExact ? 'Confirmed' : 'Estimated'}</i> extra ones cost 4 pts each${A.ftExact ? '' : !meId ? `<a class="ftlog" href="https://fantasy.premierleague.com/" title="Not logged in to FPL here. Log in on the FPL site in this browser or app, then come back and press refresh.">Log in to FPL for your exact team</a>` : +meId !== +A.id ? `<span class="ftlog" title="Logged in to FPL as another manager (ID ${+meId}).">Logged in as a different manager</span>` : ''}</span></div></div></div>
 ${A.live && (A.live.live || !A.cur.finished) ? `<button class="livestrip" type="button" data-view="live"><span id="livebar" class="lsx">${liveBar(A.live)}</span></button>` : ''}
 <div class="hgrid">
 ${alerts.length ? `<div class="card hc alc">${alertsHtml}</div>` : `<div class="dlstrip" role="status"><b>✓ Deadline check: all clear</b><span>No injury flags on your players and no worrying news or leaks in the last 72 hours · re-check with ⟳ before the deadline</span></div>`}
