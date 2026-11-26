@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.81.0
+// @version      3.82.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.81';
+  const ELEVN_VER = '3.82';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6538,6 +6538,24 @@ table.cmpt small.d{display:block;font-size:11px}
 .cuplive>div{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cuplive b{font:700 20px var(--fd)}
 /* ===== v3.79 UI review ===== */
+.mwmore{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--mut);opacity:.75;padding-top:4px;letter-spacing:.02em}
+.mwr:hover .mwmore,.mwr.open .mwmore{opacity:1;color:var(--acc)}
+.mwmy2+.mwmore{margin-top:2px}
+.pmhd{display:grid;grid-template-columns:1fr 1fr;max-width:560px;margin:0 auto 6px;font-weight:700;font-size:13px}.pmhd span{display:flex;align-items:center;gap:6px}.pmhd span:last-child{justify-content:flex-end}
+.pmt{display:flex;flex-direction:column;max-width:560px;margin:0 auto;width:100%}
+.pmr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);align-items:center;padding:7px 2px;border-top:1px solid var(--line);font-size:13px}
+.pmr>span{text-align:center;color:var(--mut);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}.pmr>b{font-variant-numeric:tabular-nums;font-weight:700}.pmr>b:last-child{text-align:right}
+.pmf{display:inline-flex;gap:3px}.pmf i{font-style:normal;width:19px;height:19px;border-radius:5px;display:inline-grid;place-items:center;font-size:10.5px;font-weight:800;color:#0b1020}
+.pmW{background:#45d08f}.pmD{background:#9aa3b5}.pmL{background:#f0697a}
+.pmd{font-style:normal;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;font-size:12px;font-weight:800;color:#0b1020}.pmd.d1,.pmd.d2{background:#45d08f}.pmd.d3{background:#c9ced8}.pmd.d4{background:#f0697a}.pmd.d5{background:#b8243a;color:#fff}
+.pmh2h{text-align:center;font-size:12.5px;margin:8px 0 0;color:var(--txt)}.pmh2h span{color:var(--mut);margin-right:6px}
+.pm2{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;max-width:560px;margin:0 auto}.pm2>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pmp{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.035);text-decoration:none;color:inherit;min-width:0;font-size:13px}
+.pmp .picon{width:26px;height:26px;flex:0 0 26px}.pmp span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pmp b{font-variant-numeric:tabular-nums}
+.pmp.mine{box-shadow:inset 2px 0 0 var(--good)}.pmp small{font-weight:700;font-size:11.5px}.pmp small.bad{color:var(--bad)}.pmp small.warn{color:#f5c451}
+.pmn{font-size:12.5px;padding:4px 8px}
+.mwfm{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);column-gap:10px;align-items:center;font-size:11px;color:var(--mut)}.mwfm .r{justify-content:flex-end}.mwfm .c{text-align:center;text-transform:uppercase;letter-spacing:.05em}.mwfm .pmf i{width:16px;height:16px;font-size:9.5px;border-radius:4px;opacity:.9}
+@media (max-width:700px){.mwfm{grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr);column-gap:8px}}
 #s-home .herok .fttag{font-style:normal;font:600 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:999px;margin-right:6px;color:var(--warn,#f5c451);background:rgba(245,196,81,.12);border:1px solid rgba(245,196,81,.3);vertical-align:1px}
 #s-home .herok .fttag.ok{color:var(--good);background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3)}
 /* Home: all-clear deadline check is one line; cards size to their content */
@@ -6575,7 +6593,13 @@ table.cmpt small.d{display:block;font-size:11px}
 @media (min-width:1100px){
   .mwday{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;align-items:start}
   .mwday>.mwdh{grid-column:1 / -1}
-  .mwday>.mwdh+.mwr:last-child{grid-column:1 / -1;justify-self:center;width:calc(50% - 7px)}
+  .mwday{align-items:stretch!important}
+  .mwday>.mwr.solo{grid-column:1 / -1;justify-self:center;width:calc(50% - 7px)}
+  .mwday>.mwr.open{grid-column:1 / -1;width:auto;justify-self:stretch}
+  .mwday>.mwr>.mwmore{margin-top:auto}
+  .mwday .mwt{font-size:15px;gap:8px}
+  .mwday .mwm{column-gap:10px}
+  .mwday .mwt b{white-space:normal;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .mwday>.mwr{border:1px solid var(--line);background:rgba(255,255,255,.02)}
   .mwday>.mwr+.mwr{border-top:1px solid var(--line)}
 }
@@ -7656,12 +7680,42 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const extra = full ? ch.filter((c) => !/^bein\s*sports?\s*\d+$/i.test(c) && !/connect/i.test(c)).map((c) => c.replace(/^bein\s*(sports?\s*)?/i, '').trim() || c) : [];
     const lbl = nums.length ? nums.map((n) => 'beIN SPORTS ' + n).join(' / ') : 'beIN SPORTS';
     return `<span class="tvch" title="${esc(ch.length ? ch.join(', ') : 'beIN SPORTS (Middle East and North Africa)')}">📺 <b>${lbl}</b>${extra.length ? ` <small class="muted">(${esc(extra.join(', '))})</small>` : ''}</span>`; };
+  // v3.81: match preview for upcoming games, all from FPL data: table, form, goals, head-to-head, fixture difficulty, players to watch, injuries
+  function preMatch(A, f) {
+    try {
+      const T = A.T, H = f.team_h, W = f.team_a, gw = f.event;
+      const kt = (x) => Date.parse(x.kickoff_time || 0);
+      const done = FX.filter((x) => (x.finished || x.finished_provisional) && x.team_h_score != null && x.team_a_score != null).sort((a, b) => kt(a) - kt(b));
+      const tb = {}; BS.teams.forEach((t) => (tb[t.id] = { id: t.id, p: 0, gd: 0, gf: 0, pl: 0 }));
+      done.forEach((x) => { const h = tb[x.team_h], a = tb[x.team_a]; if (!h || !a) return; const hs = x.team_h_score, as = x.team_a_score; h.pl++; a.pl++; h.gf += hs; a.gf += as; h.gd += hs - as; a.gd += as - hs; if (hs > as) h.p += 3; else if (hs < as) a.p += 3; else { h.p++; a.p++; } });
+      const order = Object.values(tb).sort((a, b) => b.p - a.p || b.gd - a.gd || b.gf - a.gf); const rk = (id) => order.findIndex((t) => t.id === id) + 1;
+      const ord = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+      const last = (id) => done.filter((x) => x.team_h === id || x.team_a === id).slice(-5);
+      const res = (x, id) => { const me = x.team_h === id ? x.team_h_score : x.team_a_score, op = x.team_h === id ? x.team_a_score : x.team_h_score; return me > op ? 'W' : me < op ? 'L' : 'D'; };
+      const formH = (id) => { const l = last(id); return l.length ? `<span class="pmf">${l.map((x) => { const r = res(x, id), opp = x.team_h === id ? x.team_a : x.team_h; return `<i class="pm${r}" title="${x.team_h === id ? 'vs' : 'at'} ${esc(T[opp].name)} ${x.team_h_score}-${x.team_a_score}">${r}</i>`; }).join('')}</span>` : '–'; };
+      const gfa = (id) => { const l = last(id); let a = 0, b = 0; l.forEach((x) => { if (x.team_h === id) { a += x.team_h_score; b += x.team_a_score; } else { a += x.team_a_score; b += x.team_h_score; } }); return l.length ? `${a} – ${b}` : '–'; };
+      const cs = (id) => { const l = last(id); return l.length ? l.filter((x) => (x.team_h === id ? x.team_a_score : x.team_h_score) === 0).length + ' of ' + l.length : '–'; };
+      const fdr = (n) => `<i class="pmd d${n}">${n}</i>`;
+      const row = (lbl, a, b) => `<div class="pmr"><b>${a}</b><span>${lbl}</span><b>${b}</b></div>`;
+      const h2h = done.filter((x) => (x.team_h === H && x.team_a === W) || (x.team_h === W && x.team_a === H)).map((x) => `${esc(T[x.team_h].short_name)} ${x.team_h_score}-${x.team_a_score} ${esc(T[x.team_a].short_name)}`).join(' · ');
+      const cmp = `<div class="pmt">${row('League position', ord(rk(H)), ord(rk(W)))}${row('Points', tb[H].p, tb[W].p)}${row('Form, last 5', formH(H), formH(W))}${row('Goals for – against, last 5', gfa(H), gfa(W))}${row('Clean sheets, last 5', cs(H), cs(W))}${row('Fixture difficulty (FPL)', fdr(f.team_h_difficulty), fdr(f.team_a_difficulty))}</div>`;
+      const E = Object.values(A.E); const mine = new Set(((A.live && A.live.rows) || []).filter((r) => r.e).map((r) => r.e.id));
+      const pp = (e, extra) => `<a href="#" class="pn pmp${mine.has(e.id) ? ' mine' : ''}" data-pi="1" data-pid="${e.id}">${pface(e)}<span>${esc(e.web_name)}</span>${extra}</a>`;
+      const watch = (id) => { let l = []; try { l = E.filter((e) => e.team === id && e.status !== 'u').map((e) => [e, A.P(e, gw) || 0]).filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 3); } catch (x) {} return l.map(([e, v]) => pp(e, `<b>${f1(v)}</b>`)).join(''); };
+      const inj = (id) => E.filter((e) => e.team === id && e.status !== 'a' && e.status !== 'u' && (e.chance_of_playing_next_round == null || e.chance_of_playing_next_round < 100) && e.minutes > 90).sort((a, b) => (a.chance_of_playing_next_round ?? 0) - (b.chance_of_playing_next_round ?? 0) || b.minutes - a.minutes).slice(0, 4)
+        .map((e) => { const c = e.chance_of_playing_next_round; return pp(e, `<small class="${c == null || c < 50 ? 'bad' : 'warn'}" title="${esc(e.news || '')}">${e.status === 's' ? 'Suspended' : !c ? 'Out' : c + '% chance'}</small>`); }).join('');
+      const wH = watch(H), wA = watch(W), iH = inj(H), iA = inj(W);
+      const two = (t, a, b, none) => (a || b ? `<div class="mxsec"><h4>${t}</h4><div class="pm2"><div>${a || `<span class="muted pmn">${none}</span>`}</div><div>${b || `<span class="muted pmn">${none}</span>`}</div></div></div>` : '');
+      return `<div class="mxsec"><h4>Match preview</h4><div class="pmhd"><span>${crest(H)}${esc(T[H].short_name)}</span><span>${crest(W)}${esc(T[W].short_name)}</span></div>${cmp}${h2h ? `<p class="pmh2h"><span>Earlier this season</span> ${h2h}</p>` : ''}</div>` +
+        two(`Players to watch <small class="muted">projected points, GW${gw}</small>`, wH, wA, '–') + two('Injuries and doubts <small class="muted">from FPL</small>', iH, iA, 'No flags');
+    } catch (e) { return ''; }
+  }
   function mxPanel(A, f) {
     const T = A.T, m = MX[f.id], o = MXS[f.id], ko = f.kickoff_time ? new Date(f.kickoff_time) : null;
     const info = [ko ? '📅 ' + ko.toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', m && m.venue ? `🏟️ ${esc(m.venue)}${m.city ? ', ' + esc(m.city) : ''}` : '', tvch(f.id, true), (() => { const fx = FD.fx && FD.fx[f.id], ann = fx && fx.fmAdd > 0 && m && fx.fmBase === (m.period === 1 ? 45 : 90) ? fx.fmAdd : 0; return ann ? `⏱️ +${ann} added` : m && m.added ? `⏱️ +${m.added} added` : ''; })(), m && m.att ? `👥 ${m.att.toLocaleString()}` : ''].filter(Boolean).join('<span class="dotsep">·</span>');
     const up = !f.started && !(m && (m.state === 'in' || m.state === 'post'));
     let body = '';
-    if (up) body = ko ? `<div class="mxcd"><small>Kick-off in</small><b data-ko="${+ko}">${cdFmt(+ko - Date.now())}</b></div>` : '';
+    if (up) body = (ko ? `<div class="mxcd"><small>Kick-off in</small><b data-ko="${+ko}">${cdFmt(+ko - Date.now())}</b></div>` : '') + preMatch(A, f);
     else if (!m) body = '<p class="muted mxmsg">Match details are not available for this match.</p>';
     else if (!o || o.busy) body = '<p class="muted mxmsg">Loading match details…</p>';
     else if (o.err) body = '<p class="muted mxmsg">Couldn\'t load match details. Tap the match again to retry.</p>';
@@ -7705,6 +7759,9 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const head = `<div class="mwh"><button class="mwa" type="button" data-mw="-1" aria-label="Previous matchweek" ${mw <= 1 ? 'disabled' : ''}>${chev('M15 5l-7 7 7 7')}</button><div class="mwhc"><b>Matchweek ${mw}</b><span>${range}</span>${(() => { const xi = MINE.filter((r) => r.pos <= 11), m = new Set(fxs.flatMap((f) => MINE.filter((r) => r.e.team === f.team_h || r.e.team === f.team_a).map((r) => r.e.id))); const nx = xi.filter((r) => m.has(r.e.id)).length; return MINE.length ? `<span class="mwyou">You have <b>${m.size}</b> of 15 players in these matches · <b>${nx}</b> of your XI</span>` : ''; })()}${mw !== cur ? `<button class="lnk2" type="button" data-mw="cur">Back to GW${cur}</button>` : ''}</div><button class="mwa" type="button" data-mw="1" aria-label="Next matchweek" ${mw >= total ? 'disabled' : ''}>${chev('M9 5l7 7-7 7')}</button></div>`;
     const ev = (f, side) => { const mx = MX[f.id]; if (mx && mx.goals.length) { const tid = side === 'h' ? f.team_h : f.team_a; return mx.goals.filter((g) => g.side === side).map((g) => `${g.og ? esc(String(g.who).split(' ').pop()) : whoLink(g.who, tid)} <span class="gmin">${esc(String(g.min).replace(/'/g, '′'))}</span>${g.og ? ' (og)' : g.pen ? ' (pen)' : ''}`).join(', '); }
       const st = f.stats || []; const g = (st.find((x) => x.identifier === 'goals_scored') || {})[side] || []; const og = (st.find((x) => x.identifier === 'own_goals') || {})[side === 'h' ? 'a' : 'h'] || []; const nmOf = (x) => { const e = A.E[x.element]; return e ? `<a class="pn mxpn" href="#" data-pi="1" data-pid="${e.id}">${esc(e.web_name)}</a>` : ''; }; return [...g.map((x) => nmOf(x) + (x.value > 1 ? ' ×' + x.value : '')), ...og.map((x) => nmOf(x) + ' (og)')].join(', '); };
+    // v3.81: last-5 form on every upcoming card
+    const DONE = FX.filter((x) => (x.finished || x.finished_provisional) && x.team_h_score != null).sort((a, b) => kt(a) - kt(b));
+    const miniForm = (id) => DONE.filter((x) => x.team_h === id || x.team_a === id).slice(-5).map((x) => { const me = x.team_h === id ? x.team_h_score : x.team_a_score, op = x.team_h === id ? x.team_a_score : x.team_h_score; const r = me > op ? 'W' : me < op ? 'L' : 'D'; return `<i class="pm${r}">${r}</i>`; }).join('');
     const row = (f) => {
       const fin = f.finished || f.finished_provisional || f._state === 'post', live = (f.started || f._state === 'in') && !fin;
       const mx = MX[f.id], ht = (mx && /HALFTIME/.test(mx.name)) || f._clock === 'HT';
@@ -7727,9 +7784,11 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       if (gel < 9000) { const gs = gf.side, tid = gs === 'h' ? f.team_h : f.team_a, lg = mx && mx.goals.filter((g) => g.side === gs).pop(); gblk = `<div class="gblk ${gs}" style="animation-delay:-${gel}ms" aria-live="polite"><span class="gball">⚽</span><b>GOAL!</b><span class="gtm">${crest(tid)}${esc(T[tid].name)}</span>${lg && lg.who ? `<small>${esc(lg.og ? String(lg.who).split(' ').pop() + ' (og)' : fplWho(lg.who, tid))} ${esc(String(lg.min).replace(/'/g, '′'))}</small>` : ''}<span class="gsc">${hs} - ${as}</span></div>`; }
       const open = OPENMX.has(f.id); if (open && mw === cur && (f.started || (mx && mx.state === 'in'))) setTimeout(() => mxSummary(f.id).then((ch) => ch && paintMatches(A)), 0);
       const venue = !open && (mx && mx.venue || !fin) ? `<div class="mwinfo">${mx && mx.venue ? `🏟️ ${esc(mx.venue)}` : ''}${!f.started && f.kickoff_time && Date.parse(f.kickoff_time) - Date.now() < 864e5 ? ` <span class="dotsep">·</span> in <b data-ko="${Date.parse(f.kickoff_time)}">${cdFmt(Date.parse(f.kickoff_time) - Date.now())}</b>` : ''}</div><div class="mwtv">${tvch(f.id)}</div>` : '';
-      return `<div class="mwr tap ${live ? 'on' : ''}${myIn.length ? ' my' : ''}${open ? ' open' : ''}" data-mx="${f.id}" role="button" tabindex="0" aria-expanded="${open}">${gblk}${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h">${cnt(f.team_h)}<b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b>${cnt(f.team_a)}</span></div>${venue}${oddsH}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}${open ? mxPanel(A, f) : ''}</div>`;
+      return `<div class="mwr tap ${live ? 'on' : ''}${myIn.length ? ' my' : ''}${open ? ' open' : ''}${SOLO.has(f.id) ? ' solo' : ''}" data-mx="${f.id}" role="button" tabindex="0" aria-expanded="${open}">${gblk}${left ? `<div class="mws">${left}</div>` : ''}<div class="mwm"><span class="mwt h">${cnt(f.team_h)}<b>${esc(T[f.team_h].name)}</b>${crest(f.team_h)}</span>${pill}<span class="mwt a">${crest(f.team_a)}<b>${esc(T[f.team_a].name)}</b>${cnt(f.team_a)}</span></div>${venue}${oddsH}${!f.started ? `<div class="mwfm"><span class="pmf r">${miniForm(f.team_h)}</span><span class="c">Form</span><span class="pmf">${miniForm(f.team_a)}</span></div>` : ''}${eh || ea ? `<div class="mwev"><span class="r">${eh}</span><span></span><span>${ea}</span></div>` : ''}${mineH}<div class="mwmore">${open ? 'Close' : f.started ? 'Match details' : 'Match preview'}<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="${open ? 'M6 15l6-6 6 6' : 'M6 9l6 6 6-6'}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>${open ? mxPanel(A, f) : ''}</div>`;
     };
-    const days = []; fxs.forEach((f) => { const k = f.kickoff_time ? new Date(f.kickoff_time).toLocaleDateString(undefined, dFmt) : 'Date to be confirmed'; let d = days[days.length - 1]; if (!d || d.k !== k) { d = { k, rows: [] }; days.push(d); } d.rows.push(row(f)); });
+    // v3.81: two cards per row on wide screens; an open card takes the full row, and a card left without a partner is centred
+    const days = [], SOLO = new Set(); fxs.forEach((f) => { const k = f.kickoff_time ? new Date(f.kickoff_time).toLocaleDateString(undefined, dFmt) : 'Date to be confirmed'; let d = days[days.length - 1]; if (!d || d.k !== k) { d = { k, fs: [], rows: [] }; days.push(d); } d.fs.push(f); });
+    days.forEach((d) => { let pend = null; d.fs.forEach((f) => { if (OPENMX.has(f.id)) { if (pend) SOLO.add(pend); pend = null; } else if (pend == null) pend = f.id; else pend = null; }); if (pend) SOLO.add(pend); d.rows = d.fs.map(row); });
     setTimeout(() => mxLoad(mw).then((ch) => { if (ch && LASTA === A) paintMatches(A); }), 0);
     return head + (days.length ? days.map((d) => `<section class="mwday"><h3 class="mwdh">${d.k}</h3>${d.rows.join('')}</section>`).join('') : '<p class="mwnone">No matches listed for this matchweek.</p>');
   }

@@ -1,10 +1,10 @@
 {
-  "version": "3.81",
+  "version": "3.82",
   "date": "2026-11-26",
-  "notes": "Follows your FPL changes when logged in (new FPL sign-in)",
+  "notes": "Live: aligned match cards, form on every match, tap for a full match preview",
   "files": {
-    "apk": "dist/Elevn-Android-v3-81.apk",
-    "zip": "dist/Elevn-Chrome-v3-81.zip",
+    "apk": "dist/Elevn-Android-v3-82.apk",
+    "zip": "dist/Elevn-Chrome-v3-82.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }
