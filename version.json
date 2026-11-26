@@ -1,10 +1,10 @@
 {
-  "version": "3.79",
+  "version": "3.80",
   "date": "2026-11-26",
-  "notes": "Design review: actions first on phones, one deadline, clearer projected points, slider leads with the advice, readable pitch names, Team ID folds on phones, two-column Live, new Daylight theme.",
+  "notes": "Centred single Live match, cleaner free-transfers line",
   "files": {
-    "apk": "dist/Elevn-Android-v3-79.apk",
-    "zip": "dist/Elevn-Chrome-v3-79.zip",
+    "apk": "dist/Elevn-Android-v3-80.apk",
+    "zip": "dist/Elevn-Chrome-v3-80.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }

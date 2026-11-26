@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.79.0
+// @version      3.80.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.79';
+  const ELEVN_VER = '3.80';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6538,6 +6538,8 @@ table.cmpt small.d{display:block;font-size:11px}
 .cuplive>div{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cuplive b{font:700 20px var(--fd)}
 /* ===== v3.79 UI review ===== */
+#s-home .herok .fttag{font-style:normal;font:600 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:999px;margin-right:6px;color:var(--warn,#f5c451);background:rgba(245,196,81,.12);border:1px solid rgba(245,196,81,.3);vertical-align:1px}
+#s-home .herok .fttag.ok{color:var(--good);background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3)}
 /* Home: all-clear deadline check is one line; cards size to their content */
 .dlstrip{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;padding:8px 14px;border-radius:12px;border:1px solid rgba(69,208,143,.35);background:rgba(16,56,42,.32);font-size:12px;color:var(--mut)}
 .dlstrip b{color:var(--acc);font-size:13px;font-weight:700}
@@ -6573,6 +6575,7 @@ table.cmpt small.d{display:block;font-size:11px}
 @media (min-width:1100px){
   .mwday{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;align-items:start}
   .mwday>.mwdh{grid-column:1 / -1}
+  .mwday>.mwdh+.mwr:last-child{grid-column:1 / -1;justify-self:center;width:calc(50% - 7px)}
   .mwday>.mwr{border:1px solid var(--line);background:rgba(255,255,255,.02)}
   .mwday>.mwr+.mwr{border-top:1px solid var(--line)}
 }
@@ -10575,7 +10578,7 @@ ${(() => { const rg = REGION[entry.player_region_id], code = rg ? rg[0] : '', in
 <div class="hbtx"><small class="eyebrow">${nxt ? `Next: GW${g0}` : 'Season complete'}</small><h2>${esc(entry.name)}</h2><span class="hbsub">${esc(entry.player_first_name)} ${esc(entry.player_last_name)}${rg ? ' · ' + esc(entry.player_region_name || rg[1]) : ''} · ID ${A.id}</span></div>
 <div class="hbkp"><div><small>Overall rank</small><b>${(entry.summary_overall_rank || 0).toLocaleString()}</b></div><div><small>Points</small><b>${entry.summary_overall_points}</b></div></div></div>`; })()}
 <div class="hero hero2"><div class="hl deadline-head"><small class="eyebrow">${nxt ? `GW${g0} DEADLINE` : 'SEASON COMPLETE'}</small></div>
-<div class="herok"><div><small>Total points</small><b data-count="${entry.summary_overall_points}">${entry.summary_overall_points}</b><span class="hs2">${last && last.event ? `GW${last.event}: ${last.points} pts` : ''}</span></div><div><small>Overall rank</small><b data-count="${entry.summary_overall_rank || 0}">${(entry.summary_overall_rank || 0).toLocaleString()}</b><span class="hs2 ${rmv > 0 ? 'up' : rmv < 0 ? 'dn' : ''}">${rmv > 0 ? '▲' : rmv < 0 ? '▼' : '–'} ${Math.abs(rmv).toLocaleString()} places</span></div><div title="Best 11 from your current 15 with the advised captain, before any transfer. Your lineup as it is set in FPL: ${f1(curNow)}."><small>Projected GW${g0}</small><b>${f1(proj)}</b><span class="hs2">${caps[0] ? 'Best 11 · captain ' + esc(caps[0].e.web_name) : 'Best 11'}${Math.abs(curNow - proj) > 0.05 ? ` · as set: ${f1(curNow)}` : ''}</span></div><div><small>Bank</small><b>${money(A.bank)}</b><span class="hs2">to spend</span></div><div title="${A.ftExact ? 'Taken from your FPL account.' : 'Estimated from this manager’s transfer history. Log in to FPL as this manager for the exact number.'}"><small>Free transfers</small><b>${A.ft}</b><span class="hs2">${A.ftExact ? 'confirmed by FPL' : 'estimated'} · −4 per extra</span></div></div></div>
+<div class="herok"><div><small>Total points</small><b data-count="${entry.summary_overall_points}">${entry.summary_overall_points}</b><span class="hs2">${last && last.event ? `GW${last.event}: ${last.points} pts` : ''}</span></div><div><small>Overall rank</small><b data-count="${entry.summary_overall_rank || 0}">${(entry.summary_overall_rank || 0).toLocaleString()}</b><span class="hs2 ${rmv > 0 ? 'up' : rmv < 0 ? 'dn' : ''}">${rmv > 0 ? '▲' : rmv < 0 ? '▼' : '–'} ${Math.abs(rmv).toLocaleString()} places</span></div><div title="Best 11 from your current 15 with the advised captain, before any transfer. Your lineup as it is set in FPL: ${f1(curNow)}."><small>Projected GW${g0}</small><b>${f1(proj)}</b><span class="hs2">${caps[0] ? 'Best 11 · captain ' + esc(caps[0].e.web_name) : 'Best 11'}${Math.abs(curNow - proj) > 0.05 ? ` · as set: ${f1(curNow)}` : ''}</span></div><div><small>Bank</small><b>${money(A.bank)}</b><span class="hs2">to spend</span></div><div title="${A.ftExact ? 'Taken from your FPL account.' : 'Estimated from this manager’s transfer history. Log in to FPL as this manager for the exact number.'}"><small>Free transfers</small><b>${A.ft}</b><span class="hs2"><i class="fttag${A.ftExact ? ' ok' : ''}">${A.ftExact ? 'Confirmed' : 'Estimated'}</i> extra ones cost 4 pts each</span></div></div></div>
 ${A.live && (A.live.live || !A.cur.finished) ? `<button class="livestrip" type="button" data-view="live"><span id="livebar" class="lsx">${liveBar(A.live)}</span></button>` : ''}
 <div class="hgrid">
 ${alerts.length ? `<div class="card hc alc">${alertsHtml}</div>` : `<div class="dlstrip" role="status"><b>✓ Deadline check: all clear</b><span>No injury flags on your players and no worrying news or leaks in the last 72 hours · re-check with ⟳ before the deadline</span></div>`}
