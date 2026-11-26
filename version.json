@@ -1,10 +1,10 @@
 {
-  "version": "3.80",
+  "version": "3.81",
   "date": "2026-11-26",
-  "notes": "Centred single Live match, cleaner free-transfers line",
+  "notes": "Follows your FPL changes when logged in (new FPL sign-in)",
   "files": {
-    "apk": "dist/Elevn-Android-v3-80.apk",
-    "zip": "dist/Elevn-Chrome-v3-80.zip",
+    "apk": "dist/Elevn-Android-v3-81.apk",
+    "zip": "dist/Elevn-Chrome-v3-81.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }

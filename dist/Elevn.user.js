@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.80.0
+// @version      3.81.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.80';
+  const ELEVN_VER = '3.81';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6717,9 +6717,25 @@ ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) =>
   // v3.15: every FPL answer is also kept in the browser cache, so the next start can show the last data at once
   const CKEY = 'fpl-analyst-v1'; let FAST = false;
   const cacheOk = () => { try { return typeof caches !== 'undefined' && window.isSecureContext; } catch (e) { return false; } };
+  // v3.81: FPL now signs in with a Premier League account token that its own page adds to every /api/ call.
+  // Our requests do not pass through the page's fetch, so read the same token (FPL's own storage, this site only) and send it ourselves.
+  const fplToken = () => {
+    try {
+      if (!/(^|\.)premierleague\.com$/.test(location.hostname)) return null;
+      const now = Date.now() / 1000;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i); if (!k || k.indexOf('oidc.user:') !== 0) continue;
+        const u = JSON.parse(localStorage.getItem(k) || 'null');
+        if (u && u.access_token && (!u.expires_at || u.expires_at > now + 20)) return u.access_token;
+      }
+      const m = document.cookie.match(/(?:^|;\s*)ACCESS_TOKEN=([^;]+)/); if (m) return decodeURIComponent(m[1]);
+    } catch (e) {}
+    return null;
+  };
+  const fplHdr = (u) => { const t = /^(https:\/\/fantasy\.premierleague\.com)?\/api\//.test(u) ? fplToken() : null; return t ? { 'X-API-Authorization': 'Bearer ' + t } : {}; };
   const J = async (u) => {
     if (FAST && cacheOk()) { try { const m = await (await caches.open(CKEY)).match(u); if (m) return m.json(); } catch (e) {} }
-    const r = await fetch(u, { credentials: 'include', cache: 'no-store' });
+    const r = await fetch(u, { credentials: 'include', cache: 'no-store', headers: fplHdr(u) });
     if (!r.ok) throw new Error(`${u} returned HTTP ${r.status}`);
     if (cacheOk() && !/\/api\/(me|my-team)\//.test(u)) { try { const c = r.clone(); caches.open(CKEY).then((k) => k.put(u, c)).catch(() => {}); } catch (e) {} }
     return r.json();
@@ -7806,6 +7822,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       const [entry, hist] = await Promise.all([J(`/api/entry/${id}/`), J(`/api/entry/${id}/history/`)]);
       const cur = BS.events.find((e) => e.is_current);
       let my = null;
+      // v3.81: check the sign-in again on every refresh (you may have logged in to FPL after Elevn opened)
+      if (!meId) { try { const me = await J('/api/me/'); meId = me && me.player ? me.player.entry : null; } catch (e) {} }
       if (meId && +meId === id) { try { my = await J(`/api/my-team/${id}/`); } catch (e) {} }
       let pk = null, gwCmp = null;
       if (cur) {
