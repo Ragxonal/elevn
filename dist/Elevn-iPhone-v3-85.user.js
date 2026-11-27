@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.84.0
+// @version      3.85.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.84';
+  const ELEVN_VER = '3.85';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6537,6 +6537,31 @@ table.cmpt small.d{display:block;font-size:11px}
 .cuplive{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(69,208,143,.35);background:rgba(16,56,42,.4);margin-bottom:10px;font-size:13px}
 .cuplive>div{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cuplive b{font:700 20px var(--fd)}
+/* ===== v3.85 price radar + accuracy ===== */
+.acctabs{display:flex;flex-wrap:wrap;margin:0 0 10px;width:fit-content;max-width:100%}
+.accbody .kpis{margin-bottom:10px}
+.rlg{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mut);margin:2px 0 4px}
+.rlg i{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--acc);opacity:.8;margin-right:6px;vertical-align:-1px}
+.rlg i.ln{height:2px;width:14px;border-radius:1px;background:var(--fg);opacity:1;vertical-align:3px}
+.relc{display:block;width:100%;height:auto;max-height:200px;margin-bottom:6px}
+.relc text{fill:var(--t3);font-size:11px}.relc text.nn{font-size:10px}
+.relc .gl{stroke:var(--line);stroke-width:1}
+.relc .ba{fill:var(--acc);opacity:.8}.relc .pj{stroke:var(--fg);stroke-width:2;stroke-linecap:round}
+.relc .hit{fill:transparent}.relc .rb:hover .ba{opacity:1}.relc .rb:hover .hit{fill:rgba(255,255,255,.04)}
+.rdk{margin:0 0 12px}
+.rdg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.rdc{padding:10px 12px}.rdc .th{margin-bottom:4px}
+.rdr{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--line);min-height:38px}
+.rdr .nm{flex:1;min-width:0;line-height:1.25}
+.rdr .nm a.pn{font-weight:600}
+.rdr .nm small{display:block;color:var(--t3);font-size:11px;white-space:normal}
+.rdr .pv{flex:none;text-align:right;min-width:92px}
+.rdr .pbar2{width:92px}
+.yb{font-style:normal;font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;background:var(--acc2);color:var(--acc);margin-left:6px;vertical-align:1px}
+@media (max-width:860px){.rdg{grid-template-columns:1fr}.rdk{grid-template-columns:1fr 1fr 1fr}}
+@media (max-width:520px){.rdk.kpis.uni.three,.accbody .kpis.uni.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.rdk .kpi span,.accbody .kpis.three .kpi span{display:none}.rdk .kpi b,.accbody .kpis.three .kpi b{font-size:16px;line-height:1.2}.rdk .kpi,.accbody .kpis.three .kpi{min-height:0;padding:8px}.rdk .kpi small,.accbody .kpis.three .kpi small{font-size:10px}
+.acctabs{flex-wrap:nowrap;overflow-x:auto}.acctabs button{padding:7px 11px;white-space:nowrap}
+.relc{max-height:none}.relc text{font-size:19px}.relc text.nn{font-size:17px}}
 /* ===== v3.79 UI review ===== */
 .mwmore{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--mut);opacity:.75;padding-top:4px;letter-spacing:.02em}
 .mwr:hover .mwmore,.mwr.open .mwmore{opacity:1;color:var(--acc)}
@@ -7239,14 +7264,14 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const net = (e.transfers_in_event || 0) - (e.transfers_out_event || 0), hurt = e.status !== 'a';
     const owners = (+e.selected_by_percent || 0) / 100 * (BS.total_players || 10e6);
     const b = PSNAP && PSNAP.base[e.id]; const since = net - (b && b[0] === e.now_cost ? b[1] : (e.cost_change_event ? Math.round(net * 0.5) : 0));
-    const up = Math.max(60000, owners * 0.06), down = up * (hurt ? 0.5 : 0.7);
+    const up0 = Math.max(60000, owners * 0.06), down0 = up0 * (hurt ? 0.5 : 0.7), TN = PTUNE(), up = up0 * TN.u, down = down0 * TN.d;
     const pct = since >= 0 ? (since / up) * 100 : -(-since / down) * 100;
     let rate = 0; const ss = PSNAP ? PSNAP.s : []; if (ss.length >= 2) { const a = ss.find((x) => Date.now() - x.t < 30 * 36e5) || ss[0], z = ss[ss.length - 1]; const h = (z.t - a.t) / 36e5; if (h >= 2 && a.m[e.id] != null) rate = (z.m[e.id] - a.m[e.id]) / h; }
     const need = since >= 0 ? up - since : down + since; const hrs = rate && Math.sign(rate) === Math.sign(since || rate) ? need / Math.abs(rate) : Infinity;
     // FPL updates prices once a day, at about 01:30 UK time
     const nx = new Date(); nx.setUTCHours(1, 30, 0, 0); if (nx < new Date()) nx.setUTCDate(nx.getUTCDate() + 1); const toUpd = (nx - Date.now()) / 36e5;
     const eta = Math.abs(pct) >= 100 || hrs <= toUpd ? 'tonight' : hrs <= toUpd + 24 ? 'tomorrow' : hrs < 96 ? 'this week' : '';
-    return { pct: Math.max(-130, Math.min(130, pct)), since, rate, eta, d: pct >= 0 ? 'up' : 'down' };
+    return { pct: Math.max(-130, Math.min(130, pct)), since, rate, eta, d: pct >= 0 ? 'up' : 'down', qu: since / up0, qd: -since / down0 };
   }
   function priceOutlook(e) {
     const p = pricePred(e); if (!p) return null; const net = (e.transfers_in_event || 0) - (e.transfers_out_event || 0);
@@ -7257,6 +7282,112 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   }
   const kfmt = (n) => (Math.abs(n) >= 1000 ? Math.round(n / 1000) + 'k' : String(n));
   const priceB = (e) => { const o = priceOutlook(e); if (!o) return ''; return `<span class="prc ${o.d} ${o.lv}" title="${o.net > 0 ? '+' : ''}${kfmt(o.net)} net transfers since the last deadline. Rough guide: about +150k to +200k for a £0.1m rise, about −100k for a fall (sooner if injured). Prices change overnight.">${o.d === 'up' ? '▲' : '▼'} £0.1m ${o.d === 'up' ? 'rise' : 'drop'} ${o.lv}</span>`; };
+  // ---------- v3.85: price radar self-check ----------
+  // Each visit keeps the latest prediction made before the next price update (about 01:30 UK). The first visit after that
+  // update, and before the following one, compares it with the prices FPL really changed. Once enough nights are logged the
+  // rise and drop thresholds are re-fitted to what happened (kept within 60% to 160% of the rule of thumb).
+  const PRL_K = 'elevnPriceLog';
+  let PRL = null; try { PRL = JSON.parse(localStorage.getItem(PRL_K) || 'null'); } catch (e) {}
+  if (!PRL || PRL.v !== 1) PRL = { v: 1, cur: null, res: [], obs: [], tune: null };
+  function PTUNE() { return (PRL && PRL.tune) || { u: 1, d: 1 }; }
+  const updKey = (t) => { const nx = new Date(t); nx.setUTCHours(1, 30, 0, 0); if (nx.getTime() <= t) nx.setUTCDate(nx.getUTCDate() + 1); return nx.toISOString().slice(0, 10); };
+  const prevKey = (k) => { const d = new Date(k + 'T01:30:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
+  function priceTune() {
+    const fit = (i, dir) => { const xs = PRL.obs.filter((x) => x[i] > 0.15); const pos = xs.filter((x) => x[2] === dir).length; if (xs.length < 60 || pos < 8) return 1;
+      let best = 1, be = Infinity; for (let k = 12; k <= 32; k++) { const sc = k / 20; let err = 0; xs.forEach((x) => { if ((x[i] >= sc) !== (x[2] === dir)) err++; }); const v = err + Math.abs(sc - 1) * 0.5; if (v < be) { be = v; best = sc; } } return best; };
+    const u = fit(0, 1), d = fit(1, -1); PRL.tune = u === 1 && d === 1 ? null : { u, d, n: PRL.obs.length };
+  }
+  function priceLog() {
+    if (!BS || !BS.elements) return; const now = Date.now(), K = updKey(now), c = PRL.cur;
+    if (c && c.k !== K) {
+      if (prevKey(K) === c.k && c.c) {
+        const r = { k: c.k, pu: c.up.length, hu: 0, ru: 0, pd: c.dn.length, hd: 0, rd: 0 }; const pu = new Set(c.up), pd = new Set(c.dn), ob = [];
+        BS.elements.forEach((e) => { const was = c.c[e.id]; if (was == null) return; const d = e.now_cost - was;
+          if (d > 0) { r.ru++; if (pu.has(e.id)) r.hu++; } else if (d < 0) { r.rd++; if (pd.has(e.id)) r.hd++; }
+          const o = c.o[e.id]; if (o) ob.push([o[0], o[1], d > 0 ? 1 : d < 0 ? -1 : 0]); });
+        // no change at all usually means FPL paused prices that night: not counted
+        if (r.ru + r.rd > 0) { PRL.res.push(r); PRL.res = PRL.res.slice(-30); PRL.obs = PRL.obs.concat(ob).slice(-3000); priceTune(); }
+      }
+      PRL.cur = null;
+    }
+    const cc = {}, o = {}, up = [], dn = [];
+    BS.elements.forEach((e) => { cc[e.id] = e.now_cost; const p = pricePred(e); if (!p) return;
+      if (p.qu > 0.15 || p.qd > 0.15) o[e.id] = [Math.round(p.qu * 1000) / 1000, Math.round(p.qd * 1000) / 1000];
+      const ol = priceOutlook(e); if (ol && ol.lv === 'likely') (ol.d === 'up' ? up : dn).push(e.id); });
+    PRL.cur = { k: K, t: now, c: cc, o, up, dn };
+    try { localStorage.setItem(PRL_K, JSON.stringify(PRL)); } catch (e) { PRL.obs = PRL.obs.slice(-400); try { localStorage.setItem(PRL_K, JSON.stringify(PRL)); } catch (er) {} }
+  }
+  const prlSum = (n) => { const rs = PRL.res.slice(-n); const s = { n: rs.length, pu: 0, hu: 0, ru: 0, pd: 0, hd: 0, rd: 0 }; rs.forEach((r) => ['pu', 'hu', 'ru', 'pd', 'hd', 'rd'].forEach((k) => (s[k] += r[k]))); return s; };
+  const pctOf = (a, b) => (b ? Math.round((a / b) * 100) + '%' : '–');
+  // ---------- v3.85: projections saved before each deadline ----------
+  // Every player's projection for the next gameweek, as shown before its deadline (injury news and Tune-up included),
+  // is kept on this device and scored against the real points once the gameweek has finished.
+  const FRZ_K = 'elevnFrozen';
+  let FRZ = null; try { FRZ = JSON.parse(localStorage.getItem(FRZ_K) || 'null'); } catch (e) {}
+  if (!FRZ || FRZ.v !== 1) FRZ = { v: 1, g: {} };
+  function freezeProj(A) {
+    if (!BS || !A || !A.P) return; const nx = BS.events.find((e) => e.is_next); if (!nx || nx.id !== A.startGw || Date.parse(nx.deadline_time) <= Date.now()) return;
+    const cur = FRZ.g[nx.id]; if (cur && Date.now() - cur.t < 10 * 60e3) return;
+    const p = {}; BS.elements.forEach((e) => { const v = A.P(e, nx.id); if (v >= 0.5) p[e.id] = Math.round(v * 10) / 10; });
+    FRZ.g[nx.id] = { t: Date.now(), p }; const ks = Object.keys(FRZ.g).map(Number).sort((a, b) => a - b); while (ks.length > 8) delete FRZ.g[ks.shift()];
+    try { localStorage.setItem(FRZ_K, JSON.stringify(FRZ)); } catch (e) {}
+  }
+  const FZR = {};
+  async function frozenLoad(A) {
+    const myId = MYID || (A && A.id); const out = [];
+    const gs = Object.keys(FRZ.g).map(Number).filter((g) => { const ev = BS.events.find((e) => e.id === g); return ev && ev.finished; }).sort((a, b) => b - a);
+    for (const g of gs) {
+      if (!FZR[g + ':' + myId]) {
+        const L = await LIVE(g); if (!L) continue; const F = FRZ.g[g].p; const pts = (id) => (L[id] ? L[id].total_points || 0 : 0);
+        let sm = 0, n = 0; Object.keys(F).forEach((id) => { sm += Math.abs(F[id] - pts(id)); n++; });
+        const res = { g, mae: n ? sm / n : 0, n, t: FRZ.g[g].t };
+        if (myId) { const pk = await J(`/api/entry/${myId}/event/${g}/picks/`).catch(() => null);
+          if (pk && pk.picks) { const xi = pk.picks.filter((q) => q.multiplier > 0); let pj = 0, ac = 0; xi.forEach((q) => { pj += (F[q.element] || 0) * q.multiplier; ac += pts(q.element) * q.multiplier; });
+            const cq = pk.picks.find((q) => q.is_captain), mq = xi.slice().sort((a, b) => (F[b.element] || 0) - (F[a.element] || 0))[0];
+            res.team = { pj, ac, cap: cq ? cq.element : 0, capPts: cq ? pts(cq.element) : 0, mc: mq ? mq.element : 0, mcPts: mq ? pts(mq.element) : 0, best: Math.max(0, ...xi.map((q) => pts(q.element))) }; } }
+        FZR[g + ':' + myId] = res;
+      }
+      out.push(FZR[g + ':' + myId]);
+    }
+    return out;
+  }
+  const wn = (id) => { const e = BS.elements.find((x) => x.id === id); return e ? esc(e.web_name) : '–'; };
+  function frozenHtml(rs) {
+    const nx = BS.events.find((e) => e.is_next), sv = nx && FRZ.g[nx.id];
+    const saved = sv ? `GW${nx.id} projections saved ${new Date(sv.t).toLocaleString(undefined, { weekday: 'short', hour: '2-digit', minute: '2-digit' })}; they will be checked when GW${nx.id} finishes.` : 'Open Elevn before the next deadline to save the first set.';
+    const intro = `<p class="note" style="margin:0 0 8px">What Elevn really showed before each deadline (injury news and Tune-up included), checked against the real points. ${saved}</p>`;
+    if (!rs.length) return intro;
+    const sg = (v) => `${v >= 0 ? '+' : ''}${f1(v)}`;
+    return `${intro}<div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Your XI projected</th><th class="n">Actual</th><th class="n">Diff</th><th>Your captain</th><th>Model's captain</th><th class="n">Error per player</th></tr></thead><tbody>${rs.map((r) => { const t = r.team; return `<tr><td>GW${r.g}</td>${t ? `<td class="n">${f1(t.pj)}</td><td class="n"><b>${t.ac}</b></td><td class="n ${t.ac - t.pj >= 0 ? 'up' : 'dn'}">${sg(t.ac - t.pj)}</td><td>${wn(t.cap)} <small class="muted">${t.capPts}</small></td><td>${wn(t.mc)} <small class="muted">${t.mcPts}</small></td>` : '<td class="n">–</td><td class="n">–</td><td class="n">–</td><td>–</td><td>–</td>'}<td class="n">${r.mae.toFixed(2)} <small class="muted">${r.n}</small></td></tr>`; }).join('')}</tbody></table></div>`;
+  }
+  function frozenPaint() { if (!R.getElementById('frz-box')) return; frozenLoad(LASTA).then((rs) => { const b = R.getElementById('frz-box'); if (b) b.innerHTML = frozenHtml(rs); }).catch(() => { const b = R.getElementById('frz-box'); if (b) b.innerHTML = frozenHtml([]); }); }
+  // ---------- v3.85: price radar page ----------
+  function radarHtml(A) {
+    const T = A.T, mine = new Set(A.sq.map((s) => s.e.id)), tm = nextUpd().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    const sellAt = (now, buy) => (now > buy ? buy + Math.floor((now - buy) / 2) : now);
+    const sq = A.sq.map((s) => { const p = pricePred(s.e), o = priceOutlook(s.e), buy = s.p && s.p.purchase_price != null ? s.p.purchase_price : null, now = s.e.now_cost;
+      return { s, p, o, up: buy != null ? sellAt(now + 1, buy) - sellAt(now, buy) : null, dn: buy != null ? sellAt(now - 1, buy) - sellAt(now, buy) : -1 }; })
+      .sort((a, b) => Math.abs(b.p ? b.p.pct : 0) - Math.abs(a.p ? a.p.pct : 0));
+    const tonight = sq.filter((x) => x.o && x.o.lv === 'likely' && (x.p.eta === 'tonight' || Math.abs(x.p.pct) >= 100));
+    const nU = tonight.filter((x) => x.o.d === 'up').length, nD = tonight.length - nU;
+    const dv = tonight.reduce((a, x) => a + (x.o.d === 'up' ? (x.up == null ? 0 : x.up) : x.dn), 0), unk = tonight.some((x) => x.o.d === 'up' && x.up == null);
+    const moving = sq.filter((x) => x.p && Math.abs(x.p.pct) >= 20), steady = sq.length - moving.length;
+    const eff = (x) => { if (!x.p) return ''; if (x.p.d === 'up') return x.up === 1 ? '+£0.1m on your sell price if it rises' : x.up === 0 ? 'a rise leaves your sell price as it is' : 'up to +£0.1m on your sell price if it rises'; return '−£0.1m on your sell price if it drops'; };
+    const row = (e, extra) => `<div class="rdr">${pface(e)}<div class="nm"><a class="pn" href="#" data-pid="${e.id}">${esc(e.web_name)}</a>${mine.has(e.id) ? '<i class="yb">Yours</i>' : ''}<small>${esc(T[e.team].short_name)} · ${money(e.now_cost)} · ${(+e.selected_by_percent || 0).toFixed(1)}%${extra ? ' · ' + extra : ''}</small></div><div class="pv">${predCell(e)}</div></div>`;
+    const all = BS.elements.map((e) => ({ e, p: pricePred(e) })).filter((x) => x.p && x.p.since !== 0);
+    const ris = all.filter((x) => x.p.pct >= 50).sort((a, b) => b.p.pct - a.p.pct).slice(0, 7), fal = all.filter((x) => x.p.pct <= -50).sort((a, b) => a.p.pct - b.p.pct).slice(0, 7);
+    const rec = prlSum(14), tn = PRL.tune;
+    const k1 = `<div class="kpi"><small>Next price update</small><b>${tm}</b><span>FPL changes prices once a day, about 01:30 UK time</span></div>`;
+    const k2 = `<div class="kpi"><small>Your squad tonight</small><b>${nU || nD ? `${nU ? '▲' + nU : ''}${nU && nD ? ' ' : ''}${nD ? '▼' + nD : ''} likely` : 'No likely changes'}</b><span>${tonight.length ? `Sell value ${dv >= 0 ? '+' : '−'}${money(Math.abs(dv))}${unk ? ' or more' : ''} if they happen` : 'Your 15 players are not close to a change'}</span></div>`;
+    const k3 = `<div class="kpi"><small>Radar record</small><b>${rec.pu + rec.pd ? pctOf(rec.hu + rec.hd, rec.pu + rec.pd) + ' right' : 'Learning'}</b><span>${rec.n ? `${rec.hu + rec.hd} of ${rec.pu + rec.pd} predicted changes happened, ${rec.n} night${rec.n > 1 ? 's' : ''} checked` : 'Checks itself after each update you open Elevn around'}</span></div>`;
+    const none = (t) => `<p class="muted fine" style="margin:8px 0 0">${t}</p>`;
+    return `<div class="ptl"><h2>Price radar</h2><p class="sub">Who is close to a price change, and what it does to your team</p></div>
+<div class="kpis uni three rdk">${k1}${k2}${k3}</div>
+<div class="rdg"><div class="card rdc"><div class="th"><h3>Your squad</h3><small class="muted">${steady ? `${steady} steady` : ''}</small></div>${moving.length ? moving.slice(0, 7).map((x) => row(x.s.e, eff(x))).join('') : none('None of your players is near a price change right now.')}</div>
+<div class="card rdc"><div class="th"><h3>Rising soon</h3><small class="muted">over half way</small></div>${ris.length ? ris.map((x) => row(x.e)).join('') : none('No player is over half way to a rise.')}</div>
+<div class="card rdc"><div class="th"><h3>Falling soon</h3><small class="muted">over half way</small></div>${fal.length ? fal.map((x) => row(x.e)).join('') : none('No player is over half way to a drop.')}</div></div>
+<p class="muted fine">Estimates from net transfers since each player's last change: a rise at about 6% of his owners (at least 60k), a drop at about 70% of that, 50% if he is flagged.${tn ? ` Re-fitted on ${tn.n} checks from this device: rises ×${tn.u.toFixed(2)}, drops ×${tn.d.toFixed(2)}.` : ''} FPL does not publish its formula; Fixtures › Accuracy › Prices shows how often this is right. Your sell price follows FPL's rule: you keep half of each rise, rounded down to £0.1m.</p>`;
+  }
   // ---------- v3.6: accuracy test ----------
   // For each finished gameweek, rebuild every player's numbers from the weeks before it only, project that week with the
   // same formula the app uses, and compare with what really happened. Run on demand; results saved on this browser.
@@ -7325,7 +7456,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const fdrMode = errOf('pB') < errOf('pF') * 0.995 ? 'blend' : 'fpl', KM = fdrMode === 'blend' ? 'pB' : 'pF', KO = KM === 'pB' ? 'pF' : 'pB';
     perG.forEach(({ g, preds, L }) => {
       preds.forEach((x) => { x.pm = x[KM]; x.pf = x[KO]; if (x.pm >= 2 && x.played) { cal[x.et][0] += x.pm; cal[x.et][1] += x.actual; } });
-      const mp = myPicks[g]; if (mp && mp.picks) { const by = {}; preds.forEach((x) => (by[x.e.id] = x.pm)); let pj = 0, ac = 0; mp.picks.forEach((q) => { const m = q.multiplier || 0; pj += (by[q.element] || 0) * m; ac += (L && L[q.element] ? L[q.element].total_points || 0 : 0) * m; }); const cap = mp.picks.find((q) => q.is_captain); const ce = cap && BS.elements.find((x) => x.id === cap.element); teamRows.push({ g, pj, ac, hit: (mp.entry_history || {}).event_transfers_cost || 0, cap: ce ? ce.web_name : '' }); }
+      const mp = myPicks[g]; if (mp && mp.picks) { const by = {}; preds.forEach((x) => (by[x.e.id] = x.pm)); let pj = 0, ac = 0; mp.picks.forEach((q) => { const m = q.multiplier || 0; pj += (by[q.element] || 0) * m; ac += (L && L[q.element] ? L[q.element].total_points || 0 : 0) * m; }); const cap = mp.picks.find((q) => q.is_captain); const ce = cap && BS.elements.find((x) => x.id === cap.element); const ptsOf = (id) => (L && L[id] ? L[id].total_points || 0 : 0); const xi = mp.picks.filter((q) => q.multiplier > 0); const mq = xi.slice().sort((a, b) => (by[b.element] || 0) - (by[a.element] || 0))[0]; const me = mq && BS.elements.find((x) => x.id === mq.element); teamRows.push({ g, pj, ac, hit: (mp.entry_history || {}).event_transfers_cost || 0, cap: ce ? ce.web_name : '', cp: cap ? ptsOf(cap.element) : 0, mc: me ? me.web_name : '', mcp: mq ? ptsOf(mq.element) : 0, bp: Math.max(0, ...xi.map((q) => ptsOf(q.element))) }); }
       const mae = (k) => preds.reduce((a, x) => a + Math.abs(x[k] - x.actual), 0) / (preds.length || 1);
       const top = (k) => preds.slice().sort((a, b) => b[k] - a[k]).slice(0, 5);
       const avgA = (arr) => arr.reduce((a, x) => a + x.actual, 0) / (arr.length || 1);
@@ -7334,9 +7465,12 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       ['model', 'fpl', 'form', 'ppg'].forEach((k, i) => errs[k].push(mae(['pm', 'pf', 'pform', 'pppg'][i])));
       rows.push({ g, n: preds.length, mae: mae('pm'), maeF: mae('pf'), maeForm: mae('pform'), maePpg: mae('pppg'), top5: ours, top5Form: fm, top5Best: best, pick: top('pm')[0] ? top('pm')[0].e.web_name : '', pickPts: top('pm')[0] ? top('pm')[0].actual : 0 });
     });
+    // v3.85: reliability: players grouped by projected points, with what they really averaged
+    const BIN = [0, 1, 2, 3, 4, 5, 6, 8, 99], bins = BIN.slice(0, -1).map((lo, i) => ({ lo, hi: BIN[i + 1], n: 0, pj: 0, ac: 0 }));
+    perG.forEach(({ preds }) => preds.forEach((x) => { const b = bins.find((q) => x.pm >= q.lo && x.pm < q.hi); if (b) { b.n++; b.pj += x.pm; b.ac += x.actual; } }));
     const avg = (a) => a.reduce((x, y) => x + y, 0) / (a.length || 1);
     const calib = {}; [1, 2, 3, 4].forEach((et) => { const [pj, ac] = cal[et]; calib[et] = pj > 20 ? Math.max(0.85, Math.min(1.18, ac / pj)) : 1; });
-    const res = { v: 3, at: Date.now(), gws: tests, rows, team: teamRows, calib, mae: avg(errs.model), maeF: avg(errs.fpl), maeForm: avg(errs.form), maePpg: avg(errs.ppg), top5: capOurs / tests.length, top5Form: capForm / tests.length, top5Best: capBest / tests.length };
+    const res = { v: 4, at: Date.now(), gws: tests, rows, team: teamRows, calib, bins: bins.filter((b) => b.n >= 10).map((b) => ({ lo: b.lo, hi: b.hi, n: b.n, pj: b.pj / b.n, ac: b.ac / b.n })), mae: avg(errs.model), maeF: avg(errs.fpl), maeForm: avg(errs.form), maePpg: avg(errs.ppg), top5: capOurs / tests.length, top5Form: capForm / tests.length, top5Best: capBest / tests.length };
     // Fixture difficulty: keep FPL's rating alone only if it is clearly better (by more than 0.5%)
     let curM = 'fpl'; try { curM = localStorage.getItem('fplAnalystFdrMode2') || 'fpl'; } catch (e) {}
     // the other rating replaces the one in use only if it is clearly better (by more than 0.5%)
@@ -7344,13 +7478,24 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     try { localStorage.setItem('fplAnalystFdrMode2', res.fdr); localStorage.setItem(ACC_KEY, JSON.stringify(res)); } catch (e) {}
     ACC = res; return res;
   }
-  function accTeamHtml(R2) {
-    if (!R2.team || !R2.team.length) return '';
-    const tp = R2.team.reduce((a, r) => a + r.pj, 0), ta = R2.team.reduce((a, r) => a + r.ac, 0);
+  let ACCTAB = 'model';
+  function relChart(bins) {
+    if (!bins || bins.length < 3) return '<p class="muted">Not enough players yet to draw this.</p>';
+    const W = 560, H = 222, L = 34, Rr = 8, Tp = 12, B = 52, n = bins.length, bw = (W - L - Rr) / n, ymax = Math.max(4, Math.ceil(Math.max(...bins.map((b) => Math.max(b.pj, b.ac))) + 0.5));
+    const y = (v) => Tp + (H - Tp - B) * (1 - v / ymax), lab = (b) => (b.hi >= 99 ? b.lo + '+' : b.lo + '–' + b.hi);
+    let g = ''; for (let v = 0; v <= ymax; v += ymax > 8 ? 2 : 1) g += `<line class="gl" x1="${L}" x2="${W - Rr}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    const bars = bins.map((b, i) => { const x = L + i * bw + bw * 0.22, w = bw * 0.56, top = y(b.ac), base = y(0), h = Math.max(0, base - top), r = Math.min(4, h, w / 2);
+      const path = h > 0 ? `M${x},${base}V${top + r}Q${x},${top} ${x + r},${top}H${x + w - r}Q${x + w},${top} ${x + w},${top + r}V${base}Z` : '';
+      return `<g class="rb"><title>Projected ${lab(b)} pts: ${b.n} players, projected ${b.pj.toFixed(1)} on average, really scored ${b.ac.toFixed(1)}</title><rect class="hit" x="${L + i * bw}" y="${Tp}" width="${bw}" height="${H - Tp - B}"/><path class="ba" d="${path}"/><line class="pj" x1="${x - 3}" x2="${x + w + 3}" y1="${y(b.pj)}" y2="${y(b.pj)}"/><text x="${x + w / 2}" y="${H - B + 20}" text-anchor="middle">${lab(b)}</text><text class="nn" x="${x + w / 2}" y="${H - B + 42}" text-anchor="middle">${b.n}</text></g>`; }).join('');
+    return `<div class="rlg"><span><i></i>Really scored (average)</span><span><i class="ln"></i>Projected (average)</span><span>Below each bar: projected points, players</span></div><svg class="relc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Average real points for players grouped by projected points">${g}${bars}</svg>`;
+  }
+  function accCalHtml(R2) {
     let calOn = true; try { calOn = localStorage.getItem('fplAnalystCalib') !== 'off'; } catch (e) {}
     const cl = R2.calib || {}; const pcf = (v) => `${v >= 1 ? '+' : '−'}${Math.round(Math.abs(v - 1) * 100)}%`;
-    return `<h4 class="acch">Your team: projected vs actual</h4><p class="note" style="margin:0 0 6px">Your real starting XI and captain each week, projected with only what was known before that deadline (hits not included).</p>
-<div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Projected</th><th class="n">Actual</th><th class="n">Diff</th><th>Captain</th></tr></thead><tbody>${R2.team.map((r) => `<tr><td>GW${r.g}</td><td class="n">${f1(r.pj)}</td><td class="n"><b>${r.ac}</b></td><td class="n ${r.ac - r.pj >= 0 ? 'up' : 'dn'}">${r.ac - r.pj >= 0 ? '+' : ''}${f1(r.ac - r.pj)}</td><td>${esc(r.cap || '')}</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${f1(tp)}</b></td><td class="n"><b>${ta}</b></td><td class="n ${ta - tp >= 0 ? 'up' : 'dn'}"><b>${ta - tp >= 0 ? '+' : ''}${f1(ta - tp)}</b></td><td></td></tr></tbody></table></div>
+    const bs = R2.bins || [], hi = bs.filter((b) => b.lo >= 5), lo = bs.filter((b) => b.hi <= 2);
+    const avgOf = (xs, k) => xs.reduce((a, b) => a + b[k] * b.n, 0) / (xs.reduce((a, b) => a + b.n, 0) || 1);
+    const say = hi.length ? `Players projected 5 or more really averaged <b>${avgOf(hi, 'ac').toFixed(1)}</b> (projected ${avgOf(hi, 'pj').toFixed(1)}); players projected under 2 averaged <b>${avgOf(lo, 'ac').toFixed(1)}</b>. Bars level with their line mean the numbers can be taken at face value.` : 'Bars level with their line mean the numbers can be taken at face value.';
+    return `<h4 class="acch">Do projected points come true?</h4><p class="note" style="margin:0 0 6px">${say}</p>${relChart(bs)}
 <h4 class="acch">Tune-up</h4><p class="note" style="margin:0 0 6px">Players who played scored this much more or less than projected, by position. With tune-up on, every projection is scaled by these (limited to −15% / +18%), together with the accuracy lab's corrections once the lab has confirmed them.</p>
 <div class="calrow">${[[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `<span><small>${l}</small><b class="${(cl[k] || 1) >= 1 ? 'up' : 'dn'}">${pcf(cl[k] || 1)}</b></span>`).join('')}<div class="seg"><button type="button" class="${calOn ? 'on' : ''}" data-cal="on">Tune-up on</button><button type="button" class="${calOn ? '' : 'on'}" data-cal="off">Off</button></div></div>${(() => { const c = labCalGet(); if (!c) return ''; const ff = [[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `${l} ${pcf(c.f[k])}`).join(' · ');
   return `<p class="note" style="margin:6px 0 0">Accuracy lab${c.n ? ` (${c.n} players` : ' ('}${c.gws.length ? `${c.n ? ', ' : ''}GW${c.gws.join(', GW')}` : ''}): ${ff} · ${c.active ? (calOn ? 'in use' : 'not used while tune-up is off') : 'still being checked, not applied yet'}.</p>`; })()}`;
@@ -7366,6 +7511,38 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
 <div class="kpi"><small>Fixture difficulty</small><b>${R2.fdr === 'fpl' ? "FPL's rating" : 'FPL + table'}</b><span>error ${R2.mae.toFixed(2)} with ${R2.cur === 'blend' ? 'FPL + table' : "FPL's rating"} vs ${R2.maeF.toFixed(2)} with ${R2.cur === 'blend' ? "FPL's rating" : 'FPL + table'}${R2.fdr !== R2.cur ? ': switched' : ': kept'}</span></div></div>
 <div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Players</th><th class="n">Our error</th><th class="n">Form only</th><th class="n">Points per game</th><th class="n">Our top 5 avg</th><th class="n">Best top 5</th><th>Our #1 pick</th></tr></thead><tbody>${R2.rows.slice().reverse().map((r) => `<tr><td>${r.g}</td><td class="n">${r.n}</td><td class="n"><b>${r.mae.toFixed(2)}</b></td><td class="n">${r.maeForm.toFixed(2)}</td><td class="n">${r.maePpg.toFixed(2)}</td><td class="n">${r.top5.toFixed(1)}</td><td class="n">${r.top5Best.toFixed(1)}</td><td>${esc(r.pick)} <small class="muted">${r.pickPts} pts</small></td></tr>`).join('')}</tbody></table></div>
 <p class="muted fine">Tested on GW${R2.gws[0]}–${R2.gws[R2.gws.length - 1]} (${R2.gws.length} weeks), players with 90+ minutes before each week. Lower error is better. Injury news and set-piece duties aren't known historically, so the live app should do slightly better than this. Last run ${new Date(R2.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}.</p>${accTeamHtml(R2)}`;
+  }
+  function accTeamHtml(R2) {
+    const rows = R2.team || [], cr = rows.filter((r) => r.mc != null && r.cp != null);
+    const sum = (k) => cr.reduce((a, r) => a + (r[k] || 0), 0);
+    const caps = cr.length ? `<div class="kpis uni three"><div class="kpi"><small>Your captains scored</small><b>${sum('cp')} pts</b><span>${cr.length} weeks, before doubling</span></div><div class="kpi"><small>Model's pick from your XI</small><b>${sum('mcp')} pts</b><span>${sum('mcp') > sum('cp') ? 'the model would have done better' : 'you did as well or better'}</span></div><div class="kpi"><small>Best possible</small><b>${sum('bp')} pts</b><span>top scorer in your XI each week</span></div></div>` : '';
+    const tp = rows.reduce((a, r) => a + r.pj, 0), ta = rows.reduce((a, r) => a + r.ac, 0);
+    const tbl = rows.length ? `<h4 class="acch">Replay: your team, projected vs actual${rows.length > 6 ? ' (last 6 weeks, total for all ' + rows.length + ')' : ''}</h4><div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Projected</th><th class="n">Actual</th><th class="n">Diff</th><th>Your captain</th><th>Model's captain</th></tr></thead><tbody>${rows.slice(-6).reverse().map((r) => `<tr><td>GW${r.g}</td><td class="n">${f1(r.pj)}</td><td class="n"><b>${r.ac}</b></td><td class="n ${r.ac - r.pj >= 0 ? 'up' : 'dn'}">${r.ac - r.pj >= 0 ? '+' : ''}${f1(r.ac - r.pj)}</td><td>${esc(r.cap || '')}${r.cp != null ? ` <small class="muted">${r.cp}</small>` : ''}</td><td>${esc(r.mc || '')}${r.mcp != null ? ` <small class="muted">${r.mcp}</small>` : ''}</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${f1(tp)}</b></td><td class="n"><b>${ta}</b></td><td class="n ${ta - tp >= 0 ? 'up' : 'dn'}"><b>${ta - tp >= 0 ? '+' : ''}${f1(ta - tp)}</b></td><td></td><td></td></tr></tbody></table></div>` : '<p class="muted">Enter your team ID on Home to see your own team here.</p>';
+    return `<h4 class="acch">Saved before each deadline</h4><div id="frz-box"><p class="muted">Loading…</p></div>${caps}${tbl}`;
+  }
+  function accPriceHtml() {
+    const s = prlSum(14), rs = PRL.res.slice(-10).reverse(), c = PRL.cur, tn = PRL.tune;
+    const curTxt = c ? `Prediction for the ${new Date(c.k + 'T01:30:00Z').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} update saved: ${c.up.length} rise${c.up.length === 1 ? '' : 's'} and ${c.dn.length} drop${c.dn.length === 1 ? '' : 's'} likely.` : '';
+    const intro = `<p class="note" style="margin:0 0 8px">Before each nightly update the radar notes which prices it expects to change, then checks the first time you open Elevn after the update. ${curTxt}</p>`;
+    if (!s.n) return `${intro}<p class="muted">Nothing checked yet. Open Elevn this evening and again tomorrow to log the first night.</p>`;
+    return `${intro}<div class="kpis uni"><div class="kpi"><small>Predicted rises that happened</small><b>${pctOf(s.hu, s.pu)}</b><span>${s.hu} of ${s.pu}</span></div><div class="kpi"><small>Rises it saw coming</small><b>${pctOf(s.hu, s.ru)}</b><span>${s.hu} of ${s.ru} real rises</span></div><div class="kpi"><small>Predicted drops that happened</small><b>${pctOf(s.hd, s.pd)}</b><span>${s.hd} of ${s.pd}</span></div><div class="kpi"><small>Drops it saw coming</small><b>${pctOf(s.hd, s.rd)}</b><span>${s.hd} of ${s.rd} real drops</span></div></div>
+<div class="tw"><table class="acct"><thead><tr><th>Update</th><th class="n">Rises predicted</th><th class="n">Happened</th><th class="n">All rises</th><th class="n">Drops predicted</th><th class="n">Happened</th><th class="n">All drops</th></tr></thead><tbody>${rs.map((r) => `<tr><td>${new Date(r.k + 'T01:30:00Z').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</td><td class="n">${r.pu}</td><td class="n"><b>${r.hu}</b></td><td class="n">${r.ru}</td><td class="n">${r.pd}</td><td class="n"><b>${r.hd}</b></td><td class="n">${r.rd}</td></tr>`).join('')}</tbody></table></div>
+<p class="muted fine">Last ${s.n} checked night${s.n > 1 ? 's' : ''} on this device; nights with no price changes at all are skipped. ${tn ? `Thresholds re-fitted on ${tn.n} checks: rises ×${tn.u.toFixed(2)}, drops ×${tn.d.toFixed(2)}.` : 'Thresholds are re-fitted after about a week of checks.'}</p>`;
+  }
+  function accHtml() {
+    const R2 = ACC;
+    const head = `<div class="th"><h3>How accurate are the projections?</h3><button class="lnk2" type="button" id="acc-run">${R2 ? 'Run again' : 'Run the test'}</button></div>`;
+    if (!R2) return `${head}<p class="muted">Tests the projection model on this season's finished gameweeks: for each week it uses only the data from before it, then compares with the real points. Takes about 10 seconds.</p><div id="acc-prog"></div>`;
+    const pc = (a, b) => Math.round((1 - a / b) * 100);
+    const TB = [['model', 'Model'], ['cal', 'Calibration'], ['team', 'Your team'], ['price', 'Prices']];
+    const seg = `<div class="seg acctabs" role="tablist">${TB.map(([k, l]) => `<button type="button" role="tab" class="${ACCTAB === k ? 'on' : ''}" aria-selected="${ACCTAB === k}" data-acctab="${k}">${l}</button>`).join('')}</div>`;
+    if (ACCTAB === 'team') setTimeout(frozenPaint, 0);
+    const body = ACCTAB === 'cal' ? accCalHtml(R2) : ACCTAB === 'team' ? accTeamHtml(R2) : ACCTAB === 'price' ? accPriceHtml() : `<div class="kpis uni"><div class="kpi"><small>Average error per player</small><b>${R2.mae.toFixed(2)} pts</b><span>${R2.maeForm > 0 ? (R2.mae <= R2.maeForm ? pc(R2.mae, R2.maeForm) + '% better' : -pc(R2.mae, R2.maeForm) + '% worse') + ' than form alone' : 'form alone not comparable'}</span></div>
+<div class="kpi"><small>Our top 5 picks scored</small><b>${R2.top5.toFixed(1)} pts</b><span>vs ${R2.top5Form.toFixed(1)} for top-5 by form · best possible ${R2.top5Best.toFixed(1)}</span></div>
+<div class="kpi"><small>Fixture difficulty</small><b>${R2.fdr === 'fpl' ? "FPL's rating" : 'FPL + table'}</b><span>error ${R2.mae.toFixed(2)} with ${R2.cur === 'blend' ? 'FPL + table' : "FPL's rating"} vs ${R2.maeF.toFixed(2)} with ${R2.cur === 'blend' ? "FPL's rating" : 'FPL + table'}${R2.fdr !== R2.cur ? ': switched' : ': kept'}</span></div></div>
+<div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Players</th><th class="n">Our error</th><th class="n">Form only</th><th class="n">Points per game</th><th class="n">Our top 5 avg</th><th class="n">Best top 5</th><th>Our #1 pick</th></tr></thead><tbody>${R2.rows.slice().reverse().map((r) => `<tr><td>${r.g}</td><td class="n">${r.n}</td><td class="n"><b>${r.mae.toFixed(2)}</b></td><td class="n">${r.maeForm.toFixed(2)}</td><td class="n">${r.maePpg.toFixed(2)}</td><td class="n">${r.top5.toFixed(1)}</td><td class="n">${r.top5Best.toFixed(1)}</td><td>${esc(r.pick)} <small class="muted">${r.pickPts} pts</small></td></tr>`).join('')}</tbody></table></div>
+<p class="muted fine">Tested on GW${R2.gws[0]}–${R2.gws[R2.gws.length - 1]} (${R2.gws.length} weeks), players with 90+ minutes before each week. Lower error is better. Injury news and set-piece duties aren't known historically, so the live app should do slightly better than this. Last run ${new Date(R2.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}.</p>`;
+    return `${head}${seg}<div class="accbody">${body}</div>`;
   }
   const LIVE = async (gw) => {
     const done = (BS && BS.events ? BS.events.find((x) => x.id === gw) || {} : {}).finished;
@@ -7859,7 +8036,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   let CALIB_BUSY = false;
   function autoCalibrate(A) {
     if (CALIB_BUSY || !BS) return; const last = Math.max(0, ...BS.events.filter((e) => e.finished).map((e) => e.id));
-    if (ACC && ACC.v === 3 && ACC.gws && Math.max(...ACC.gws) >= last) return;
+    if (ACC && ACC.v === 4 && ACC.gws && Math.max(...ACC.gws) >= last) return;
     CALIB_BUSY = true;
     runAccuracy().then(() => { CALIB_BUSY = false; const v = A && A.id; if (v && LASTA === A) run(+v, { quiet: true }); }).catch(() => { CALIB_BUSY = false; });
   }
@@ -9383,6 +9560,7 @@ ${(() => { if (!lg.length) return '<p class="muted">Not in any league or cup.</p
     if (FIXTAB === 'market') return `<section class="s fx2" id="s-fix">${marketHtml(A)}</section>`;
     if (FIXTAB === 'stats') return `<section class="s fx2" id="s-fix">${playerStatsHtml(A)}</section>`;
     if (FIXTAB === 'h2h') return `<section class="s fx2" id="s-fix">${cmpHtml(A)}</section>`;
+    if (FIXTAB === 'radar') return `<section class="s fx2" id="s-fix">${radarHtml(A)}</section>`;
     if (FIXTAB === 'acc') return `<section class="s fx2" id="s-fix"><div class="ptl"><h2>Projection accuracy</h2><p class="sub">Past gameweeks replayed with only what was known before each deadline</p></div><div class="card acc" id="acc-card">${accHtml()}</div></section>`;
     return `<section class="s" id="s-fix"><h2>Fixtures</h2><p class="sub">${FIXTAB === 'h2h' ? 'The players you plan to sell next to the players you plan to buy, for the gameweek on screen in the planner.' : FIXTAB === 'ticker' ? 'Easiest runs first · green easy, red hard · tap a club for its rotation partner' : 'Two cheap starters, play whichever has the easier game · lower average is better'}</p>
 <div class="rotctl"><div class="seg" ${FIXTAB === 'h2h' ? 'hidden' : ''}><button type="button" class="${ROT.n === 3 ? 'on' : ''}" data-rotn="3">Next 3</button><button type="button" class="${ROT.n === 6 ? 'on' : ''}" data-rotn="6">Next 6</button><button type="button" class="${ROT.n === 10 ? 'on' : ''}" data-rotn="10">Next 10</button></div>
@@ -10176,6 +10354,7 @@ ${ps.length ? `<h3 class="psh">Previous seasons</h3><div class="tw"><table><thea
     const tg = t.closest('[data-ci]'); if (tg) { CI[tg.dataset.ci] = !CI[tg.dataset.ci]; saveCI(); applyCI(); return; }
     const fx = t.closest('[data-cifx]'); if (fx) { CI.fx = +fx.dataset.cifx; saveCI(); applyCI(); return; }
     const cb = t.closest('[data-cal]'); if (cb) { try { localStorage.setItem('fplAnalystCalib', cb.dataset.cal); } catch (er) {} const card = R.getElementById('acc-card'); if (card) card.innerHTML = accHtml(); toast(cb.dataset.cal === 'on' ? 'Tune-up on' : 'Tune-up off', 'Projections update on the next refresh (⟳).', ''); return; }
+    const at = t.closest('[data-acctab]'); if (at) { ACCTAB = at.dataset.acctab; const card = R.getElementById('acc-card'); if (card) card.innerHTML = accHtml(); return; }
     if (t.closest('#acc-run')) { const card = R.getElementById('acc-card'); const b = t.closest('#acc-run'); b.disabled = true; b.textContent = 'Testing…';
       const pr = R.getElementById('acc-prog') || (card.insertAdjacentHTML('beforeend', '<div id="acc-prog"></div>'), R.getElementById('acc-prog'));
       runAccuracy((p) => { pr.innerHTML = `<div class="accbar"><i style="width:${p}%"></i></div><small class="muted">${p < 70 ? 'Reading past gameweeks…' : 'Projecting each week…'} ${p}%</small>`; })
@@ -10457,7 +10636,7 @@ ${t.c.slice(1).length ? `<div class="alt">Or: ${t.c.slice(1).map((x) => `${nm(x.
   // ---------- Views: dashboard home + one section at a time ----------
   let VIEW = 'home';
   const VIEWS = [['home', 'Home'], ['team', 'My Team'], ['live', 'Live'], ['fix', 'Fixtures'], ['news', 'News']];
-  const SUBS = { team: [['pitch', 'Pitch', 's-planner'], ['list', 'List', 's-squad']], fix: [['ticker', 'Ticker', 's-fix'], ['pairs', 'Pairs', 's-fix'], ['market', 'Market', 's-fix'], ['stats', 'Player stats', 's-fix'], ['h2h', 'Head to head', 's-fix'], ['acc', 'Accuracy', 's-fix'], ['table', 'Table', 's-table']] };
+  const SUBS = { team: [['pitch', 'Pitch', 's-planner'], ['list', 'List', 's-squad']], fix: [['ticker', 'Ticker', 's-fix'], ['pairs', 'Pairs', 's-fix'], ['market', 'Market', 's-fix'], ['radar', 'Price radar', 's-fix'], ['stats', 'Player stats', 's-fix'], ['h2h', 'Head to head', 's-fix'], ['acc', 'Accuracy', 's-fix'], ['table', 'Table', 's-table']] };
   const SUBV = { team: 'pitch', fix: 'ticker' };
   const ALIAS = { plan: ['home'], planner: ['team', 'pitch'], squad: ['team', 'list'], table: ['fix', 'table'], gw: ['home'], season: ['home'] };
   function paintRot() { const sec = R.getElementById('s-fix'); if (!sec || !LASTA) return; const tmp = document.createElement('div'); tmp.innerHTML = rotHtml(LASTA); const ne = tmp.firstElementChild; ne.hidden = !(VIEW === 'fix' && SUBV.fix !== 'table'); sec.replaceWith(ne); }
@@ -10867,6 +11046,7 @@ ${rotHtml(A)}
     LASTA = A; idsLoaded(A); refreshLeague(A);
     if (RUNOPT.quiet) out.scrollTop = RUNOPT.top;
     try { priceSnap(); } catch (e) {}
+    try { priceLog(); freezeProj(A); } catch (e) {}
     try { androidSync(A); } catch (e) {}
   }
 };
