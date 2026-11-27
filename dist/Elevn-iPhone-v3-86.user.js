@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.85.0
+// @version      3.86.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.85';
+  const ELEVN_VER = '3.86';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6537,6 +6537,34 @@ table.cmpt small.d{display:block;font-size:11px}
 .cuplive{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(69,208,143,.35);background:rgba(16,56,42,.4);margin-bottom:10px;font-size:13px}
 .cuplive>div{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cuplive b{font:700 20px var(--fd)}
+/* ===== v3.86 explain + what-if ===== */
+.ssk{margin:4px 0 12px}
+.ssg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ssbox{padding:10px 12px}.ssbox h4{margin:0 0 6px}
+.ssc{display:block;width:100%;height:auto}.ssc text{fill:var(--t3);font-size:11px}.ssc text.vl{fill:var(--fg);font-weight:700}
+.ssc .gl{stroke:var(--line)}.ssc .ln{fill:none;stroke:var(--acc);stroke-width:2;stroke-linejoin:round}.ssc .dt{fill:var(--acc);stroke:var(--card);stroke-width:2}
+.ssc .hit{fill:transparent}.ssc g:hover .dt{r:5}.ssc .bu{fill:var(--acc);opacity:.85}.ssc .bd{fill:#ff8a8a;opacity:.85}.ssc g:hover rect.hit{fill:rgba(255,255,255,.04)}
+.rlg i.bd{background:#ff8a8a}
+.pflink{color:var(--acc);text-decoration:underline}
+.shr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 6px}
+.cardimg{display:block;width:220px;max-width:60%;border-radius:12px;border:1px solid var(--line);margin-top:6px}
+@media (max-width:860px){.ssg{grid-template-columns:1fr}}
+
+.lens{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}.lens h4{margin:0}.lens .th{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.lnt td:first-child{white-space:normal}.lnk{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;font-style:normal;font-size:10px;font-weight:800;margin-right:6px;vertical-align:1px}
+.lnk.ca{background:var(--gold);color:#1b1300}.lnk.tr{background:var(--acc2);color:var(--acc)}
+.apchips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.apchips span{padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.03)}
+
+.pxk{cursor:pointer}.pxk:hover{background:rgba(255,255,255,.04)}
+.pxi{display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;border:1px solid var(--mut);font-size:9px;font-style:normal;margin-left:3px;vertical-align:1px}
+.pxp{margin:8px 0;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:rgba(255,255,255,.025)}
+.pxp summary{cursor:pointer;font-weight:700;font-size:14px}.pxp summary small{font-weight:400;margin-left:6px}
+.pxt{margin-top:6px}
+.pxr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-top:1px solid var(--line)}
+.pxr span{display:flex;flex-direction:column;min-width:0}.pxr span b{font-size:13px}.pxr span small{color:var(--t3);font-size:11px}
+.pxr i{font-style:normal;font-variant-numeric:tabular-nums;font-weight:700;flex:none}
+.pxr.sub{background:rgba(255,255,255,.03)}.pxr.tot{border-top:2px solid var(--acc)}.pxr.tot i{color:var(--acc);font-size:16px}
+.wif{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12px;color:var(--mut);padding:6px 10px;margin:0 0 6px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.03)}
+.wif>b{color:var(--fg)}.wif span b{color:var(--fg)}.wif .up b{color:var(--acc)}.wif .dn b{color:#ff8a8a}
 /* ===== v3.85 price radar + accuracy ===== */
 .acctabs{display:flex;flex-wrap:wrap;margin:0 0 10px;width:fit-content;max-width:100%}
 .accbody .kpis{margin-bottom:10px}
@@ -6561,7 +6589,7 @@ table.cmpt small.d{display:block;font-size:11px}
 @media (max-width:860px){.rdg{grid-template-columns:1fr}.rdk{grid-template-columns:1fr 1fr 1fr}}
 @media (max-width:520px){.rdk.kpis.uni.three,.accbody .kpis.uni.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.rdk .kpi span,.accbody .kpis.three .kpi span{display:none}.rdk .kpi b,.accbody .kpis.three .kpi b{font-size:16px;line-height:1.2}.rdk .kpi,.accbody .kpis.three .kpi{min-height:0;padding:8px}.rdk .kpi small,.accbody .kpis.three .kpi small{font-size:10px}
 .acctabs{flex-wrap:nowrap;overflow-x:auto}.acctabs button{padding:7px 11px;white-space:nowrap}
-.relc{max-height:none}.relc text{font-size:19px}.relc text.nn{font-size:17px}}
+.relc{max-height:none}.relc text{font-size:19px}.relc text.nn{font-size:17px}.ssc text{font-size:19px}}
 /* ===== v3.79 UI review ===== */
 .mwmore{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--mut);opacity:.75;padding-top:4px;letter-spacing:.02em}
 .mwr:hover .mwmore,.mwr.open .mwmore{opacity:1;color:var(--acc)}
@@ -6739,7 +6767,10 @@ table.cmpt small.d{display:block;font-size:11px}
 <div class="setrow"><div><b>Kick-off, half-time and full-time alerts</b><small>For matches with one of your players</small></div>${alSeg('kickoff')}</div>
 <div class="setrow"><div><b>All goals</b><small>A short alert for every Premier League goal, not only your players' (about 25–30 on a busy Saturday)</small></div>${alSeg('allgoals')}</div>
 ${hasAndroid() ? `<div class="setrow"><div><b>Deadline reminders</b><small>Phone notification 24 hours and 2 hours before each deadline</small></div>${aSeg('remind')}</div>
-<div class="setrow"><div><b>Goal alerts with the app closed</b><small>Checks your players during matches (every minute right after you leave the app, then every 15 minutes)</small></div>${aSeg('bg')}</div>` : ''}
+<div class="setrow"><div><b>Goal alerts with the app closed</b><small>Checks your players during matches (every minute right after you leave the app, then every 15 minutes)</small></div>${aSeg('bg')}</div>
+<div class="setrow"><div><b>Injury and suspension alerts</b><small>Checks your 15 players every 6 hours and tells you about a new flag or a lower chance of playing</small></div>${aSeg('flags')}</div>
+<div class="setrow"><div><b>Price drop warnings</b><small>90 minutes before the midnight (UK) price update, if FPL projects one of your players to drop</small></div>${aSeg('prices')}</div>
+<p class="muted fine">Add the Elevn widget from your home screen's widget list to see your points, rank and the next deadline.</p>` : ''}
 <div class="setrow"><div><b>Fast live feed</b><small>During matches, also reads free live score feeds (no key) and shows goals, assists and cards before FPL counts them, marked ⚡</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fastOn() ? 'on' : 'off') === v}" class="${(fastOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fast="${v}">${l}</button>`).join('')}</div></div>
 <div class="setrow"><div><b>FotMob (main live source)</b><small>The fastest feed in our tests (about 74 s ahead of FPL on goals). Drives the live clock, scorers and added time. If it stops, the Premier League match centre takes over (it also has assists), then ESPN.</small></div><div class="seg" role="radiogroup">${[['on', 'On'], ['off', 'Off']].map(([v, l]) => `<button type="button" role="radio" aria-checked="${(fmOn() ? 'on' : 'off') === v}" class="${(fmOn() ? 'on' : 'off') === v ? 'on' : ''}" data-fm="${v}"${fastOn() ? '' : ' disabled'}>${l}</button>`).join('')}</div></div>
 ${(() => { const k = oddsKey(), o = ODDS || oddsLoadCache(); const agoT = (t) => { const m = Math.round((Date.now() - t) / 6e4); return m < 60 ? m + ' min ago' : Math.round(m / 60) + 'h ago'; };
@@ -6928,7 +6959,11 @@ ${o.sp ? `<span class="jsp">${o.sp}</span>` : ''}<div class="jname" title="${esc
     const fold = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'and').replace(/\b(fc|afc)\b/g, '').replace(/[^a-z]/g, '');
     const tkeys = {}; BS.teams.forEach((t) => { tkeys[fold(t.name)] = t.id; tkeys[fold(t.short_name)] = t.id; }); Object.entries(ODDS_ALIAS).forEach(([k, v]) => { const id = oddsTeam(k); if (id) tkeys[fold(k)] = id; });
     const mySq = (sq || A.sq || []).map((x) => [x.e.id, x.e.team, x.e.web_name, x.e.first_name + ' ' + x.e.second_name, x.e.second_name, x.e.element_type]);
-    try { FPLAndroid.setSchedule(JSON.stringify({ tkeys, mine: mySq, entry: MYID || A.id, gw: cur ? cur.id : 0, deadlines: nx.map((e) => ({ gw: e.id, at: e.deadline_time })), summary: summ, kick: cur ? gwK(cur.id) : [], kickNext: nx[0] ? gwK(nx[0].id) : [], nextGw: nx[0] ? nx[0].id : 0, liveNow: !!(A.live && A.live.live > 0), els, teams, elT })); } catch (e) {}
+    // v3.86: your players FPL projects to drop (or rise) at the next midnight update, for the phone's price warning
+    const pq = (sq || A.sq || []).map((x) => ({ x, o: priceOutlook(x.e) })).filter((z) => z.o && z.o.lv === 'likely' && z.o.p.eta === 'tonight');
+    const price = { at: nextUpdAt(Date.now()).toISOString(), drop: pq.filter((z) => z.o.d === 'down').map((z) => z.x.e.web_name), rise: pq.filter((z) => z.o.d === 'up').map((z) => z.x.e.web_name), asOf: Date.now() };
+    try { if (FPLAndroid.setWidget) { const S = seasonData(A), lastS = S[S.length - 1], L = A.live; const big = L && L.done < L.games ? `GW${L.gw} · ${L.pts} pts` : lastS ? `GW${lastS.g} · ${lastS.pts} pts` : 'Elevn'; FPLAndroid.setWidget(`Elevn · ${A.entry.name || ''}`, big, `${lastS && lastS.rank ? 'Rank ' + kfm(lastS.rank) : ''}${L && L.live > 0 ? ' · live' : ''}${flagged.length ? ` · ${flagged.length} flagged` : ''}`); } } catch (e) {}
+    try { FPLAndroid.setSchedule(JSON.stringify({ price, tkeys, mine: mySq, entry: MYID || A.id, gw: cur ? cur.id : 0, deadlines: nx.map((e) => ({ gw: e.id, at: e.deadline_time })), summary: summ, kick: cur ? gwK(cur.id) : [], kickNext: nx[0] ? gwK(nx[0].id) : [], nextGw: nx[0] ? nx[0].id : 0, liveNow: !!(A.live && A.live.live > 0), els, teams, elT })); } catch (e) {}
   }
   function idsLoaded(A) {
     const nm = A.entry.name, mgr = `${A.entry.player_first_name || ''} ${A.entry.player_last_name || ''}`.trim();
@@ -7261,6 +7296,17 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   }
   function pricePred(e) {
     if (!BS) return null;
+    // v3.86: FPL now publishes each player's progress to his next price change and its projection for the next updates
+    const op = e.price_change_percent != null && e.price_change_percent !== '' && !e.price_change_calibrating ? +e.price_change_percent : null;
+    if (op != null && Number.isFinite(op)) {
+      const pj = Array.isArray(e.price_change_projections) ? e.price_change_projections : [];
+      const at = (o) => { const x = pj.find((q) => q.offset === o); return x ? +x.projected_percent : null; };
+      const v0 = at(0) != null ? at(0) : op, v1 = at(1) != null ? at(1) : v0, v2 = at(2) != null ? at(2) : v1;
+      const lk = e.price_change_locked_until ? Date.parse(e.price_change_locked_until) : 0, nu = nextUpdAt(Date.now());
+      const eta = lk > nu ? '' : Math.abs(v0) >= 100 ? 'tonight' : Math.abs(v1) >= 100 ? 'tomorrow' : Math.abs(v2) >= 100 ? 'this week' : '';
+      const d = (op || v0) >= 0 ? 'up' : 'down';
+      return { pct: Math.max(-130, Math.min(130, op)), since: (e.transfers_in_event || 0) - (e.transfers_out_event || 0), rate: +e.price_change_hourly_rate || 0, eta, d, qu: op / 100, qd: -op / 100, off: true, v0, v1, locked: lk > nu };
+    }
     const net = (e.transfers_in_event || 0) - (e.transfers_out_event || 0), hurt = e.status !== 'a';
     const owners = (+e.selected_by_percent || 0) / 100 * (BS.total_players || 10e6);
     const b = PSNAP && PSNAP.base[e.id]; const since = net - (b && b[0] === e.now_cost ? b[1] : (e.cost_change_event ? Math.round(net * 0.5) : 0));
@@ -7268,14 +7314,15 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const pct = since >= 0 ? (since / up) * 100 : -(-since / down) * 100;
     let rate = 0; const ss = PSNAP ? PSNAP.s : []; if (ss.length >= 2) { const a = ss.find((x) => Date.now() - x.t < 30 * 36e5) || ss[0], z = ss[ss.length - 1]; const h = (z.t - a.t) / 36e5; if (h >= 2 && a.m[e.id] != null) rate = (z.m[e.id] - a.m[e.id]) / h; }
     const need = since >= 0 ? up - since : down + since; const hrs = rate && Math.sign(rate) === Math.sign(since || rate) ? need / Math.abs(rate) : Infinity;
-    // FPL updates prices once a day, at about 01:30 UK time
-    const nx = new Date(); nx.setUTCHours(1, 30, 0, 0); if (nx < new Date()) nx.setUTCDate(nx.getUTCDate() + 1); const toUpd = (nx - Date.now()) / 36e5;
+    // FPL updates prices once a day, at midnight UK time (v3.86: read from FPL's own log of changes)
+    const toUpd = (nextUpdAt(Date.now()) - Date.now()) / 36e5;
     const eta = Math.abs(pct) >= 100 || hrs <= toUpd ? 'tonight' : hrs <= toUpd + 24 ? 'tomorrow' : hrs < 96 ? 'this week' : '';
     return { pct: Math.max(-130, Math.min(130, pct)), since, rate, eta, d: pct >= 0 ? 'up' : 'down', qu: since / up0, qd: -since / down0 };
   }
   function priceOutlook(e) {
     const p = pricePred(e); if (!p) return null; const net = (e.transfers_in_event || 0) - (e.transfers_out_event || 0);
     const a = Math.abs(p.pct);
+    if (p.off) { if (p.eta === 'tonight') return { d: p.d, lv: 'likely', net, p }; if (p.eta === 'tomorrow' || a >= 60) return { d: p.d, lv: 'possible', net, p }; return null; }
     if (a >= 95 || (a >= 75 && p.eta === 'tonight')) return { d: p.d, lv: 'likely', net, p };
     if (a >= 60 || (a >= 45 && p.eta === 'tomorrow')) return { d: p.d, lv: 'possible', net, p };
     return null;
@@ -7290,32 +7337,46 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   let PRL = null; try { PRL = JSON.parse(localStorage.getItem(PRL_K) || 'null'); } catch (e) {}
   if (!PRL || PRL.v !== 1) PRL = { v: 1, cur: null, res: [], obs: [], tune: null };
   function PTUNE() { return (PRL && PRL.tune) || { u: 1, d: 1 }; }
-  const updKey = (t) => { const nx = new Date(t); nx.setUTCHours(1, 30, 0, 0); if (nx.getTime() <= t) nx.setUTCDate(nx.getUTCDate() + 1); return nx.toISOString().slice(0, 10); };
-  const prevKey = (k) => { const d = new Date(k + 'T01:30:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
+  const ukDate = (t) => { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t)); } catch (e) { return new Date(t).toISOString().slice(0, 10); } };
+  const ukHour = (t) => { try { return +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: 'numeric', hourCycle: 'h23' }).format(new Date(t)) % 24; } catch (e) { return new Date(t).getUTCHours(); } };
+  // next midnight in the UK after t (00:00 UTC in winter, 23:00 UTC in summer)
+  function nextUpdAt(t) { const d0 = new Date(t); d0.setUTCHours(0, 0, 0, 0); for (let i = 0; i < 3; i++) for (const h of [-1, 0]) { const c = d0.getTime() + i * 864e5 + h * 36e5; if (c > t && ukHour(c) === 0) return new Date(c); } return new Date(d0.getTime() + 864e5); }
+  const updKey = (t) => ukDate(nextUpdAt(t).getTime() + 36e5);
+  const keyLabel = (k) => new Date(k + 'T12:00:00Z').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
   function priceTune() {
     const fit = (i, dir) => { const xs = PRL.obs.filter((x) => x[i] > 0.15); const pos = xs.filter((x) => x[2] === dir).length; if (xs.length < 60 || pos < 8) return 1;
       let best = 1, be = Infinity; for (let k = 12; k <= 32; k++) { const sc = k / 20; let err = 0; xs.forEach((x) => { if ((x[i] >= sc) !== (x[2] === dir)) err++; }); const v = err + Math.abs(sc - 1) * 0.5; if (v < be) { be = v; best = sc; } } return best; };
     const u = fit(0, 1), d = fit(1, -1); PRL.tune = u === 1 && d === 1 ? null : { u, d, n: PRL.obs.length };
   }
   function priceLog() {
-    if (!BS || !BS.elements) return; const now = Date.now(), K = updKey(now), c = PRL.cur;
-    if (c && c.k !== K) {
-      if (prevKey(K) === c.k && c.c) {
-        const r = { k: c.k, pu: c.up.length, hu: 0, ru: 0, pd: c.dn.length, hd: 0, rd: 0 }; const pu = new Set(c.up), pd = new Set(c.dn), ob = [];
-        BS.elements.forEach((e) => { const was = c.c[e.id]; if (was == null) return; const d = e.now_cost - was;
-          if (d > 0) { r.ru++; if (pu.has(e.id)) r.hu++; } else if (d < 0) { r.rd++; if (pd.has(e.id)) r.hd++; }
-          const o = c.o[e.id]; if (o) ob.push([o[0], o[1], d > 0 ? 1 : d < 0 ? -1 : 0]); });
-        // no change at all usually means FPL paused prices that night: not counted
-        if (r.ru + r.rd > 0) { PRL.res.push(r); PRL.res = PRL.res.slice(-30); PRL.obs = PRL.obs.concat(ob).slice(-3000); priceTune(); }
-      }
-      PRL.cur = null;
-    }
-    const cc = {}, o = {}, up = [], dn = [];
-    BS.elements.forEach((e) => { cc[e.id] = e.now_cost; const p = pricePred(e); if (!p) return;
-      if (p.qu > 0.15 || p.qd > 0.15) o[e.id] = [Math.round(p.qu * 1000) / 1000, Math.round(p.qd * 1000) / 1000];
+    if (!BS || !BS.elements) return; const now = Date.now(), K = updKey(now);
+    if (!PRL.pend) PRL.pend = {}; if (PRL.cur && PRL.cur.k && PRL.cur.up) { PRL.pend[PRL.cur.k] = { t: PRL.cur.t, up: PRL.cur.up, dn: PRL.cur.dn, o: PRL.cur.o || {} }; } PRL.cur = null;
+    const o = {}, up = [], dn = [];
+    BS.elements.forEach((e) => { const p = pricePred(e); if (!p) return;
+      if (!p.off && (p.qu > 0.15 || p.qd > 0.15)) o[e.id] = [Math.round(p.qu * 1000) / 1000, Math.round(p.qd * 1000) / 1000];
       const ol = priceOutlook(e); if (ol && ol.lv === 'likely') (ol.d === 'up' ? up : dn).push(e.id); });
-    PRL.cur = { k: K, t: now, c: cc, o, up, dn };
-    try { localStorage.setItem(PRL_K, JSON.stringify(PRL)); } catch (e) { PRL.obs = PRL.obs.slice(-400); try { localStorage.setItem(PRL_K, JSON.stringify(PRL)); } catch (er) {} }
+    PRL.pend[K] = { t: now, up, dn, o, off: BS.elements.some((e) => e.price_change_percent != null) };
+    const ks = Object.keys(PRL.pend).sort(); while (ks.length > 4) delete PRL.pend[ks.shift()];
+    prlSave(); priceCheck();
+  }
+  function prlSave() { try { localStorage.setItem(PRL_K, JSON.stringify(PRL)); } catch (e) { PRL.obs = PRL.obs.slice(-400); try { localStorage.setItem(PRL_K, JSON.stringify(PRL)); } catch (er) {} } }
+  // FPL's public log of every price change (time stamped) scores the saved predictions for each update that has passed
+  let PCLOG = null, PCBUSY = false;
+  async function priceCheck() {
+    if (PCBUSY) return; const K = updKey(Date.now()), due = Object.keys(PRL.pend || {}).filter((k) => k < K); if (!due.length && PCLOG) return;
+    PCBUSY = true;
+    try {
+      const raw = await J('/api/stats/price-changes/'); const flat = []; (Array.isArray(raw) ? raw : []).forEach((x) => (Array.isArray(x) ? x.forEach((y) => flat.push(y)) : flat.push(x)));
+      PCLOG = flat.filter((x) => x && x.changed_at).map((x) => ({ id: x.element, k: ukDate(Date.parse(x.changed_at)), d: x.cost_after - x.cost_before, t: Date.parse(x.changed_at) }));
+      due.forEach((k) => { const pd = PRL.pend[k]; const ch = PCLOG.filter((x) => x.k === k); delete PRL.pend[k]; if (!ch.length) return;
+        const up = new Set(ch.filter((x) => x.d > 0).map((x) => x.id)), dn = new Set(ch.filter((x) => x.d < 0).map((x) => x.id));
+        const r = { k, pu: pd.up.length, hu: pd.up.filter((id) => up.has(id)).length, ru: up.size, pd: pd.dn.length, hd: pd.dn.filter((id) => dn.has(id)).length, rd: dn.size, off: !!pd.off };
+        PRL.res = PRL.res.filter((x) => x.k !== k).concat([r]).sort((x, y) => (x.k < y.k ? -1 : 1)).slice(-30);
+        Object.keys(pd.o || {}).forEach((id) => { const v = pd.o[id]; PRL.obs.push([v[0], v[1], up.has(+id) ? 1 : dn.has(+id) ? -1 : 0]); });
+      });
+      PRL.obs = PRL.obs.slice(-3000); priceTune(); prlSave();
+      if (VIEW === 'fix' && (FIXTAB === 'radar' || FIXTAB === 'acc')) paintRot();
+    } catch (e) {} finally { PCBUSY = false; }
   }
   const prlSum = (n) => { const rs = PRL.res.slice(-n); const s = { n: rs.length, pu: 0, hu: 0, ru: 0, pd: 0, hd: 0, rd: 0 }; rs.forEach((r) => ['pu', 'hu', 'ru', 'pd', 'hd', 'rd'].forEach((k) => (s[k] += r[k]))); return s; };
   const pctOf = (a, b) => (b ? Math.round((a / b) * 100) + '%' : '–');
@@ -7374,10 +7435,11 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const moving = sq.filter((x) => x.p && Math.abs(x.p.pct) >= 20), steady = sq.length - moving.length;
     const eff = (x) => { if (!x.p) return ''; if (x.p.d === 'up') return x.up === 1 ? '+£0.1m on your sell price if it rises' : x.up === 0 ? 'a rise leaves your sell price as it is' : 'up to +£0.1m on your sell price if it rises'; return '−£0.1m on your sell price if it drops'; };
     const row = (e, extra) => `<div class="rdr">${pface(e)}<div class="nm"><a class="pn" href="#" data-pid="${e.id}">${esc(e.web_name)}</a>${mine.has(e.id) ? '<i class="yb">Yours</i>' : ''}<small>${esc(T[e.team].short_name)} · ${money(e.now_cost)} · ${(+e.selected_by_percent || 0).toFixed(1)}%${extra ? ' · ' + extra : ''}</small></div><div class="pv">${predCell(e)}</div></div>`;
-    const all = BS.elements.map((e) => ({ e, p: pricePred(e) })).filter((x) => x.p && x.p.since !== 0);
+    if (!PCLOG) setTimeout(priceCheck, 0); const all = BS.elements.map((e) => ({ e, p: pricePred(e) })).filter((x) => x.p && (x.p.off ? x.p.pct !== 0 : x.p.since !== 0));
     const ris = all.filter((x) => x.p.pct >= 50).sort((a, b) => b.p.pct - a.p.pct).slice(0, 7), fal = all.filter((x) => x.p.pct <= -50).sort((a, b) => a.p.pct - b.p.pct).slice(0, 7);
     const rec = prlSum(14), tn = PRL.tune;
-    const k1 = `<div class="kpi"><small>Next price update</small><b>${tm}</b><span>FPL changes prices once a day, about 01:30 UK time</span></div>`;
+    const lastK = PCLOG && PCLOG.length ? PCLOG.reduce((a, x) => (x.k > a ? x.k : a), '') : '', lastCh = lastK ? PCLOG.filter((x) => x.k === lastK) : [], myCh = lastCh.filter((x) => mine.has(x.id));
+    const k1 = `<div class="kpi"><small>Next price update</small><b>${tm}</b><span>${lastCh.length ? `Last update (${keyLabel(lastK)}): ▲${lastCh.filter((x) => x.d > 0).length} ▼${lastCh.filter((x) => x.d < 0).length}${myCh.length ? ` · yours: ${myCh.map((x) => `${wn(x.id)} ${x.d > 0 ? '▲' : '▼'}`).join(', ')}` : ''}` : 'FPL changes prices at midnight UK time'}</span></div>`;
     const k2 = `<div class="kpi"><small>Your squad tonight</small><b>${nU || nD ? `${nU ? '▲' + nU : ''}${nU && nD ? ' ' : ''}${nD ? '▼' + nD : ''} likely` : 'No likely changes'}</b><span>${tonight.length ? `Sell value ${dv >= 0 ? '+' : '−'}${money(Math.abs(dv))}${unk ? ' or more' : ''} if they happen` : 'Your 15 players are not close to a change'}</span></div>`;
     const k3 = `<div class="kpi"><small>Radar record</small><b>${rec.pu + rec.pd ? pctOf(rec.hu + rec.hd, rec.pu + rec.pd) + ' right' : 'Learning'}</b><span>${rec.n ? `${rec.hu + rec.hd} of ${rec.pu + rec.pd} predicted changes happened, ${rec.n} night${rec.n > 1 ? 's' : ''} checked` : 'Checks itself after each update you open Elevn around'}</span></div>`;
     const none = (t) => `<p class="muted fine" style="margin:8px 0 0">${t}</p>`;
@@ -7386,7 +7448,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
 <div class="rdg"><div class="card rdc"><div class="th"><h3>Your squad</h3><small class="muted">${steady ? `${steady} steady` : ''}</small></div>${moving.length ? moving.slice(0, 7).map((x) => row(x.s.e, eff(x))).join('') : none('None of your players is near a price change right now.')}</div>
 <div class="card rdc"><div class="th"><h3>Rising soon</h3><small class="muted">over half way</small></div>${ris.length ? ris.map((x) => row(x.e)).join('') : none('No player is over half way to a rise.')}</div>
 <div class="card rdc"><div class="th"><h3>Falling soon</h3><small class="muted">over half way</small></div>${fal.length ? fal.map((x) => row(x.e)).join('') : none('No player is over half way to a drop.')}</div></div>
-<p class="muted fine">Estimates from net transfers since each player's last change: a rise at about 6% of his owners (at least 60k), a drop at about 70% of that, 50% if he is flagged.${tn ? ` Re-fitted on ${tn.n} checks from this device: rises ×${tn.u.toFixed(2)}, drops ×${tn.d.toFixed(2)}.` : ''} FPL does not publish its formula; Fixtures › Accuracy › Prices shows how often this is right. Your sell price follows FPL's rule: you keep half of each rise, rounded down to £0.1m.</p>`;
+<p class="muted fine">${BS.elements.some((e) => e.price_change_percent != null) ? "Progress figures are FPL's own (they update through the day); a player is likely to change tonight when FPL projects him past 100% by midnight." : `Estimates from net transfers since each player's last change.${tn ? ` Re-fitted on ${tn.n} checks from this device.` : ''}`} Fixtures › Accuracy › Prices shows how often this is right. Your sell price follows FPL's rule: you keep half of each rise, rounded down to £0.1m.</p>`;
   }
   // ---------- v3.6: accuracy test ----------
   // For each finished gameweek, rebuild every player's numbers from the weeks before it only, project that week with the
@@ -7397,6 +7459,13 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   const MODEL = { wF: 0.10, wP: 0.25, wU: 0.65, dc: 0, gate: 0.35 };
   const ACC_KEY = 'fplAnalystAccuracy_v2';
   let ACC = null; try { ACC = JSON.parse(localStorage.getItem(ACC_KEY) || 'null'); } catch (e) {}
+  // v3.86: the replay shows players projected well above 3 points in a match scoring less than projected. With Tune-up on,
+  // the part of a per-match projection above 3 is scaled by beta, fitted (least squares, weighted by players) on the replay's
+  // projected-points bands above 3. Rankings don't change (the scaling keeps the order); only the size of big numbers does.
+  const tuneOn = () => { try { return localStorage.getItem('fplAnalystCalib') !== 'off'; } catch (e) { return true; } };
+  function highBeta() { const bs = (ACC && ACC.bins) || [], K = 3; let num = 0, den = 0, n = 0; bs.forEach((b) => { if (b.pj <= K) return; num += b.n * (b.pj - K) * (b.ac - K); den += b.n * (b.pj - K) * (b.pj - K); n += b.n; });
+    if (n < 100 || den <= 0) return 1; const v = Math.max(0.6, Math.min(1, num / den)); return v >= 0.97 ? 1 : Math.round(v * 100) / 100; }
+  const shrinkHi = (v, nf, hb) => { if (hb >= 1 || !nf) return v; const per = v / nf; return per > 3 ? nf * (3 + (per - 3) * hb) : v; };
   async function runAccuracy(onProgress) {
     const done = BS.events.filter((e) => e.finished).map((e) => e.id);
     if (done.length < 4) throw new Error('Needs at least 4 finished gameweeks.');
@@ -7495,22 +7564,11 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const bs = R2.bins || [], hi = bs.filter((b) => b.lo >= 5), lo = bs.filter((b) => b.hi <= 2);
     const avgOf = (xs, k) => xs.reduce((a, b) => a + b[k] * b.n, 0) / (xs.reduce((a, b) => a + b.n, 0) || 1);
     const say = hi.length ? `Players projected 5 or more really averaged <b>${avgOf(hi, 'ac').toFixed(1)}</b> (projected ${avgOf(hi, 'pj').toFixed(1)}); players projected under 2 averaged <b>${avgOf(lo, 'ac').toFixed(1)}</b>. Bars level with their line mean the numbers can be taken at face value.` : 'Bars level with their line mean the numbers can be taken at face value.';
-    return `<h4 class="acch">Do projected points come true?</h4><p class="note" style="margin:0 0 6px">${say}</p>${relChart(bs)}
+    const hb = highBeta();
+    return `<h4 class="acch">Do projected points come true?</h4><p class="note" style="margin:0 0 6px">${say}${hb < 1 ? ` With Tune-up on, the part of a projection above 3 pts a match is scaled ×${hb.toFixed(2)} (fitted on these bars); the order of players does not change.` : ''}</p>${relChart(bs)}
 <h4 class="acch">Tune-up</h4><p class="note" style="margin:0 0 6px">Players who played scored this much more or less than projected, by position. With tune-up on, every projection is scaled by these (limited to −15% / +18%), together with the accuracy lab's corrections once the lab has confirmed them.</p>
 <div class="calrow">${[[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `<span><small>${l}</small><b class="${(cl[k] || 1) >= 1 ? 'up' : 'dn'}">${pcf(cl[k] || 1)}</b></span>`).join('')}<div class="seg"><button type="button" class="${calOn ? 'on' : ''}" data-cal="on">Tune-up on</button><button type="button" class="${calOn ? '' : 'on'}" data-cal="off">Off</button></div></div>${(() => { const c = labCalGet(); if (!c) return ''; const ff = [[1, 'GK'], [2, 'DEF'], [3, 'MID'], [4, 'FWD']].map(([k, l]) => `${l} ${pcf(c.f[k])}`).join(' · ');
   return `<p class="note" style="margin:6px 0 0">Accuracy lab${c.n ? ` (${c.n} players` : ' ('}${c.gws.length ? `${c.n ? ', ' : ''}GW${c.gws.join(', GW')}` : ''}): ${ff} · ${c.active ? (calOn ? 'in use' : 'not used while tune-up is off') : 'still being checked, not applied yet'}.</p>`; })()}`;
-  }
-  function accHtml() {
-    const R2 = ACC;
-    const head = `<div class="th"><h3>How accurate are the projections?</h3><button class="lnk2" type="button" id="acc-run">${R2 ? 'Run again' : 'Run the test'}</button></div>`;
-    if (!R2) return `${head}<p class="muted">Tests the projection model on this season's finished gameweeks: for each week it uses only the data from before it, then compares with the real points. Takes about 10 seconds.</p><div id="acc-prog"></div>`;
-    const pc = (a, b) => Math.round((1 - a / b) * 100);
-    return `${head}
-<div class="kpis uni"><div class="kpi"><small>Average error per player</small><b>${R2.mae.toFixed(2)} pts</b><span>${R2.maeForm > 0 ? (R2.mae <= R2.maeForm ? pc(R2.mae, R2.maeForm) + '% better' : -pc(R2.mae, R2.maeForm) + '% worse') + ' than form alone' : 'form alone not comparable'}</span></div>
-<div class="kpi"><small>Our top 5 picks scored</small><b>${R2.top5.toFixed(1)} pts</b><span>vs ${R2.top5Form.toFixed(1)} for top-5 by form · best possible ${R2.top5Best.toFixed(1)}</span></div>
-<div class="kpi"><small>Fixture difficulty</small><b>${R2.fdr === 'fpl' ? "FPL's rating" : 'FPL + table'}</b><span>error ${R2.mae.toFixed(2)} with ${R2.cur === 'blend' ? 'FPL + table' : "FPL's rating"} vs ${R2.maeF.toFixed(2)} with ${R2.cur === 'blend' ? "FPL's rating" : 'FPL + table'}${R2.fdr !== R2.cur ? ': switched' : ': kept'}</span></div></div>
-<div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Players</th><th class="n">Our error</th><th class="n">Form only</th><th class="n">Points per game</th><th class="n">Our top 5 avg</th><th class="n">Best top 5</th><th>Our #1 pick</th></tr></thead><tbody>${R2.rows.slice().reverse().map((r) => `<tr><td>${r.g}</td><td class="n">${r.n}</td><td class="n"><b>${r.mae.toFixed(2)}</b></td><td class="n">${r.maeForm.toFixed(2)}</td><td class="n">${r.maePpg.toFixed(2)}</td><td class="n">${r.top5.toFixed(1)}</td><td class="n">${r.top5Best.toFixed(1)}</td><td>${esc(r.pick)} <small class="muted">${r.pickPts} pts</small></td></tr>`).join('')}</tbody></table></div>
-<p class="muted fine">Tested on GW${R2.gws[0]}–${R2.gws[R2.gws.length - 1]} (${R2.gws.length} weeks), players with 90+ minutes before each week. Lower error is better. Injury news and set-piece duties aren't known historically, so the live app should do slightly better than this. Last run ${new Date(R2.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}.</p>${accTeamHtml(R2)}`;
   }
   function accTeamHtml(R2) {
     const rows = R2.team || [], cr = rows.filter((r) => r.mc != null && r.cp != null);
@@ -7521,23 +7579,41 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     return `<h4 class="acch">Saved before each deadline</h4><div id="frz-box"><p class="muted">Loading…</p></div>${caps}${tbl}`;
   }
   function accPriceHtml() {
-    const s = prlSum(14), rs = PRL.res.slice(-10).reverse(), c = PRL.cur, tn = PRL.tune;
-    const curTxt = c ? `Prediction for the ${new Date(c.k + 'T01:30:00Z').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} update saved: ${c.up.length} rise${c.up.length === 1 ? '' : 's'} and ${c.dn.length} drop${c.dn.length === 1 ? '' : 's'} likely.` : '';
-    const intro = `<p class="note" style="margin:0 0 8px">Before each nightly update the radar notes which prices it expects to change, then checks the first time you open Elevn after the update. ${curTxt}</p>`;
-    if (!s.n) return `${intro}<p class="muted">Nothing checked yet. Open Elevn this evening and again tomorrow to log the first night.</p>`;
+    const s = prlSum(14), rs = PRL.res.slice(-10).reverse(), c = PRL.pend && PRL.pend[updKey(Date.now())] ? Object.assign({ k: updKey(Date.now()) }, PRL.pend[updKey(Date.now())]) : null, tn = PRL.tune;
+    const curTxt = c ? `Prediction for the ${keyLabel(c.k)} update saved: ${c.up.length} rise${c.up.length === 1 ? '' : 's'} and ${c.dn.length} drop${c.dn.length === 1 ? '' : 's'} likely.` : '';
+    const intro = `<p class="note" style="margin:0 0 8px">Before each midnight update the radar notes which prices it expects to change, then checks them against FPL's own log of price changes. ${curTxt}</p>`;
+    if (!s.n) return `${intro}<p class="muted">Nothing checked yet. Open Elevn before midnight UK time; the night is scored the next time you open it.</p>`;
     return `${intro}<div class="kpis uni"><div class="kpi"><small>Predicted rises that happened</small><b>${pctOf(s.hu, s.pu)}</b><span>${s.hu} of ${s.pu}</span></div><div class="kpi"><small>Rises it saw coming</small><b>${pctOf(s.hu, s.ru)}</b><span>${s.hu} of ${s.ru} real rises</span></div><div class="kpi"><small>Predicted drops that happened</small><b>${pctOf(s.hd, s.pd)}</b><span>${s.hd} of ${s.pd}</span></div><div class="kpi"><small>Drops it saw coming</small><b>${pctOf(s.hd, s.rd)}</b><span>${s.hd} of ${s.rd} real drops</span></div></div>
-<div class="tw"><table class="acct"><thead><tr><th>Update</th><th class="n">Rises predicted</th><th class="n">Happened</th><th class="n">All rises</th><th class="n">Drops predicted</th><th class="n">Happened</th><th class="n">All drops</th></tr></thead><tbody>${rs.map((r) => `<tr><td>${new Date(r.k + 'T01:30:00Z').toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</td><td class="n">${r.pu}</td><td class="n"><b>${r.hu}</b></td><td class="n">${r.ru}</td><td class="n">${r.pd}</td><td class="n"><b>${r.hd}</b></td><td class="n">${r.rd}</td></tr>`).join('')}</tbody></table></div>
-<p class="muted fine">Last ${s.n} checked night${s.n > 1 ? 's' : ''} on this device; nights with no price changes at all are skipped. ${tn ? `Thresholds re-fitted on ${tn.n} checks: rises ×${tn.u.toFixed(2)}, drops ×${tn.d.toFixed(2)}.` : 'Thresholds are re-fitted after about a week of checks.'}</p>`;
+<div class="tw"><table class="acct"><thead><tr><th>Update</th><th class="n">Rises predicted</th><th class="n">Happened</th><th class="n">All rises</th><th class="n">Drops predicted</th><th class="n">Happened</th><th class="n">All drops</th></tr></thead><tbody>${rs.map((r) => `<tr><td>${keyLabel(r.k)}</td><td class="n">${r.pu}</td><td class="n"><b>${r.hu}</b></td><td class="n">${r.ru}</td><td class="n">${r.pd}</td><td class="n"><b>${r.hd}</b></td><td class="n">${r.rd}</td></tr>`).join('')}</tbody></table></div>
+<p class="muted fine">Last ${s.n} checked night${s.n > 1 ? 's' : ''} on this device; nights with no price changes at all are skipped. Predictions use FPL's own progress figures (projected to reach 100% by midnight).</p>`;
+  }
+  // ---------- v3.86: public track record (published in the Elevn GitHub repository by the accuracy lab) ----------
+  const PROOF = { data: null, busy: false, err: '' }, PROOF_URL = 'https://raw.githubusercontent.com/Ragxonal/elevn/main/lab/record.json', PROOF_PAGE = 'https://github.com/Ragxonal/elevn/blob/main/lab/RECORD.md';
+  async function proofLoad() { PROOF.busy = true;
+    try { let txt; try { const r = await withTimeout(fetch(PROOF_URL + '?t=' + Math.floor(Date.now() / 36e5), { credentials: 'omit', cache: 'no-store' }), 8000); if (!r.ok) throw new Error('HTTP ' + r.status); txt = await r.text(); }
+      catch (e) { const d = directText(); if (!d) throw e; txt = await withTimeout(d(PROOF_URL), 9000); }
+      PROOF.data = JSON.parse(txt); PROOF.err = ''; } catch (e) { PROOF.err = "Couldn't reach the public record right now."; }
+    PROOF.busy = false; const card = R.getElementById('acc-card'); if (card && ACCTAB === 'proof') card.innerHTML = accHtml(); }
+  function proofHtml() {
+    const link = `<a class="pflink" href="${PROOF_PAGE}" target="_blank" rel="noopener">Open the public record on GitHub ↗</a>`;
+    if (!PROOF.data) return PROOF.err ? `<p class="muted">${esc(PROOF.err)} ${link}</p>` : '<p class="muted"><span class="spin"></span> Loading the public record…</p>';
+    const d = PROOF.data, lab = d.lab || [], f = (v, n = 1) => (v == null ? '–' : (+v).toFixed(n));
+    const tot = lab.reduce((a, x) => ({ t: a.t + x.teams, b: a.b + x.beat, s: a.s + x.tied }), { t: 0, b: 0, s: 0 });
+    return `<p class="note" style="margin:0 0 8px">The same record on every device and on GitHub, produced by scripts from public FPL data. The lab saves Elevn's advice for a fixed group of real teams before each deadline and scores it when the gameweek is final. ${link}</p>
+${lab.length ? `<div class="kpis uni three"><div class="kpi"><small>Gameweeks scored</small><b>${lab.length}</b><span>${tot.t} team-weeks</span></div><div class="kpi"><small>Advice beat the real choices</small><b>${tot.t ? Math.round((tot.b / tot.t) * 100) : 0}%</b><span>${tot.b} better · ${tot.s} same · ${tot.t - tot.b - tot.s} worse</span></div><div class="kpi"><small>Projection error per player</small><b>${f(lab.reduce((a, x) => a + (x.proj_mae || 0), 0) / lab.length, 2)}</b><span>bias ${f(lab.reduce((a, x) => a + (x.proj_bias || 0), 0) / lab.length, 2)} pts (above 0 = too high)</span></div></div>
+<div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Teams</th><th class="n">Real avg</th><th class="n">With advice</th><th class="n">Captain advised / chosen</th><th class="n">Transfers advised / made</th><th class="n">Error</th></tr></thead><tbody>${lab.slice().reverse().map((x) => `<tr><td>GW${x.gw}</td><td class="n">${x.teams}</td><td class="n">${f(x.actual)}</td><td class="n"><b>${f(x.advice)}</b></td><td class="n">${f(x.cap_rec)} / ${f(x.cap_act)}</td><td class="n">${f(x.tr_rec)} / ${f(x.tr_act)}</td><td class="n">${f(x.proj_mae, 2)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">No gameweek scored yet.</p>'}
+<p class="muted fine">Updated ${new Date(d.updated).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}. A handful of gameweeks is a small sample; the record grows every week.</p>`;
   }
   function accHtml() {
     const R2 = ACC;
     const head = `<div class="th"><h3>How accurate are the projections?</h3><button class="lnk2" type="button" id="acc-run">${R2 ? 'Run again' : 'Run the test'}</button></div>`;
     if (!R2) return `${head}<p class="muted">Tests the projection model on this season's finished gameweeks: for each week it uses only the data from before it, then compares with the real points. Takes about 10 seconds.</p><div id="acc-prog"></div>`;
     const pc = (a, b) => Math.round((1 - a / b) * 100);
-    const TB = [['model', 'Model'], ['cal', 'Calibration'], ['team', 'Your team'], ['price', 'Prices']];
+    const TB = [['model', 'Model'], ['cal', 'Calibration'], ['team', 'Your team'], ['price', 'Prices'], ['proof', 'Public record']];
     const seg = `<div class="seg acctabs" role="tablist">${TB.map(([k, l]) => `<button type="button" role="tab" class="${ACCTAB === k ? 'on' : ''}" aria-selected="${ACCTAB === k}" data-acctab="${k}">${l}</button>`).join('')}</div>`;
     if (ACCTAB === 'team') setTimeout(frozenPaint, 0);
-    const body = ACCTAB === 'cal' ? accCalHtml(R2) : ACCTAB === 'team' ? accTeamHtml(R2) : ACCTAB === 'price' ? accPriceHtml() : `<div class="kpis uni"><div class="kpi"><small>Average error per player</small><b>${R2.mae.toFixed(2)} pts</b><span>${R2.maeForm > 0 ? (R2.mae <= R2.maeForm ? pc(R2.mae, R2.maeForm) + '% better' : -pc(R2.mae, R2.maeForm) + '% worse') + ' than form alone' : 'form alone not comparable'}</span></div>
+    if (ACCTAB === 'proof' && !PROOF.data && !PROOF.busy) setTimeout(proofLoad, 0);
+    const body = ACCTAB === 'proof' ? proofHtml() : ACCTAB === 'cal' ? accCalHtml(R2) : ACCTAB === 'team' ? accTeamHtml(R2) : ACCTAB === 'price' ? accPriceHtml() : `<div class="kpis uni"><div class="kpi"><small>Average error per player</small><b>${R2.mae.toFixed(2)} pts</b><span>${R2.maeForm > 0 ? (R2.mae <= R2.maeForm ? pc(R2.mae, R2.maeForm) + '% better' : -pc(R2.mae, R2.maeForm) + '% worse') + ' than form alone' : 'form alone not comparable'}</span></div>
 <div class="kpi"><small>Our top 5 picks scored</small><b>${R2.top5.toFixed(1)} pts</b><span>vs ${R2.top5Form.toFixed(1)} for top-5 by form · best possible ${R2.top5Best.toFixed(1)}</span></div>
 <div class="kpi"><small>Fixture difficulty</small><b>${R2.fdr === 'fpl' ? "FPL's rating" : 'FPL + table'}</b><span>error ${R2.mae.toFixed(2)} with ${R2.cur === 'blend' ? 'FPL + table' : "FPL's rating"} vs ${R2.maeF.toFixed(2)} with ${R2.cur === 'blend' ? "FPL's rating" : 'FPL + table'}${R2.fdr !== R2.cur ? ': switched' : ': kept'}</span></div></div>
 <div class="tw"><table class="acct"><thead><tr><th>GW</th><th class="n">Players</th><th class="n">Our error</th><th class="n">Form only</th><th class="n">Points per game</th><th class="n">Our top 5 avg</th><th class="n">Best top 5</th><th>Our #1 pick</th></tr></thead><tbody>${R2.rows.slice().reverse().map((r) => `<tr><td>${r.g}</td><td class="n">${r.n}</td><td class="n"><b>${r.mae.toFixed(2)}</b></td><td class="n">${r.maeForm.toFixed(2)}</td><td class="n">${r.maePpg.toFixed(2)}</td><td class="n">${r.top5.toFixed(1)}</td><td class="n">${r.top5Best.toFixed(1)}</td><td>${esc(r.pick)} <small class="muted">${r.pickPts} pts</small></td></tr>`).join('')}</tbody></table></div>
@@ -7999,7 +8075,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const tab = (k, lab) => `<button type="button" role="tab" class="${LIVETAB === k ? 'on' : ''}" aria-selected="${LIVETAB === k}" data-ltab="${k}">${lab}</button>`;
     return `<section class="s" id="s-live"><h2>GW${L.gw} live centre</h2><p class="sub">${fastOn() ? 'Fast feed every 10 s + FPL every 15 s during matches · ⚡ = seen live, not in FPL yet' : 'Updates every 15 s during matches'} · * = provisional bonus</p>${fastOn() ? `<p class="faststrip" id="fastst">${fastStatus()}</p>` : ''}
 <div class="livebar" id="livebar2">${liveBar(L)}</div>${nextGwBar(L)}
-<div class="seg tabs" role="tablist">${tab('results', 'Matches')}${tab('players', 'My players')}${tab('eo', 'Ownership & threats')}${tab('leagues', 'Mini-league')}${tab('rivals', 'Rival watch')}${tab('swing', 'Rank swing')}${tab('review', 'GW review')}</div>
+<div class="seg tabs" role="tablist">${tab('results', 'Matches')}${tab('players', 'My players')}${tab('eo', 'Ownership & threats')}${tab('leagues', 'Mini-league')}${tab('rivals', 'Rival watch')}${tab('swing', 'Rank swing')}${tab('review', 'GW review')}${tab('season', 'Season story')}</div>
 <div class="lpanel" data-lpanel="results" ${LIVETAB === 'results' ? '' : 'hidden'}><div class="mwk">${matchesHtml(A)}</div></div>
 <div class="lpanel" data-lpanel="players" ${LIVETAB === 'players' ? '' : 'hidden'}>
 <div class="alertctl"><button class="try" type="button" id="al-toggle" aria-pressed="${ALERTS_ON}">${ALERTS_ON ? 'Goal alerts: on' : 'Goal alerts: off'}</button>${!isExt() && window.Notification && Notification.permission !== 'granted' ? '<button class="try" type="button" id="al-desk">Allow desktop notifications</button>' : ''}<small class="muted">${isExt() ? 'Desktop notifications come from the extension while Chrome is open.' : ''}</small></div>
@@ -8008,7 +8084,82 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
 <div class="lpanel" data-lpanel="leagues" ${LIVETAB === 'leagues' ? '' : 'hidden'}><div class="lgbox" id="lg-box">${leagueHtml(A)}</div></div>
 <div class="lpanel" data-lpanel="rivals" ${LIVETAB === 'rivals' ? '' : 'hidden'}><div id="rv-box">${rivalHtml(A)}</div></div>
 <div class="lpanel" data-lpanel="swing" ${LIVETAB === 'swing' ? '' : 'hidden'}><div id="sw-box">${swingHtml(A)}</div></div>
-<div class="lpanel" data-lpanel="review" ${LIVETAB === 'review' ? '' : 'hidden'}><div id="rw-box">${reviewHtml(A)}</div></div></section>`;
+<div class="lpanel" data-lpanel="review" ${LIVETAB === 'review' ? '' : 'hidden'}><div id="rw-box">${reviewHtml(A)}</div></div>
+<div class="lpanel" data-lpanel="season" ${LIVETAB === 'season' ? '' : 'hidden'}><div id="ss-box">${seasonHtml(A)}</div></div></section>`;
+  }
+  // ---------- v3.86: season story + share cards ----------
+  const ordS = (n) => { const v = n % 100; return n + (v >= 11 && v <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th'); };
+  const kfm = (n) => (n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 1 : 2) + 'm' : n >= 1e4 ? Math.round(n / 1e3) + 'k' : n.toLocaleString());
+  function seasonData(A) {
+    const H = ((A.hist && A.hist.current) || []).filter((h) => h.points != null);
+    const ev = (g) => (BS.events.find((e) => e.id === g) || {});
+    return H.map((h) => ({ g: h.event, pts: h.points - (h.event_transfers_cost || 0), raw: h.points, hit: h.event_transfers_cost || 0, avg: ev(h.event).average_entry_score || 0, hi: ev(h.event).highest_score || 0, rank: h.overall_rank, grank: h.rank, bench: h.points_on_bench || 0, value: h.value, tot: h.total_points, done: !!ev(h.event).finished }));
+  }
+  function seasonHtml(A) {
+    const S = seasonData(A); if (!S.length) return '<p class="muted">Your season story starts after your first gameweek.</p>';
+    const last = S[S.length - 1], best = S.reduce((a, x) => (x.pts > a.pts ? x : a), S[0]), bestR = S.filter((x) => x.rank).reduce((a, x) => (x.rank < a.rank ? x : a), S.find((x) => x.rank) || S[0]);
+    const myAvg = S.reduce((a, x) => a + x.pts, 0) / S.length, gAvg = S.reduce((a, x) => a + x.avg, 0) / S.length, bench = S.reduce((a, x) => a + x.bench, 0), hits = S.reduce((a, x) => a + x.hit, 0);
+    const chips = ((A.hist && A.hist.chips) || []).map((c) => `${({ wildcard: 'Wildcard', freehit: 'Free Hit', bboost: 'Bench Boost', '3xc': 'Triple Captain' })[c.name] || c.name} GW${c.event}`);
+    // rank chart (log scale, best at the top)
+    const W = 560, H = 170, L = 46, Rr = 10, Tp = 12, B = 24, rs = S.filter((x) => x.rank > 0);
+    let rank = '';
+    if (rs.length >= 2) { const lo = Math.log10(Math.min(...rs.map((x) => x.rank))), hi = Math.log10(Math.max(...rs.map((x) => x.rank))), pad = Math.max(0.15, (hi - lo) * 0.1), y0 = lo - pad, y1 = hi + pad;
+      const X = (i) => L + (i * (W - L - Rr)) / Math.max(1, rs.length - 1), Y = (r) => Tp + ((Math.log10(r) - y0) / (y1 - y0)) * (H - Tp - B);
+      const ticks = []; for (let p = Math.floor(y0); p <= Math.ceil(y1); p++) [1, 2, 5].forEach((m) => { const v = m * Math.pow(10, p); const lv = Math.log10(v); if (lv >= y0 && lv <= y1) ticks.push(v); });
+      const path = rs.map((x, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(x.rank).toFixed(1)}`).join('');
+      const lab = new Set([0, rs.length - 1, rs.indexOf(bestR)]);
+      rank = `<svg class="ssc" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overall rank by gameweek">${ticks.map((v) => `<line class="gl" x1="${L}" x2="${W - Rr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${kfm(v)}</text>`).join('')}<path class="ln" d="${path}"/>${rs.map((x, i) => `<g><title>GW${x.g}: ${x.rank.toLocaleString()}</title><circle class="hit" cx="${X(i)}" cy="${Y(x.rank)}" r="10"/><circle class="dt" cx="${X(i)}" cy="${Y(x.rank)}" r="4"/>${lab.has(i) ? `<text class="vl" x="${X(i)}" y="${Y(x.rank) - 9}" text-anchor="${i === 0 ? 'start' : i === rs.length - 1 ? 'end' : 'middle'}">${kfm(x.rank)}</text>` : ''}</g>`).join('')}${rs.map((x, i) => (i % Math.ceil(rs.length / 10) === 0 || i === rs.length - 1 ? `<text x="${X(i)}" y="${H - 6}" text-anchor="middle">${x.g}</text>` : '')).join('')}</svg>`; }
+    // points vs the gameweek average (diverging bars)
+    const mx = Math.max(10, ...S.map((x) => Math.abs(x.pts - x.avg))), bw = (W - L - Rr) / S.length, Y0 = 70, sc = 56 / mx;
+    const bars = `<svg class="ssc" viewBox="0 0 ${W} 150" role="img" aria-label="Your points against the gameweek average"><line class="gl" x1="${L}" x2="${W - Rr}" y1="${Y0}" y2="${Y0}"/><text x="${L - 6}" y="${Y0 + 4}" text-anchor="end">avg</text>${S.map((x, i) => { const d = x.pts - x.avg, h = Math.max(1, Math.abs(d) * sc), xx = L + i * bw + bw * 0.18, w = bw * 0.64; return `<g><title>GW${x.g}: ${x.pts} pts (average ${x.avg})${x.hit ? `, after a −${x.hit} hit` : ''}</title><rect class="hit" x="${L + i * bw}" y="8" width="${bw}" height="124"/><rect class="${d >= 0 ? 'bu' : 'bd'}" x="${xx}" y="${d >= 0 ? Y0 - h : Y0 + 1}" width="${w}" height="${h}" rx="${Math.min(3, w / 2)}"/></g>`; }).join('')}${S.map((x, i) => (i % Math.ceil(S.length / 10) === 0 || i === S.length - 1 ? `<text x="${L + i * bw + bw / 2}" y="146" text-anchor="middle">${x.g}</text>` : '')).join('')}</svg>`;
+    const k = (l, v, sub) => `<div class="kpi"><small>${l}</small><b>${v}</b><span>${sub}</span></div>`;
+    return `<div class="ssk kpis uni">${k('Overall rank', last.rank ? kfm(last.rank) : '–', bestR && bestR.rank ? `best ${kfm(bestR.rank)} (GW${bestR.g})` : '')}${k('Points', last.tot, `${f1(myAvg)} a week · average ${f1(gAvg)}`)}${k('Best week', best.pts, `GW${best.g} · average ${best.avg}`)}${k('Left on the bench', bench, `${hits ? `hits −${hits}` : 'no hits taken'}`)}</div>
+<div class="ssg"><div class="card ssbox"><h4>Overall rank <small class="muted">by gameweek · top is better</small></h4>${rank || '<p class="muted">Needs two gameweeks.</p>'}</div><div class="card ssbox"><h4>Points against the average <small class="muted">after hits</small></h4><div class="rlg"><span><i></i>above average</span><span><i class="bd"></i>below average</span></div>${bars}</div></div>
+${chips.length ? `<p class="muted fine">Chips played: ${chips.join(' · ')}</p>` : ''}
+<div class="shr"><button class="try" type="button" data-sscard="gw">Share GW${last.g} card</button><button class="try" type="button" data-sscard="season">Share season card</button><small class="muted">Makes an image to post or send. Saved on this device; nothing is uploaded.</small></div><div id="card-prev"></div>`;
+  }
+  function drawCard(A, kind) {
+    const S = seasonData(A); if (!S.length) return null; const last = S[S.length - 1], prev = S[S.length - 2];
+    const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+    const FD = '"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif';
+    const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0f1a2e'); g.addColorStop(1, '#1d1240'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    x.fillStyle = 'rgba(69,208,143,.12)'; x.beginPath(); x.arc(W - 120, 160, 260, 0, Math.PI * 2); x.fill();
+    const tx = (t, X, Y, sz, col, wt, al) => { x.font = `${wt || 600} ${sz}px ${FD}`; x.fillStyle = col || '#e9edf5'; x.textAlign = al || 'left'; x.fillText(t, X, Y); };
+    tx('ELEVN', 80, 120, 44, '#45d08f', 800); tx(A.entry.name || '', 80, 180, 40, '#aeb8cb', 600);
+    const box = (X, Y, w, h, lab, val, sub) => { x.fillStyle = 'rgba(255,255,255,.06)'; x.beginPath(); x.roundRect ? x.roundRect(X, Y, w, h, 24) : x.rect(X, Y, w, h); x.fill(); tx(lab.toUpperCase(), X + 32, Y + 52, 28, '#8a97ad', 700); tx(val, X + 32, Y + 132, 72, '#ffffff', 800); if (sub) tx(sub, X + 32, Y + 180, 30, '#aeb8cb', 500); };
+    if (kind === 'gw') {
+      tx(`GAMEWEEK ${last.g}${last.done ? '' : ' · LIVE'}`, 80, 300, 46, '#ffffff', 800);
+      tx(String(last.pts), 80, 560, 260, '#45d08f', 800); tx('points', 80 + x.measureText(String(last.pts)).width + 24, 560, 60, '#aeb8cb', 600);
+      tx(`Average ${last.avg} · highest ${last.hi}${last.hit ? ` · hit −${last.hit}` : ''}`, 80, 630, 40, '#aeb8cb', 500);
+      const mv = prev && prev.rank && last.rank ? prev.rank - last.rank : 0;
+      box(80, 700, 440, 220, 'Overall rank', last.rank ? kfm(last.rank) : '–', mv ? `${mv > 0 ? '▲' : '▼'} ${kfm(Math.abs(mv))} places` : '');
+      const pk = A.gwCmp && A.gwCmp.cur === last.g ? A.gwCmp.pkCur : null, Lv = A.gwCmp && A.gwCmp.cur === last.g ? A.gwCmp.liveC : null;
+      const cp = pk && pk.picks.find((q) => q.is_captain), ce = cp && A.E[cp.element], cpts = ce && Lv && Lv[ce.id] ? (Lv[ce.id].total_points || 0) * cp.multiplier : null;
+      box(560, 700, 440, 220, 'Captain', ce ? ce.web_name : '–', cpts != null ? `${cpts} pts` : '');
+      const top = pk && Lv ? pk.picks.filter((q) => q.multiplier > 0).map((q) => ({ e: A.E[q.element], p: Lv[q.element] ? Lv[q.element].total_points || 0 : 0 })).sort((a, b) => b.p - a.p)[0] : null;
+      box(80, 950, 440, 220, 'Top scorer', top ? top.e.web_name : '–', top ? `${top.p} pts` : '');
+      const D = LG.data, lr = D && D.kind === 'classic' && D.me && D.me.rank ? `${ordS(D.me.rank)} in ${D.name}` : '';
+      box(560, 950, 440, 220, 'Bench', `${last.bench}`, 'points left on the bench');
+      if (lr) tx(lr.length > 46 ? lr.slice(0, 45) + '…' : lr, 80, 1225, 38, '#e9edf5', 600);
+    } else {
+      tx('SEASON SO FAR', 80, 300, 46, '#ffffff', 800);
+      tx(String(last.tot), 80, 560, 240, '#45d08f', 800); tx('points', 80 + x.measureText(String(last.tot)).width + 24, 560, 60, '#aeb8cb', 600);
+      const myAvg = S.reduce((a, q) => a + q.pts, 0) / S.length, gAvg = S.reduce((a, q) => a + q.avg, 0) / S.length;
+      tx(`${myAvg.toFixed(1)} a week · average ${gAvg.toFixed(1)} · ${S.length} gameweeks`, 80, 630, 40, '#aeb8cb', 500);
+      const bestR = S.filter((q) => q.rank).reduce((a, q) => (q.rank < a.rank ? q : a), S.find((q) => q.rank) || last), best = S.reduce((a, q) => (q.pts > a.pts ? q : a), S[0]);
+      box(80, 700, 440, 220, 'Overall rank', last.rank ? kfm(last.rank) : '–', bestR.rank ? `best ${kfm(bestR.rank)} (GW${bestR.g})` : '');
+      box(560, 700, 440, 220, 'Best week', `${best.pts}`, `GW${best.g} · average ${best.avg}`);
+      box(80, 950, 440, 220, 'Bench points', `${S.reduce((a, q) => a + q.bench, 0)}`, 'left on the bench');
+      box(560, 950, 440, 220, 'Hits', `${S.reduce((a, q) => a + q.hit, 0) ? '−' + S.reduce((a, q) => a + q.hit, 0) : '0'}`, 'points spent on transfers');
+    }
+    tx('Made with Elevn · decision intelligence for FPL', 80, 1290, 30, '#8a97ad', 500);
+    return c;
+  }
+  function shareCanvas(c, name) {
+    const url = c.toDataURL('image/png');
+    try { if (window.FPLAndroid && FPLAndroid.shareImage) { FPLAndroid.shareImage(url.split(',')[1], name); return; } } catch (e) {}
+    c.toBlob(async (b) => { if (!b) return; try { const f = new File([b], name, { type: 'image/png' }); if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: 'Elevn' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000); }, 'image/png');
   }
   let MIN5 = null;
   let CURID = null, AUTO = null, LASTA = null, FORM3 = [], LIVETAB = 'results', FIXTAB = 'ticker', MW = null;
@@ -8316,7 +8467,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         fs.forEach((f) => { const lf = lam(e.team, f.o, f.home, f.ko), la = lam(f.o, e.team, !f.home, f.ko), r = lf / tAvg, m = m0 * av;
           const p60 = Math.min(1, m * 1.08), psub = Math.max(0, Math.min(1, m * 1.25) - p60) * 0.6, eg = g90 * m * r, ea = a90 * m * r;
           const v = 2 * p60 + psub + eg * GI[et] + ea * 3 + p60 * Math.exp(-la) * CS[et] - (et <= 2 ? p60 * gcPen(la) : 0) + (et === 1 ? s90 * m * (la / muAvg) / 3 : 0) + dc * p60 + b90 * m * (0.7 + 0.3 * r);
-          cs.push({ p60, psub, eg, ea, la, et, sv: s90 * m * (la / muAvg), dc: dc * p60, bon: b90 * m * (0.7 + 0.3 * r), key: e.team + '-' + g + '-' + f.o });
+          cs.push({ p60, psub, eg, ea, la, et, sv: s90 * m * (la / muAvg), dc: dc * p60, bon: b90 * m * (0.7 + 0.3 * r), key: e.team + '-' + g + '-' + f.o, v, ot: old * (1 + (3 - f.diff) * 0.13 + (f.home ? 0.03 : -0.03)) * av, o: f.o, home: f.home, av, lf, gcp: et <= 2 ? p60 * gcPen(la) : 0 });
           raw += v; tot += 0.75 * v + 0.25 * old * (1 + (3 - f.diff) * 0.13 + (f.home ? 0.03 : -0.03)) * av; });
         COMP[e.id].push(cs); RAW[e.id].push(raw); return tot; });
     });
@@ -8333,6 +8484,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       [1, 2, 3, 4].forEach((t) => { if (sp[t] > 20) { CAL4[t] *= Math.pow(sa[t] / sp[t], 0.35); CALN[t]++; } }); });
     [1, 2, 3, 4].forEach((t) => { CAL4[t] = Math.max(0.85, Math.min(1.15, CAL4[t])); });
     BS.elements.forEach((e) => { const c = CAL4[e.element_type]; if (c !== 1) PR[e.id] = PR[e.id].map((v) => v * c); });
+    const HB = calOn ? highBeta() : 1, HBF = {}; if (HB < 1) BS.elements.forEach((e) => { HBF[e.id] = []; PR[e.id] = PR[e.id].map((v, k) => { const w = shrinkHi(v, (fxBy[e.team + '-' + GWS[k]] || []).length, HB); HBF[e.id][k] = v > 0 ? w / v : 1; return w; }); });
     // (6) Monte Carlo: play the gameweek many times. Goals against are shared by team-mates, so clean sheets move together.
     const rP = (l) => { if (l <= 0) return 0; let L = Math.exp(-l), k = 0, p = 1; do { k++; p *= Math.random(); } while (p > L && k < 12); return k - 1; };
     const simulate = (ids, capId, g, opt) => { opt = opt || {}; const k = g - startGw, N = opt.n || 2500, mult = opt.tc ? 3 : 2; const out = new Float64Array(N);
@@ -8347,7 +8499,21 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
         out[n] = tot; }
       const s = Array.from(out).sort((a, b) => a - b), q = (x) => s[Math.min(N - 1, Math.floor(x * N))];
       return { mean: s.reduce((a, b) => a + b, 0) / N, p10: q(0.1), p50: q(0.5), p90: q(0.9), ge: opt.thr != null ? s.filter((x) => x >= opt.thr).length / N : null }; };
-    const MODEL4 = { ATT, DEF, muH, muA, CAL4, CALN, simulate, COMP };
+    // v3.86: one random draw of a player's points (shared goals against per match), for paired comparisons
+    const draw1 = (id, k, GA, C) => { if (C[id] != null) return C[id]; const pe = E[id]; let pts = 0;
+      ((COMP[id] && COMP[id][k]) || []).forEach((c) => { const u = Math.random(); const s60 = u < c.p60, sub = !s60 && u < c.p60 + c.psub; if (!s60 && !sub) return;
+        const pr = c.p60 + c.psub * 0.35 || 1; pts += s60 ? 2 : 1; pts += rP(c.eg / pr) * GI[c.et] + rP(c.ea / pr) * 3;
+        if (GA[c.key] == null) GA[c.key] = rP(c.la); const ga = GA[c.key];
+        if (s60) { if (ga === 0) pts += CS[c.et]; if (c.et <= 2) pts -= Math.floor(ga / 2); if (c.et !== 1 && Math.random() < c.dc / 2 / Math.max(.05, c.p60)) pts += 2; if (c.et === 1) pts += Math.floor(rP(c.sv / Math.max(.05, c.p60)) / 3); }
+        pts += Math.min(3, rP(c.bon / pr)); });
+      return (C[id] = pts * (CAL4[pe ? pe.element_type : 3] || 1) * ((HBF[id] && HBF[id][k]) || 1)); };
+    const simPair = (a, b, g, n) => { const k = g - startGw, N = n || 2000, X = new Float64Array(N), Y = new Float64Array(N); let win = 0;
+      for (let i = 0; i < N; i++) { const GA = {}, C = {}; let x = -(a.hit || 0), y = -(b.hit || 0);
+        a.ids.forEach((id) => { x += draw1(id, k, GA, C) * (id === a.cap ? a.mult || 2 : 1); }); b.ids.forEach((id) => { y += draw1(id, k, GA, C) * (id === b.cap ? b.mult || 2 : 1); });
+        X[i] = x; Y[i] = y; win += x > y ? 1 : x === y ? 0.5 : 0; }
+      const qs = (arr) => { const s2 = Array.from(arr).sort((p, q) => p - q); const q = (p) => s2[Math.min(N - 1, Math.floor(p * N))]; return { p10: q(0.1), p50: q(0.5), p90: q(0.9), mean: s2.reduce((p, q2) => p + q2, 0) / N }; };
+      return { a: qs(X), b: qs(Y), win: win / N }; };
+    const MODEL4 = { ATT, DEF, muH, muA, CAL4, CALN, simulate, COMP, draw1, simPair };
     const P = (e, g) => PR[e.id][g - startGw] || 0;
     const S5 = (e) => PR[e.id].slice(0, 5).reduce((a, b) => a + b, 0);
 
@@ -8538,6 +8704,8 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
       renderPlanner(); return; }
     const nf = t.closest('[data-nf]'); if (nf) { const f = nf.dataset.nf; R.querySelectorAll('[data-nf]').forEach((b) => { const on = b === nf; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); NFS.k = f; nfApply(); return; }
     const rwb = t.closest('[data-rwg]'); if (rwb && LASTA) { RWG = +rwb.dataset.rwg; const bx = R.getElementById('rw-box'); if (bx) bx.innerHTML = reviewHtml(LASTA); reviewLoad(LASTA); return; }
+    const cdb = t.closest('[data-sscard]'); if (cdb && LASTA) { const kind = cdb.dataset.sscard, cv = drawCard(LASTA, kind); if (!cv) return; const pv = R.getElementById('card-prev'); if (pv) pv.innerHTML = `<img class="cardimg" alt="${kind === 'gw' ? 'Gameweek' : 'Season'} card" src="${cv.toDataURL('image/png')}">`; shareCanvas(cv, `elevn-${kind}-${(seasonData(LASTA).slice(-1)[0] || {}).g || ''}.png`); return; }
+    const lz = t.closest('[data-lens]'); if (lz) { const ck = lz.dataset.lens, o = TOD[ck], D = LG.data; if (!o || !D || !LASTA) return; o.lens = { busy: true }; const b0 = R.getElementById('lg-box'); if (b0) b0.innerHTML = leagueHtml(LASTA); setTimeout(() => { try { o.lens = lensCompute(LASTA, D, o); } catch (er) { o.lens = { err: er.message || 'Could not score the choices.' }; } const b = R.getElementById('lg-box'); if (b && LASTA) b.innerHTML = leagueHtml(LASTA); }, 30); return; }
     const lt = t.closest('[data-ltab]'); if (lt) { LIVETAB = lt.dataset.ltab; const sec = R.getElementById('s-live'); sec.querySelectorAll('[data-ltab]').forEach((b) => { const on = b.dataset.ltab === LIVETAB; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); sec.querySelectorAll('[data-lpanel]').forEach((p) => { p.hidden = p.dataset.lpanel !== LIVETAB; }); if (LASTA && LIVETAB === 'swing') swingLoad(LASTA); if (LASTA && LIVETAB === 'review') reviewLoad(LASTA); return; }
     const ft = t.closest('[data-ftab]'); if (ft) { FIXTAB = ft.dataset.ftab; paintRot(); return; }
     const fa = t.closest('[data-fanchor]'); if (fa) { ROT.anchor = +fa.dataset.fanchor; FIXTAB = 'pairs'; SUBV.fix = 'pairs'; paintRot(); showView('fix', 'pairs'); return; }
@@ -8674,7 +8842,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
   // over the weeks left. Steady never takes a hit; Climber may take up to 2 hits a week when the extra move gains 4 + 2.5 pts.
   function autoPlan(style) {
     const A = PLAN.A, P = A.P, CONV = A.CONV || 2.5;
-    const W = A.GWS.slice(0, Math.min(6, A.GWS.length)); const H = W.length;
+    const W = A.GWS.slice(0, Math.min(8, A.GWS.length)); const H = W.length;
     const o = origLine();
     const V = (e, k) => { let v = 0; for (let j = k; j < H; j++) v += P(e, W[j]); return v; };
     const pts = (list, g) => { const b = A.bestXIof(list, g); return b.sum + b.cap; };
@@ -8682,7 +8850,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const clubsOf = (list) => { const m = {}; list.forEach((x) => (m[x.e.team] = (m[x.e.team] || 0) + 1)); return m; };
     // Steady: no hits, a move must gain 2.5+ pts, saving a free transfer is valued. Climber: up to 2 hits a week when the extra
     // move gains 4 + 1 pts, free moves from 1.5 pts, and less value on saving transfers, so it acts sooner and more often.
-    const CL = style === 'climber'; const maxHits = CL ? 2 : 0, B = 36, MIN = CL ? Math.min(1.5, CONV) : CONV, HITGAIN = CL ? 5 : 4 + CONV, BANK = CL ? 0.5 : 1.2;
+    const CL = style === 'climber'; const maxHits = CL ? 2 : 0, B = 48, MIN = CL ? Math.min(1.5, CONV) : CONV, HITGAIN = CL ? 5 : 4 + CONV, BANK = CL ? 0.5 : 1.2;
     const futureOf = (list, k) => { let v = 0; for (let j = k; j < H; j++) v += pts(list, W[j]); return v; };
     const key = (st) => st.list.map((x) => x.e.id).sort((a, b) => a - b).join(',') + '|' + st.ft;
     let beam = [{ list: o.list, bank: A.bank, ft: A.ft, acc: 0, path: [] }];
@@ -8709,7 +8877,7 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
           if (bank < 0 || mv.some((m) => cl2[m.c.team] > 3)) ok = false; if (!ok) return;
           const wp = pts(list, g) - 4 * hits;
           const ft = n === 0 ? Math.min(5, st.ft + 1) : Math.min(5, Math.max(0, st.ft - n) + 1);
-          push({ list, bank, ft, acc: st.acc + wp, path: st.path.concat([{ g, moves: mv.map((m) => ({ o: m.x.e, i: m.c, gain: m.gain })), hits, pts: wp, ft: st.ft, bank }]) });
+          push({ list, bank, ft, acc: st.acc + wp, path: st.path.concat([{ g, moves: mv.map((m) => ({ o: m.x.e, i: m.c, gain: m.gain })), hits, pts: wp, ft: st.ft, bank, list }]) });
         });
       });
       // keep the best states: points so far + what the squad projects for the weeks left + a little for each free transfer kept
@@ -8718,17 +8886,22 @@ ${cur && cur !== MYID ? `<div class="idact">${isFr ? '' : `<button type="button"
     const best = beam.sort((a, b) => b.acc - a.acc)[0];
     if (!best) throw new Error('no valid path found');
     const base = W.reduce((a, g) => a + pts(o.list, g), 0);
-    return { style, W, path: best.path, total: best.acc, base, gain: best.acc - base, nT: best.path.reduce((a, w) => a + w.moves.length, 0), hits: best.path.reduce((a, w) => a + w.hits, 0) };
+    // v3.86: best week for Triple Captain and Bench Boost on this path (chips you still have, inside their windows)
+    const chips = []; (A.chipPlans || []).forEach((cp) => { const nm2 = cp.c && cp.c.name; if (nm2 !== '3xc' && nm2 !== 'bboost') return;
+      let bw = null; best.path.forEach((w) => { if (w.g < cp.c.start_event || w.g > cp.c.stop_event) return; const b = A.bestXIof(w.list, w.g); const v = nm2 === '3xc' ? b.cap : b.benchSum; if (!bw || v > bw.v) bw = { g: w.g, v, who: nm2 === '3xc' ? b.xi.slice().sort((x, y) => P(y.e, w.g) - P(x.e, w.g))[0] : null }; });
+      if (bw) chips.push({ name: nm2, ...bw }); });
+    return { style, W, path: best.path, total: best.acc, base, gain: best.acc - base, nT: best.path.reduce((a, w) => a + w.moves.length, 0), hits: best.path.reduce((a, w) => a + w.hits, 0), chips };
   }
   function autoHtml(nm) {
     const R2 = PLAN.auto; const st = (PLAN.autoStyle || 'steady');
-    const head = `<p class="note" style="margin:0 0 8px">Plans your transfers for the next ${Math.min(6, PLAN.A.GWS.length)} gameweeks from your real squad. ${st === 'climber' ? `<b>Climber</b> takes a move worth ${Math.min(1.5, PLAN.A.CONV || 2.5)}+ points, and up to 2 hits a week when a move gains 5+ points (more than the 4-point cost); it rolls fewer free transfers.` : `<b>Steady</b> never takes a hit, only makes a move worth ${PLAN.A.CONV || 2.5}+ points over the weeks left, and prefers to roll free transfers.`} Chips aren't planned here.</p>
+    const head = `<p class="note" style="margin:0 0 8px">Searches thousands of transfer paths for the next ${Math.min(8, PLAN.A.GWS.length)} gameweeks from your real squad, with free transfers banked when that pays. ${st === 'climber' ? `<b>Climber</b> takes a move worth ${Math.min(1.5, PLAN.A.CONV || 2.5)}+ points, and up to 2 hits a week when a move gains 5+ points (more than the 4-point cost); it rolls fewer free transfers.` : `<b>Steady</b> never takes a hit, only makes a move worth ${PLAN.A.CONV || 2.5}+ points over the weeks left, and prefers to roll free transfers.`} Triple Captain and Bench Boost are timed on the chosen path; Wildcard and Free Hit are left to the Chips tab.</p>
 <div class="aprow"><div class="seg"><button type="button" data-apst="steady" class="${st === 'steady' ? 'on' : ''}" title="Never takes a points hit">Steady</button><button type="button" data-apst="climber" class="${st === 'climber' ? 'on' : ''}" title="Up to 2 hits a week when a move clearly pays">Climber</button></div><button class="try" type="button" id="ap-run">${R2 ? 'Generate again' : 'Generate plan'}</button></div>`;
     if (!R2) return head;
     if (R2.busy) return head + '<p class="muted"><span class="spin"></span> Searching transfer paths…</p>';
     const cmpNote = R2.same ? `<p class="note" style="margin:6px 0 0">${st === 'climber' ? 'No hit pays off over these weeks, so Climber found the same plan as Steady.' : 'Climber finds the same plan here: no hit pays off over these weeks.'}</p>` : `<p class="note" style="margin:6px 0 0">${st === 'climber' ? 'Steady' : 'Climber'} would project ${f1(R2.otherTotal)} pts (${R2.otherTotal >= R2.total ? '+' : ''}${f1(R2.otherTotal - R2.total)}).</p>`;
     return `${head}${cmpNote}<div class="kpis uni apk"><div class="kpi"><small>Projected over ${R2.W.length} GWs</small><b>${f1(R2.total)}</b><span class="${R2.gain >= 0 ? 'up' : 'dn'}">${R2.gain >= 0 ? '+' : ''}${f1(R2.gain)} vs no transfers</span></div><div class="kpi"><small>Transfers</small><b>${R2.nT}</b><span>${R2.hits ? `<span class="dn">${R2.hits} hit${R2.hits > 1 ? 's' : ''} (−${4 * R2.hits})</span>` : 'no hits'}</span></div></div>
 <ol class="aptl">${R2.path.map((w) => `<li><div class="apg"><b>GW${w.g}</b><small>${w.ft} free transfer${w.ft === 1 ? '' : 's'}</small></div><div class="apm">${w.moves.length ? w.moves.map((m) => `<div><span class="mv"><i class="mo">OUT</i>${nm(m.o)}</span><span class="mv"><i class="mi">IN</i>${nm(m.i)}</span> <small class="muted">${money(m.i.now_cost)}</small> <b class="up">+${f1(m.gain)}</b></div>`).join('') + (w.hits ? `<div class="dn" style="font-size:12px">−${4 * w.hits} hit</div>` : '') : '<div class="muted">Roll the free transfer</div>'}</div><div class="app">${f1(w.pts)}<small>pts</small></div></li>`).join('')}</ol>
+${R2.chips && R2.chips.length ? `<div class="apchips">${R2.chips.map((c) => `<span><b>${c.name === '3xc' ? 'Triple Captain' : 'Bench Boost'}: GW${c.g}</b> <small class="muted">${c.name === '3xc' ? `${c.who ? esc(c.who.e.web_name) + ' ' : ''}+${f1(c.v)} pts` : `bench +${f1(c.v)} pts`}</small></span>`).join('')}</div>` : ''}
 <div class="aprow"><button class="try" type="button" id="ap-apply">Apply to planner</button><small class="muted">Replaces the transfers saved for GW${R2.W[0]}–${R2.W[R2.W.length - 1]}. You can still edit any week afterwards.</small></div>`;
   }
   function applyAuto() {
@@ -9384,7 +9557,51 @@ ${(() => { if (!lg.length) return '<p class="muted">Not in any league or cup.</p
     const top = Math.max(...o.res.map((r) => r.p1));
     return `<div class="tod"><h4>Title odds <small class="muted">${left} gameweeks left · ${o.n.toLocaleString()} simulated seasons</small></h4>
 <div class="tw"><table class="lgt tdt"><thead><tr><th>Team</th><th class="n">Now</th><th class="n">Per GW</th><th>Title</th><th class="n">Top 3</th><th class="n">Avg finish</th></tr></thead><tbody>${o.res.map((r) => `<tr class="${r.me ? 'mine me' : ''}"><td><b>${esc(r.name)}</b>${r.me ? ' <small class="muted">you</small>' : ''}</td><td class="n">${r.tot}</td><td class="n" title="Expected points per gameweek from here (after hits)">${f1(r.mu)}</td><td><span class="tdb"><i style="width:${top ? (r.p1 / top) * 100 : 0}%"></i></span><b class="tdp">${pc(r.p1)}</b></td><td class="n">${pc(r.p3)}</td><td class="n">${r.avg.toFixed(1)}</td></tr>`).join('')}</tbody></table></div>
-<p class="note">Simulation from each manager's points per gameweek so far (after hits), weighted towards the last 6, pulled towards the league average and with room for how uncertain that is. It assumes each team keeps a similar strength; chips, transfers and luck are inside the spread, not predicted.</p></div>`;
+<p class="note">Simulation from each manager's points per gameweek so far (after hits), weighted towards the last 6, pulled towards the league average and with room for how uncertain that is. It assumes each team keeps a similar strength; chips, transfers and luck are inside the spread, not predicted.</p></div>${lensHtml(A, D, ck)}`;
+  }
+  // ---------- v3.86: win-the-league lens ----------
+  // Scores your choices for the next gameweek by your chance of finishing 1st in this league, not by points. The next gameweek
+  // is played player by player (the same random match results for you and every rival, so shared players cancel out); the
+  // rest of the season uses the title-odds model. Rivals' next teams are hidden until the deadline, so their latest public
+  // team stands in.
+  function lensCompute(A, D, o) {
+    const g = A.startGw, M = A.MODEL4; if (!M || !M.draw1 || g > 38) throw new Error('No gameweek left to plan.');
+    const k = 0, after = Math.max(0, 38 - g), N = 3000;
+    const myXI = A.picks.filter((p) => p.position <= 11).map((p) => p.element), myCap = (A.picks.find((p) => p.is_captain) || {}).element || myXI[0];
+    const riv = D.teams.map((t) => ({ entry: t.entry, ids: t.picks.filter((p) => p.position <= 11).map((p) => p.element), cap: (t.picks.find((p) => p.is_captain) || {}).element }));
+    const me = o.P.find((x) => x.me), rP = riv.map((r) => o.P.find((x) => x.entry === r.entry)).filter(Boolean);
+    const rv = riv.filter((r) => o.P.some((x) => x.entry === r.entry));
+    const opts = [{ kind: 'base', lab: 'Your team as it is', cap: myCap, swap: null, shift: 0, hit: 0 }];
+    myXI.map((id) => A.E[id]).filter(Boolean).sort((a, b) => A.P(b, g) - A.P(a, g)).slice(0, 5).forEach((e) => { if (e.id !== myCap) opts.push({ kind: 'cap', lab: `Captain ${e.web_name}`, id: e.id, cap: e.id, swap: null, shift: 0, hit: 0, pj: 2 * A.P(e, g) }); });
+    const ft = A.ft || 1; let used = 0;
+    A.moves.filter((m) => m.cands.length && m.gain > 0).slice(0, 6).forEach((m) => { const out = m.s.e, inn = m.cands[0].c; const start = myXI.includes(out.id);
+      let shift = 0; for (let j = 1; j <= 4 && g + j <= 38 && A.GWS.includes(g + j); j++) shift += (A.P(inn, g + j) - A.P(out, g + j)) * (start ? 1 : 0.45);
+      opts.push({ kind: 'tr', lab: `${out.web_name} → ${inn.web_name}`, out: out.id, inn: inn.id, start, cap: myCap === out.id ? inn.id : myCap, shift, hit: used + 1 > ft ? 4 : 0, pj: m.gain }); });
+    const z = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+    const rest = (x) => after * (x.mu + x.su * z()) + Math.sqrt(after) * x.sd * 0.75 * z();
+    const win = new Float64Array(opts.length);
+    for (let s2 = 0; s2 < N; s2++) {
+      const GA = {}, C = {}; const d = (id) => M.draw1(id, k, GA, C);
+      let best = -1e9; rv.forEach((r, i) => { const x = rP[i]; let gw = 0; r.ids.forEach((id) => { gw += d(id) * (id === r.cap ? 2 : 1); }); const f = x.tot + gw + rest(x); if (f > best) best = f; });
+      let base = 0; myXI.forEach((id) => { base += d(id); }); const myRest = me.tot + rest(me);
+      opts.forEach((op, i) => { let v = base + d(op.cap); if (op.kind === 'tr' && op.start) v += d(op.inn) - d(op.out);
+        if (myRest + v + op.shift - op.hit > best) win[i]++; });
+    }
+    const b0 = win[0] / N;
+    return { g, n: N, rows: opts.map((op, i) => Object.assign({}, op, { p1: win[i] / N, d: win[i] / N - b0 })) };
+  }
+  function lensHtml(A, D, ck) {
+    const o = TOD[ck]; if (!o || !o.P || D.kind !== 'classic' || A.startGw > 38) return '';
+    const L = o.lens; const pc = (x) => (x >= 0.995 ? '>99%' : x < 0.005 ? (x > 0 ? '<1%' : '0%') : (x * 100).toFixed(x < 0.1 ? 1 : 0) + '%');
+    const head = `<div class="lens"><div class="th"><h4>Win-the-league lens <small class="muted">GW${A.startGw} choices scored by your title chance</small></h4>${L && !L.busy ? '' : `<button class="try" type="button" data-lens="${esc(ck)}" ${L && L.busy ? 'disabled' : ''}>${L && L.busy ? 'Simulating…' : 'Score my choices'}</button>`}</div>`;
+    if (!L || L.busy) return `${head}<p class="muted tdn">Points are not the goal in a mini-league; finishing first is. This plays GW${A.startGw} 3,000 times against these rivals' latest teams for each captain and transfer option.</p></div>`;
+    if (L.err) return `${head}<p class="muted tdn">${esc(L.err)}</p></div>`;
+    const base = L.rows[0]; const rows = L.rows.slice(1).sort((a, b) => b.p1 - a.p1);
+    const best = rows[0];
+    const row = (r) => `<tr><td>${r.kind === 'cap' ? '<i class="lnk ca">C</i>' : '<i class="lnk tr">⇄</i>'}${esc(r.lab)}${r.hit ? ' <small class="dn">−4</small>' : ''}</td><td class="n">${r.kind === 'cap' ? f1(r.pj) + ' pts' : '+' + f1(r.pj) + ' / 5 GW'}</td><td class="n"><b>${pc(r.p1)}</b></td><td class="n ${r.d > 0.005 ? 'up' : r.d < -0.005 ? 'dn' : 'muted'}">${r.d >= 0 ? '+' : '−'}${(Math.abs(r.d) * 100).toFixed(1)} pp</td></tr>`;
+    return `${head}<p class="tdn">Your title chance with your team as it is: <b>${pc(base.p1)}</b>${best && best.d > 0.002 ? ` · best single change: <b>${esc(best.lab)}</b> (${pc(best.p1)})` : ' · none of these changes raises it clearly'}.</p>
+<div class="tw"><table class="lgt lnt"><thead><tr><th>Choice</th><th class="n">Projected</th><th class="n">Title chance</th><th class="n">Change</th></tr></thead><tbody>${rows.map(row).join('')}</tbody></table></div>
+<p class="note">Same 3,000 simulated GW${L.g}s for every choice, so shared players cancel out and a differential counts only where it separates you from these rivals. Rivals' GW${A.cur ? A.cur.id : L.g - 1} teams stand in for their GW${L.g} teams (FPL hides those until the deadline). pp = percentage points of title chance; changes under ±0.5 pp are within simulation noise (grey).</p></div>`;
   }
   async function oddsLoad(A, D, ck) {
     if (TOD[ck]) return; TOD[ck] = { busy: true };
@@ -9408,7 +9625,7 @@ ${(() => { if (!lg.length) return '<p class="muted">Not in any league or cup.</p
         idx.sort((a, b) => sc[b] - sc[a]); idx.forEach((i, r) => { if (r === 0) w1[i]++; if (r < 3) w3[i]++; rs[i] += r + 1; });
       }
       const res = P.map((x, i) => ({ name: x.name, me: x.me, tot: x.tot, mu: x.mu, p1: w1[i] / N, p3: w3[i] / N, avg: rs[i] / N })).sort((a, b) => b.p1 - a.p1 || a.avg - b.avg);
-      TOD[ck] = { res, n: N };
+      TOD[ck] = { res, n: N, P, cur, left };
     } catch (e) { TOD[ck] = { err: "Couldn't load the managers' histories. Try refresh." }; }
     const b = R.getElementById('lg-box'); if (b && LASTA) b.innerHTML = leagueHtml(LASTA);
   }
@@ -9910,13 +10127,13 @@ ${bench.length ? `<div class="benchbox hpitch"><div class="ptitle">Bench</div><d
   const MKV = [['in', 'Most Transferred In', 'net', -1], ['out', 'Most Transferred Out', 'net', 1], ['rise', 'Biggest Risers', 'gw', -1], ['fall', 'Biggest Fallers', 'gw', 1], ['pup', 'Likely to rise', 'pred', -1], ['pdn', 'Likely to fall', 'pred', 1]];
   const MKC = [['cost', 'Cost', (e) => e.now_cost], ['gw', 'Change this GW', (e) => e.cost_change_event], ['season', 'Change this season', (e) => e.cost_change_start], ['tin', 'Transfers in', (e) => e.transfers_in_event], ['tout', 'Transfers out', (e) => e.transfers_out_event], ['net', 'Net transfers', (e) => e.transfers_in_event - e.transfers_out_event], ['own', 'Owned', (e) => +e.selected_by_percent || 0], ['pred', 'Next change', (e) => { const p = pricePred(e); return p ? p.pct : 0; }]];
   // v3.36: progress towards the NEXT price change (from this gameweek's net transfers), not the change already made
-  const nextUpd = () => { const nx = new Date(); nx.setUTCHours(1, 30, 0, 0); if (nx < new Date()) nx.setUTCDate(nx.getUTCDate() + 1); return nx; };
+  const nextUpd = () => nextUpdAt(Date.now());
   function predCell(e) {
     const p = pricePred(e); if (!p || Math.abs(p.pct) < 20) return '<span class="muted">–</span>';
     const a = Math.min(100, Math.abs(p.pct)), due = Math.abs(p.pct) >= 100, upw = p.d === 'up';
     const t = nextUpd().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
     const when = p.eta === 'tonight' ? `tonight ${t}` : p.eta;
-    const tip = `${kfmt(p.since)} net transfers since his last price change. ${due ? 'Past' : Math.round(a) + '% of'} the estimated threshold for a ${upw ? 'rise' : 'drop'}.${when ? ' Expected at the price update ' + when + ' (FPL changes prices once a day, about 01:30 UK time).' : ''} Price changes already made show in the Change this GW / this season columns.`;
+    const tip = p.off ? `FPL's own figure: ${Math.round(p.pct)}% of the way to a ${upw ? 'rise' : 'drop'}, projected ${Math.round(p.v0)}% at the next update.${p.locked ? ' His price is locked for now.' : ''}${when ? ' Expected ' + when + ' (FPL changes prices at midnight UK time).' : ''}` : `${kfmt(p.since)} net transfers since his last price change. ${due ? 'Past' : Math.round(a) + '% of'} the estimated threshold for a ${upw ? 'rise' : 'drop'}.${when ? ' Expected at the price update ' + when + ' (FPL changes prices at midnight UK time).' : ''} Price changes already made show in the Change this GW / this season columns.`;
     return `<span class="pbar2 ${p.d}" title="${tip}"><i style="width:${a}%"></i><b>${upw ? '▲' : '▼'} ${due ? (upw ? 'Rise due' : 'Drop due') : Math.round(a) + '%'}</b></span>${when ? `<small class="${upw ? 'up' : 'dn'}">${when}</small>` : ''}`;
   }
   function mkBody(A) {
@@ -10281,7 +10498,7 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
 <div class="ppchips"><b class="ppp">${money(e.now_cost)}</b>${chg(e.cost_change_event, 'wk')}${chg(e.cost_change_start, 'season')}<span class="sigchip ${sig[1]}">${sig[0]}</span></div>
 ${e.status === 'a' ? '' : `<span class="ppst2"><i class="dot warn"></i>${esc(e.news || 'Flagged')}</span>`}</div>
 <button type="button" class="x ppx" data-ppclose="1" aria-label="Close">×</button></div>
-<div class="ppk4"><div><small>Next GW</small><b class="acc">${f1(Pg(g0))}</b><span>${fxCell(A, e.team, g0)}</span></div><div><small>Next 3</small><b class="acc">${f1(next3)}</b><span>pts</span></div><div><small>Rating</small><b>${ovr}</b><span>${pc}th pct</span></div><div><small>Owned</small><b>${e.selected_by_percent}%</b><span>${owned ? 'in your team' : 'of managers'}</span></div></div>${capLine(A, e)}
+<div class="ppk4"><div class="pxk" data-pxopen="1" role="button" tabindex="0" title="How this number is worked out"><small>Next GW <i class="pxi">?</i></small><b class="acc">${f1(Pg(g0))}</b><span>${fxCell(A, e.team, g0)}</span></div><div><small>Next 3</small><b class="acc">${f1(next3)}</b><span>pts</span></div><div><small>Rating</small><b>${ovr}</b><span>${pc}th pct</span></div><div><small>Owned</small><b>${e.selected_by_percent}%</b><span>${owned ? 'in your team' : 'of managers'}</span></div></div>${explainHtml(A, e, g0)}${capLine(A, e)}
 <div class="pchart"><div class="pch"><b>Points</b><small class="muted">last ${past.length} · next ${fut.length} projected</small></div><div class="pbars">${bars}</div></div>
 <div class="ppr2"><div class="radw">${radar}${rLab('Finisher', rd.fin, 't')}${rLab('Playmaker', rd.cre, 'r')}${rLab(et <= 2 ? 'Defender' : 'Defending', rd.def, 'b')}${rLab('Game time', rd.min, 'l')}</div>
 <div class="ppsg">${stat('Points', e.total_points)}${stat('Per game', e.points_per_game)}${stat('Form', f1(form5))}${et === 1 ? stat('Saves', e.saves) : stat('Goals', e.goals_scored)}${et === 1 ? stat('Clean sh.', e.clean_sheets) : stat('Assists', e.assists)}${et <= 2 ? (et === 1 ? stat('Conceded', e.goals_conceded) : stat('Clean sh.', e.clean_sheets)) : stat('xGI/90', (+e.expected_goal_involvements_per_90 || 0).toFixed(2))}${stat('Mins/game', matches ? Math.round(mins / matches) : '–')}${stat('Pens', spT(e.penalties_order).replace(' choice', ''))}${stat('Starts', e.starts || matches)}</div></div>
@@ -10296,11 +10513,42 @@ ${ps.length ? `<h3 class="psh">Previous seasons</h3><div class="tw"><table><thea
 </details></div>`;
     body.scrollTop = 0; pg.scrollTop = 0;
   }
+  // ---------- v3.86: explain this number ----------
+  // Every projection is a sum of expected points per scoring rule, then blended (25%) with a form-and-fixture estimate and
+  // scaled by Tune-up. This shows each part, so the number can be checked by hand.
+  function explainHtml(A, e, g) {
+    const k = g - A.startGw, cs = A.MODEL4 && A.MODEL4.COMP[e.id] && A.MODEL4.COMP[e.id][k]; if (!cs) return '';
+    const et = e.element_type, GIx = [0, 6, 6, 5, 4], CSx = [0, 4, 4, 1, 0], c4 = (A.MODEL4.CAL4 && A.MODEL4.CAL4[et]) || 1, T = A.T;
+    if (!cs.length) return `<details class="pxp"><summary>How ${f1(A.P(e, g))} is worked out</summary><p class="muted">${esc(e.web_name)}'s team has no match in GW${g}, so he projects 0.</p></details>`;
+    const sum = (f) => cs.reduce((a, c) => a + f(c), 0), avg = (f) => sum(f) / cs.length;
+    const app = sum((c) => 2 * c.p60 + c.psub), gl = sum((c) => c.eg * GIx[et]), as = sum((c) => c.ea * 3), cl = sum((c) => c.p60 * Math.exp(-c.la) * CSx[et]), gc = -sum((c) => c.gcp || 0), sv = et === 1 ? sum((c) => c.sv / 3) : 0, dc = sum((c) => c.dc), bo = sum((c) => c.bon);
+    const raw = sum((c) => c.v), mix = sum((c) => 0.75 * c.v + 0.25 * c.ot), fin = mix * c4;
+    const pc = (x) => Math.round(x * 100) + '%', sg = (v) => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(2)}`;
+    const opp = cs.map((c) => `${esc(T[c.o].short_name)} (${c.home ? 'H' : 'A'})`).join(' + ');
+    const rows = [
+      ['Playing time', `${pc(avg((c) => c.p60))} chance of 60+ minutes, ${pc(avg((c) => c.psub))} of a shorter run${avg((c) => c.av) < 1 ? ` · availability ${pc(avg((c) => c.av))} (flag or news)` : ''}`, app],
+      ['Goals', `${sum((c) => c.eg).toFixed(2)} expected goals × ${GIx[et]} pts`, gl],
+      ['Assists', `${sum((c) => c.ea).toFixed(2)} expected assists × 3 pts`, as],
+    ];
+    if (CSx[et]) rows.push(['Clean sheet', `${pc(avg((c) => Math.exp(-c.la)))} chance (${opp} expected to score ${avg((c) => c.la).toFixed(2)}) × ${CSx[et]} pts, if he plays 60+`, cl]);
+    if (et <= 2) rows.push(['Goals conceded', '−1 for every 2 his team concedes while he plays', gc]);
+    if (et === 1) rows.push(['Saves', `${sum((c) => c.sv).toFixed(1)} expected saves, 1 pt per 3`, sv]);
+    if (et !== 1) rows.push(['Defensive contribution', `chance of reaching ${et === 2 ? 10 : 12} defensive actions × 2 pts`, dc]);
+    rows.push(['Bonus', 'his bonus points per 90, adjusted for the fixture', bo]);
+    return `<details class="pxp" id="pxp"><summary>How ${f1(A.P(e, g))} is worked out <small class="muted">GW${g} · ${opp}</small></summary>
+<div class="pxt">${rows.map(([l, d, v]) => `<div class="pxr"><span><b>${l}</b><small>${d}</small></span><i class="${v > 0.005 ? 'up' : v < -0.005 ? 'dn' : ''}">${sg(v)}</i></div>`).join('')}
+<div class="pxr sub"><span><b>From his underlying numbers</b><small>his team expects ${avg((c) => c.lf).toFixed(2)} goals per match</small></span><i>${raw.toFixed(2)}</i></div>
+<div class="pxr"><span><b>Form and fixture check</b><small>25% weight on his points per game and form, scaled by fixture difficulty</small></span><i class="${mix - raw >= 0 ? 'up' : 'dn'}">${sg(mix - raw)}</i></div>
+${Math.abs(c4 - 1) > 0.001 ? `<div class="pxr"><span><b>Tune-up</b><small>${et === 1 ? 'goalkeepers' : et === 2 ? 'defenders' : et === 3 ? 'midfielders' : 'forwards'} ×${c4.toFixed(2)}, from projected vs real points so far</small></span><i class="${fin - mix >= 0 ? 'up' : 'dn'}">${sg(fin - mix)}</i></div>` : ''}
+${(() => { const hb = tuneOn() ? highBeta() : 1, f2 = shrinkHi(fin, cs.length, hb); return Math.abs(f2 - fin) > 0.005 ? `<div class="pxr"><span><b>High-end correction</b><small>the part above 3 pts a match ×${hb.toFixed(2)}: big projections have come in lower than projected</small></span><i class="dn">${sg(f2 - fin)}</i></div><div class="pxr tot"><span><b>Projection</b></span><i>${f2.toFixed(2)}</i></div>` : `<div class="pxr tot"><span><b>Projection</b></span><i>${fin.toFixed(2)}</i></div>`; })()}</div>
+<p class="muted fine">Expected values: he scores either 0 or 5+ for a goal, so a single week can land far from this.</p></details>`;
+  }
   function closePlayerPage() { const pg = $('#ppage'); if (pg) pg.hidden = true; }
   $('#ppage').addEventListener('click', (ev) => {
     if (ev.target === ev.currentTarget) { closePlayerPage(); return; }
     const t = ev.target; if (!t.closest) return;
     if (t.closest('[data-ppclose]')) { closePlayerPage(); return; }
+    if (t.closest('[data-pxopen]')) { const d = R.getElementById('pxp'); if (d) { d.open = !d.open; if (d.open) d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } return; }
     const a = t.closest('a.pn'); if (a) { ev.preventDefault(); openPlayerPage(+a.dataset.pid); return; }
     const cw = t.closest('[data-cmpwith]'); if (cw) { const id = +cw.dataset.cmpwith; if (!CMP.ids.includes(id)) CMP.ids = [id, ...CMP.ids].slice(0, 10); closePlayerPage(); FIXTAB = 'h2h'; showView('fix', 'h2h'); paintRot(); return; }
     const go = t.closest('[data-ppgo]'); if (go) { closePlayerPage(); if (go.dataset.ppgo === 'market') { FIXTAB = 'market'; showView('fix', 'market'); paintRot(); } else showView('team', 'pitch'); return; }
@@ -10456,6 +10704,7 @@ ${ps.length ? `<h3 class="psh">Previous seasons</h3><div class="tw"><table><thea
     applyPV(); savePV();
   });
 
+  const WIFC = {};
   function renderPlanner() {
     const box = R.getElementById('planner'); if (!box || !PLAN) return;
     const A = PLAN.A, g0 = PLAN.gw, P = A.P, T = A.T;
@@ -10472,6 +10721,16 @@ ${ps.length ? `<h3 class="psh">Previous seasons</h3><div class="tw"><table><thea
     const draft = PLAN.line;
     const bestNow = (() => { const b = A.bestXIof(draft, g0); return b.sum + b.cap * (PLAN.chip === '3xc' ? 2 : 1) + (PLAN.chip === 'bboost' ? b.benchSum : 0); })();
     const new5 = sqN(draft), base5 = sqN(A.sq), d5 = new5 - base5 - hits;
+    // v3.86: the likely range of this plan against your current team (same simulated matches for both)
+    const whatIf = (() => { try {
+      const ol = origLine(), tc = PLAN.chip === '3xc', bb = PLAN.chip === 'bboost';
+      const a = { ids: (bb ? draft : draft.slice(0, 11)).map((x) => x.e.id), cap: PLAN.cap ? PLAN.cap.e.id : 0, mult: tc ? 3 : 2, hit: hits }, b = { ids: ol.list.slice(0, 11).map((x) => x.e.id), cap: ol.cap, mult: 2, hit: 0 };
+      const key = g0 + '|' + a.ids.join(',') + '|' + a.cap + '|' + a.mult + '|' + hits + '|' + b.ids.join(',') + '|' + b.cap;
+      if (key.split('|')[1] === b.ids.join(',') && a.cap === b.cap && !hits && !tc) return '';
+      if (!WIFC[key]) WIFC[key] = A.MODEL4.simPair(a, b, g0, 2000);
+      const r = WIFC[key], rg = (q) => `${Math.round(q.p10)}–${Math.round(q.p90)}`;
+      return `<div class="wif" title="2,000 simulated GW${g0}s with the same match results for both teams. Range = 8 in 10 weeks land inside it."><b>GW${g0} range</b><span>this plan <b>${rg(r.a)}</b></span><span>current <b>${rg(r.b)}</b></span><span class="${r.win >= 0.5 ? 'up' : 'dn'}">better in <b>${Math.round(r.win * 100)}%</b> of weeks</span></div>`;
+    } catch (er) { return ''; } })();
     const clubs = planClubs();
     const warns = [];
     if (bank < 0) warns.push(`Over budget by ${money(-bank)}.`);
@@ -10530,7 +10789,7 @@ ${t.c.slice(1).length ? `<div class="alt">Or: ${t.c.slice(1).map((x) => `${nm(x.
       return `<button class="chipt ${PLAN.chip === k ? 'on' : ok ? '' : 'na'}" type="button" data-chip="${k}" aria-pressed="${PLAN.chip === k}" title="${ok ? 'Plan it for GW' + g0 : 'Not available this week: preview only'}"><b>${lab}</b>${st}${best}</button>`; }).join('');
     const chipNote = free ? `<div class="chipnote"><b>${PLAN.chip === 'wildcard' ? 'Wildcard' : 'Free Hit'} squad for GW${g0}</b> built within your budget of ${money(PLAN.enter.reduce((a, x) => a + x.sell, 0) + PLAN.bank0)} (selling value + bank), every player at today's price, ${money(PLAN.chipBank || 0)} left, max 3 per club.${(() => { const k = PLAN.line.filter((x) => x.keep != null && x.keep < x.e.now_cost); return k.length ? ` <span style="color:var(--gold)">Kept at a lower selling price: ${k.map((x) => `${esc(x.e.web_name)} ${money(x.keep)}`).join(', ')}. The squad fits even if you remove and re-add them on the FPL site.</span>` : ''; })()}${PLAN.chip === 'freehit' ? ' Your normal squad returns the week after.' : ' Later weeks start from this squad.'}<br><span class="dn">Out (${PLAN.chipOut.length}):</span> ${PLAN.chipOut.map((e) => esc(e.web_name)).join(', ') || '–'}<br><span class="up">In (${PLAN.chipIn.length}):</span> ${PLAN.chipIn.map((e) => nm(e)).join(', ') || '–'}</div>` : PLAN.chip === 'bboost' ? `<div class="chipnote"><b>Bench Boost in GW${g0}:</b> your 4 bench players add ${f1(draft.slice(11).reduce((a, x) => a + P(x.e, g0), 0))} projected pts.</div>` : PLAN.chip === '3xc' ? `<div class="chipnote"><b>Triple Captain in GW${g0}:</b> ${PLAN.cap ? nm(PLAN.cap.e) : '–'} scores ×3, worth +${f1(PLAN.cap ? P(PLAN.cap.e, g0) : 0)} extra projected pts.</div>` : '';
     const H = A.html || {};
-    const TABS = [['do', 'Do this now'], ['targets', 'Targets'], ['diffs', 'Differentials'], ['chips', 'Chips']];
+    const TABS = [['do', 'Do this now'], ['targets', 'Targets'], ['auto', 'Plan ahead'], ['diffs', 'Differentials'], ['chips', 'Chips']];
     if (!TABS.some(([k]) => k === PLAN.tab)) PLAN.tab = 'do';
     let body;
     if (PLAN.tab === 'auto') body = autoHtml(nm);
@@ -10543,7 +10802,7 @@ ${t.c.slice(1).length ? `<div class="alt">Or: ${t.c.slice(1).map((x) => `${nm(x.
   <div class="plleft">
     <div class="pltools2"><button class="tbtn ico" id="pl-undo" type="button" ${UNDO.length ? '' : 'disabled'} title="${UNDO.length ? 'Undo: ' + esc(UNDO[UNDO.length - 1].label) : 'Nothing to undo'} (Ctrl+Z)" aria-label="Undo"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="tbtn" id="pl-best" type="button" title="Start the 11 players with the highest projections">★ Best 11 players</button><button class="tbtn" id="pl-reset" type="button" title="Undo every change for GW${g0}">↺ Reset GW${g0}</button>${Object.keys(PLAN.weeks).length ? '<button class="tbtn warn" id="pl-clear" type="button" title="Remove every planned transfer and chip">✕ Clear plan</button>' : ''}</div>
     ${plannerNav()}
-    ${PLAN.msg ? `<div class="err">${esc(PLAN.msg)}</div>` : ''}${warns.length ? `<ul class="warns">${warns.map((w) => `<li>${w}</li>`).join('')}</ul>` : ''}
+    ${PLAN.msg ? `<div class="err">${esc(PLAN.msg)}</div>` : ''}${warns.length ? `<ul class="warns">${warns.map((w) => `<li>${w}</li>`).join('')}</ul>` : ''}${whatIf}
     <div class="pitch"><div class="ppills l"><div class="ppill" title="Projected points for GW${g0} with this team, captain included. ${d1 >= 0 ? '+' : ''}${f1(d1)} vs your current team."><b>${f1(new1)}</b><small>GW</small>${Math.abs(d1) > 0.05 ? `<i class="pd ${d1 > 0 ? 'up' : 'dn'}">${d1 > 0 ? '▲+' : '▼'}${f1(d1)}</i>` : ''}</div><div class="ppill" title="Projected points over the next 5 gameweeks. ${d5 >= 0 ? '+' : ''}${f1(d5)} vs your current team."><b>${f1(new5)}</b><small>5 GW</small>${Math.abs(d5) > 0.05 ? `<i class="pd ${d5 > 0 ? 'up' : 'dn'}">${d5 > 0 ? '▲+' : '▼'}${f1(d5)}</i>` : ''}</div></div><div class="ppills r"><div class="ppill" title="Money left to spend after these transfers. ${money(PLAN.bank0)} at the start of GW${g0}."><b class="${bank < 0 ? 'dn' : ''}">${money(bank)}</b><small>Bank</small></div><div class="ppill" title="${free ? 'Unlimited with this chip' : 'Transfers made / free this week'}"><b class="${hits ? 'dn' : ''}">${nT}/${free ? '∞' : PLAN.ft0}${hits ? ` <i>−${hits}</i>` : ''}</b><small>FT</small></div></div><div class="fmpill" title="Formation of the starting XI${PLAN.chip ? ' and the chip planned for this week' : ''}"><b>${formation}</b>${PLAN.chip ? `<small>${({ wildcard: 'Wildcard', freehit: 'Free Hit', bboost: 'Bench Boost', '3xc': 'Triple Captain' })[PLAN.chip]}</small>` : ''}</div><div class="row">${row(1)}</div><div class="row">${row(2)}</div><div class="row">${row(3)}</div><div class="row">${row(4)}</div></div>
     <div class="benchbox"><div class="ptitle">Bench</div><div class="row">${bench.map(chip).join('')}</div></div>
     <p class="legend"><span>Drag a player onto another to swap · tap for captain, transfer or profile</span><span><i class="sp">P</i> penalties · <i class="sp">SP</i> free kicks / corners</span><span><i class="hb d2">H</i> home · <i class="hb d4">A</i> away</span></p>

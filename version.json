@@ -1,10 +1,10 @@
 {
-  "version": "3.85",
+  "version": "3.86",
   "date": "2026-11-27",
-  "notes": "Price radar page with self-check, accuracy tabs: calibration chart, saved deadline projections, captain record",
+  "notes": "Explain this number, win-the-league lens, plan ahead (8 GWs + chip timing), what-if ranges, season story and share cards, FPL's official price figures (midnight UK), high-end projection correction, public track record, Android widget and alerts",
   "files": {
-    "apk": "dist/Elevn-Android-v3-85.apk",
-    "zip": "dist/Elevn-Chrome-v3-85.zip",
+    "apk": "dist/Elevn-Android-v3-86.apk",
+    "zip": "dist/Elevn-Chrome-v3-86.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }
