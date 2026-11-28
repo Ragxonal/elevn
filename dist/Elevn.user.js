@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Elevn – FPL assistant
 // @description  Elevn, your Fantasy Premier League assistant: squad, transfers, captain, chips, leagues, news.
-// @version      3.86.0
+// @version      3.87.0
 // @match        https://fantasy.premierleague.com/*
 // @run-at       document-idle
 // @noframes
@@ -19,7 +19,7 @@ if (window.__fplA) return; window.__fplA = 1;
 // Stand-in for the Chrome extension API (no extension id, so alerts use in-panel toasts)
 const chrome = { runtime: { sendMessage() {}, onMessage: { addListener() {} } } };
 const runFplAnalyst = async () => {
-  const ELEVN_VER = '3.86';
+  const ELEVN_VER = '3.87';
   // v3.45: exact squad optimiser (javascript-lp-solver 1.0.3, Unlicense). Built in, created on first use.
   let LPS_ = null; const LPS = () => LPS_ || (LPS_ = (function () {
 var solver = (function () {
@@ -6537,6 +6537,18 @@ table.cmpt small.d{display:block;font-size:11px}
 .cuplive{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(69,208,143,.35);background:rgba(16,56,42,.4);margin-bottom:10px;font-size:13px}
 .cuplive>div{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .cuplive b{font:700 20px var(--fd)}
+/* ===== v3.87 flags + fixture strip ===== */
+.pph.fl:not(.egy) .pflag.l,.pph.fl:not(.egy) .pflag.r{display:none}
+.pph.fl:not(.egy) .pflag.c.wv{display:flex;left:36%;right:0;top:-9%;bottom:-9%;transform:none;aspect-ratio:auto;overflow:hidden;opacity:0;transition:opacity .4s;-webkit-mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.55) 22%,#000 44%);mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.55) 22%,#000 44%)}
+.pph.fl:not(.egy) .pflag.c.wv.ok{opacity:1}
+.pph.fl:not(.egy) .pflag.c.wv b{margin-right:-1px;background-size:var(--bw) var(--bh);background-position:calc(var(--i) * var(--sw) * -1 - var(--bx0)) calc(var(--by0) * -1);animation-name:fwaveS;animation-duration:3.2s;animation-delay:calc(var(--i) * -.06s)}
+@keyframes fwaveS{0%,100%{transform:translateY(-2.4%) scaleY(1.06);filter:brightness(1.12)}50%{transform:translateY(2.4%) scaleY(1.06);filter:brightness(.8)}}
+@media (prefers-reduced-motion:reduce){.pph .pflag.c.wv b{animation:none}}
+.jsub.hstrip{gap:1px;padding:0;border-radius:0 0 6px 6px;overflow:hidden;background:rgba(8,14,26,.85)}
+.jsub.hstrip .hs{flex:1 1 0;min-width:0;max-width:none;border-radius:0;background:rgba(8,14,26,.9)}
+.jsub.hstrip .hs b{display:block;overflow:hidden;text-overflow:clip;white-space:nowrap;font-size:inherit;line-height:1.35}
+.jsub.hstrip .hb{font-size:inherit;line-height:1.3}
+.chip.pc .jval:has(+ .jsub.hstrip){border-radius:0}
 /* ===== v3.86 explain + what-if ===== */
 .ssk{margin:4px 0 12px}
 .ssg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ssbox{padding:10px 12px}.ssbox h4{margin:0 0 6px}
@@ -6921,12 +6933,16 @@ ${o.sp ? `<span class="jsp">${o.sp}</span>` : ''}<div class="jname" title="${esc
   const REGION = {}; '1:af:Afghanistan,2:al:Albania,3:dz:Algeria,4:as:American Samoa,5:ad:Andorra,6:ao:Angola,7:ai:Anguilla,8:aq:Antarctica,9:ag:Antigua and Barbuda,10:ar:Argentina,11:am:Armenia,12:aw:Aruba,13:au:Australia,14:at:Austria,15:az:Azerbaijan,16:bs:Bahamas,17:bh:Bahrain,18:bd:Bangladesh,19:bb:Barbados,20:by:Belarus,21:be:Belgium,22:bz:Belize,23:bj:Benin,24:bm:Bermuda,25:bt:Bhutan,26:bo:Bolivia,27:ba:Bosnia-Herzegovina,28:bw:Botswana,29:bv:Bouvet Island,30:br:Brazil,31:io:British Indian Ocean Territory,32:vg:British Virgin Islands,33:bn:Brunei Darussalam,34:bg:Bulgaria,35:bf:Burkina Faso,36:bi:Burundi,37:kh:Cambodia,38:cm:Cameroon,39:ca:Canada,40:cv:Cape Verde,41:ky:Cayman Islands,42:cf:Central African Republic,43:td:Chad,44:cl:Chile,45:cn:China,46:cx:Christmas Island,47:cc:Cocos Islands,48:co:Colombia,49:km:Comoros,50:cd:Congo Democratic Republic of,51:cg:Congo,52:ck:Cook Islands,53:cr:Costa Rica,54:ci:Ivory Coast,55:cu:Cuba,56:cy:Cyprus,57:cz:Czech Republic,58:dk:Denmark,59:dj:Djibouti,60:dm:Dominica,61:do:Dominican Republic,62:ec:Ecuador,63:eg:Egypt,64:sv:El Salvador,65:gq:Equatorial Guinea,66:er:Eritrea,67:ee:Estonia,68:et:Ethiopia,69:fo:Faeroe Islands,70:fk:Falkland Islands,71:fj:Fiji,72:fi:Finland,73:fr:France,74:gf:French Guiana,75:pf:French Polynesia,76:tf:French Southern Territories,77:ga:Gabon,78:gm:Gambia,79:ge:Georgia,80:de:Germany,81:gh:Ghana,82:gi:Gibraltar,83:gr:Greece,84:gl:Greenland,85:gd:Grenada,86:gp:Guadaloupe,87:gu:Guam,88:gt:Guatemala,89:gn:Guinea,90:gw:Guinea-Bissau,91:gy:Guyana,92:ht:Haiti,93:hm:Heard and McDonald Islands,94:va:Holy See,95:hn:Honduras,96:hk:Hong Kong China,97:hr:Croatia,98:hu:Hungary,99:is:Iceland,100:in:India,101:id:Indonesia,102:ir:Iran,103:iq:Iraq,104:ie:Ireland,105:il:Israel,106:it:Italy,107:jm:Jamaica,108:jp:Japan,109:jo:Jordan,110:kz:Kazakhstan,111:ke:Kenya,112:ki:Kiribati,113:kp:North Korea,114:kr:South Korea,115:kw:Kuwait,116:kg:Kyrgyzstan,117:la:Laos,118:lv:Latvia,119:lb:Lebanon,120:ls:Lesotho,121:lr:Liberia,122:ly:Libya,123:li:Liechtenstein,124:lt:Lithuania,125:lu:Luxembourg,126:mo:Macao China,127:mk:Macedonia,128:mg:Madagascar,129:mw:Malawi,130:my:Malaysia,131:mv:Maldives,132:ml:Mali,133:mt:Malta,134:mh:Marshall Islands,135:mq:Martinique,136:mr:Mauritania,137:mu:Mauritius,138:yt:Mayotte,139:mx:Mexico,140:fm:Micronesia,141:md:Moldova,142:mc:Monaco,143:mn:Mongolia,144:ms:Montserrat,145:ma:Morocco,146:mz:Mozambique,147:mm:Myanmar,148:na:Namibia,149:nr:Nauru,150:np:Nepal,152:nl:Netherlands,153:nc:New Caledonia,154:nz:New Zealand,155:ni:Nicaragua,156:ne:Niger,157:ng:Nigeria,158:nu:Niue,159:nf:Norfolk Island,160:mp:Northern Mariana Islands,161:no:Norway,162:om:Oman,163:pk:Pakistan,164:pw:Palau,165:ps:Palestine,166:pa:Panama,167:pg:Papua New Guinea,168:py:Paraguay,169:pe:Peru,170:ph:Philippines,171:pn:Pitcairn Island,172:pl:Poland,173:pt:Portugal,174:pr:Puerto Rico,175:qa:Qatar,176:re:Reunion,177:ro:Romania,178:ru:​,179:rw:Rwanda,180:sh:St. Helena,181:kn:St. Kitts and Nevis,182:lc:St. Lucia,183:pm:St. Pierre and Miquelon,184:vc:St. Vincent and the Grenadines,185:ws:Samoa,186:sm:San Marino,187:st:Sao Tome and Principe,188:sa:Saudi Arabia,189:sn:Senegal,190:rs:Serbia,191:sc:Seychelles,192:sl:Sierra Leone,193:sg:Singapore,194:sk:Slovakia,195:si:Slovenia,196:sb:Solomon Islands,197:so:Somalia,198:za:South Africa,199:gs:South Georgia and the South Sandwich Islands,200:es:Spain,201:lk:Sri Lanka,202:sd:Sudan,203:sr:Suriname,204:sj:Svalbard & Jan Mayen Islands,205:sz:Eswatini,206:se:Sweden,207:ch:Switzerland,208:sy:Syria,209:tw:Chinese Taipei,210:tj:Tajikistan,211:tz:Tanzania,212:th:Thailand,213:tl:Timor-Leste,214:tg:Togo,215:tk:Tokelau,216:to:Tonga,217:tt:Trinidad and Tobago,218:tn:Tunisia,219:tr:Turkey,220:tm:Turkmenistan,221:tc:Turks and Caicos Islands,222:tv:Tuvalu,223:vi:US Virgin Islands,224:ug:Uganda,225:ua:Ukraine,226:ae:United Arab Emirates,227:gb:United Kingdom,228:um:United States Minor Outlying Islands,229:us:USA,230:uy:Uruguay,231:uz:Uzbekistan,232:vu:Vanuatu,233:ve:Venezuela,234:vn:Vietnam,235:wf:Wallis and Futuna Islands,236:eh:Western Sahara,237:ye:Yemen,238:zm:Zambia,239:zw:Zimbabwe,240:me:Montenegro,241:gb-eng:England,242:gb-nir:Northern Ireland,243:gb-sct:Scotland,244:gb-wls:Wales,267:ax:Aland Islands,269:bl:Saint Barthelemy,271:gg:Guernsey,273:im:Isle of Man,275:je:Jersey,277:mf:Saint Martin,279:bq:Bonaire Saint Eustatius and Saba,281:cw:Curacao,283:sx:Sint Maarten,285:ss:South Sudan,286:xk:Kosovo'.split(',').forEach((t) => { const [i, c, n] = t.split(':'); REGION[i] = [c, n]; });
   const flagUrl = (e) => (e && REGION[e.region] ? `https://flagcdn.com/${REGION[e.region][0]}.svg` : '');
   const flagPng = (code) => `https://flagcdn.com/w1280/${code}.png`;
-  const FLAGW = Array.from({ length: 24 }, (_, i) => `<b style="--i:${i}"></b>`).join('');
+  const FLAGW = Array.from({ length: 24 }, (_, i) => `<b style="--i:${i}"></b>`).join(''), FLAGW2 = Array.from({ length: 56 }, (_, i) => `<b style="--i:${i}"></b>`).join(''); // v3.87: 56 thinner strips = smooth wave (Egypt photo keeps 24)
   // v3.71: the Egypt banner photo waves too: each strip shows its slice of the photo at "cover" size (measured, so it fits any width)
-  function egyWave() { try { R.querySelectorAll('.pph.egy .pflag.c.wv').forEach((w) => { const p = w.parentElement, W = p.clientWidth, H = p.clientHeight; if (!W || !H) return; const a = 1000 / 198; let bw = W, bh = W / a; if (bh < H) { bh = H; bw = H * a; }
-    const k = Math.round(W) + 'x' + Math.round(H); if (w.dataset.k === k) return; w.dataset.k = k; w.style.setProperty('--bw', bw + 'px'); w.style.setProperty('--bh', bh + 'px'); w.style.setProperty('--bx0', (bw - W) / 2 + 'px'); w.style.setProperty('--by0', (bh - H) / 2 + 'px'); w.style.setProperty('--sw', W / 24 + 'px'); w.classList.add('ok'); }); } catch (e) {} }
+  const FLAR = {}; // v3.87: flag image aspect ratios (width / height), measured once per image
+  const flagAr = (u) => { if (!u) return 1.5; if (FLAR[u]) return FLAR[u] > 0 ? FLAR[u] : 1.5; FLAR[u] = -1; const im = new Image(); im.onload = () => { FLAR[u] = im.naturalWidth && im.naturalHeight ? im.naturalWidth / im.naturalHeight : 1.5; R.querySelectorAll('.pph.fl .pflag.c.wv').forEach((w) => delete w.dataset.k); egyKick(); }; im.onerror = () => { FLAR[u] = 1.5; }; im.src = u; return 1.5; };
+  function egyWave() { try { R.querySelectorAll('.pph.fl .pflag.c.wv').forEach((w) => { const egy = w.parentElement.classList.contains('egy'); const p = egy ? w.parentElement : w, W = p.clientWidth, H = p.clientHeight; if (!W || !H) return;
+    const u = egy ? '' : ((getComputedStyle(w).getPropertyValue('--flagb') || getComputedStyle(w).getPropertyValue('--flag')).match(/url\(["']?([^"')]+)/) || [])[1];
+    const a = egy ? 1000 / 198 : flagAr(u); let bw = W, bh = W / a; if (bh < H) { bh = H; bw = H * a; }
+    const k = Math.round(W) + 'x' + Math.round(H) + 'x' + a.toFixed(3); if (w.dataset.k === k) return; w.dataset.k = k; w.style.setProperty('--bw', bw + 'px'); w.style.setProperty('--bh', bh + 'px'); w.style.setProperty('--bx0', (bw - W) / 2 + 'px'); w.style.setProperty('--by0', (bh - H) / 2 + 'px'); w.style.setProperty('--sw', W / (w.children.length || 24) + 'px'); w.classList.add('ok'); }); } catch (e) {} }
   let EGYT = 0; const egyKick = () => { cancelAnimationFrame(EGYT); EGYT = requestAnimationFrame(egyWave); };
-  try { new MutationObserver(egyKick).observe(R, { childList: true, subtree: true }); window.addEventListener('resize', () => { R.querySelectorAll('.pph.egy .pflag.c.wv').forEach((w) => delete w.dataset.k); egyKick(); }); } catch (e) {}
+  try { new MutationObserver(egyKick).observe(R, { childList: true, subtree: true }); window.addEventListener('resize', () => { R.querySelectorAll('.pph.fl .pflag.c.wv').forEach((w) => delete w.dataset.k); egyKick(); }); } catch (e) {}
   const flagSt = (e) => { const u = flagUrl(e); return u ? ` style="--flag:url('${u}');--flagb:url('${flagPng(REGION[e.region][0])}')"` : ''; };
   const flagOfRegion = (id) => (REGION[id] ? `https://flagcdn.com/${REGION[id][0]}.svg` : '');
   const country = (e) => (e && REGION[e.region] ? REGION[e.region][1] : '');
@@ -9976,6 +9992,7 @@ ${cur && cur.id === r.e.id ? '<span class="pill p-core">Captain</span>' : `<butt
   let SLDRAG = false;
   function paintSlide() {
     const box = R.getElementById('pl-slide'); if (!box) return;
+    box.innerHTML = ''; return; // v3.87: points slider removed
     if (!PLAN || !PLAN.A || PLAN.gw < PLAN.A.startGw || PLAN.chip === 'wildcard' || PLAN.chip === 'freehit') { box.innerHTML = ''; return; }
     const path = slidePath(), st = path.steps, max = st.length - 1;
     const k = PLAN.slideSig && PLAN.slideSig === planSig() ? Math.min(PLAN.slideK || 0, max) : -1;
@@ -10444,7 +10461,7 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
     const e = A.E[pid], T = A.T, g0 = A.startGw, et = e.element_type;
     const pg = $('#ppage'), body = $('#ppbody');
     pg.hidden = false; drawer.hidden = true;
-    body.innerHTML = `<div class="pp2"><div class="pph${flagUrl(e) ? ' fl' : ''}${REGION[e.region] && REGION[e.region][0] === 'eg' ? ' egy' : ''}"${flagSt(e)}>${flagUrl(e) ? `<i class="pflag l" aria-hidden="true"></i><i class="pflag r" aria-hidden="true"></i><i class="pflag c wv" aria-hidden="true">${FLAGW}</i><i class="pflag t" aria-hidden="true"></i>` : ''}<div class="ppt"><h1>${esc(e.web_name)}</h1><span class="ppfull">Loading…</span></div><button type="button" class="x ppx" data-ppclose="1" aria-label="Close">×</button></div></div>`;
+    body.innerHTML = `<div class="pp2"><div class="pph${flagUrl(e) ? ' fl' : ''}${REGION[e.region] && REGION[e.region][0] === 'eg' ? ' egy' : ''}"${flagSt(e)}>${flagUrl(e) ? `<i class="pflag l" aria-hidden="true"></i><i class="pflag r" aria-hidden="true"></i><i class="pflag c wv" aria-hidden="true">${REGION[e.region] && REGION[e.region][0] === 'eg' ? FLAGW : FLAGW2}</i><i class="pflag t" aria-hidden="true"></i>` : ''}<div class="ppt"><h1>${esc(e.web_name)}</h1><span class="ppfull">Loading…</span></div><button type="button" class="x ppx" data-ppclose="1" aria-label="Close">×</button></div></div>`;
     let sum = null; try { sum = await J(`/api/element-summary/${pid}/`); } catch (er) {}
     if (pg.hidden) return;
     const H = sum ? sum.history : [];
@@ -10492,7 +10509,7 @@ ${selBar('ps')}<div id="ps-table-wrap">${PST.data ? psTable(A) : `<div class="ps
     const chg = (v, l) => `<span class="${v > 0 ? 'up' : v < 0 ? 'dn' : 'muted'}">${v > 0 ? '▲' : v < 0 ? '▼' : '•'}${money(Math.abs(v))} ${l}</span>`;
     const stat = (l, v) => `<div><b>${v}</b><small>${l}</small></div>`;
     body.innerHTML = `<div class="pp2">
-<div class="pph${flagUrl(e) ? ' fl' : ''}${REGION[e.region] && REGION[e.region][0] === 'eg' ? ' egy' : ''}" style="--k1:${kc[0]};--k2:${kc[1]}${flagUrl(e) ? `;--flag:url('${flagUrl(e)}');--flagb:url('${flagPng(REGION[e.region][0])}')` : ''}">${flagUrl(e) ? `<i class="pflag l" aria-hidden="true"></i><i class="pflag r" aria-hidden="true"></i><i class="pflag c wv" aria-hidden="true">${FLAGW}</i><i class="pflag t" aria-hidden="true"></i>` : ''}
+<div class="pph${flagUrl(e) ? ' fl' : ''}${REGION[e.region] && REGION[e.region][0] === 'eg' ? ' egy' : ''}" style="--k1:${kc[0]};--k2:${kc[1]}${flagUrl(e) ? `;--flag:url('${flagUrl(e)}');--flagb:url('${flagPng(REGION[e.region][0])}')` : ''}">${flagUrl(e) ? `<i class="pflag l" aria-hidden="true"></i><i class="pflag r" aria-hidden="true"></i><i class="pflag c wv" aria-hidden="true">${REGION[e.region] && REGION[e.region][0] === 'eg' ? FLAGW : FLAGW2}</i><i class="pflag t" aria-hidden="true"></i>` : ''}
 <div class="ppimg">${kitImg(T[e.team].short_name, et === 1, 110, 'ppk')}<img class="ppface" src="https://resources.premierleague.com/premierleague25/photos/players/110x140/${e.code}.png" data-alt="https://resources.premierleague.com/premierleague/photos/players/110x140/p${e.code}.png" alt="${esc(e.web_name)}" loading="lazy" referrerpolicy="no-referrer"></div>
 <div class="ppt"><small>${posB(et)} ${esc(T[e.team].name)}${isNewSigning(e) ? ' · <span class="newpill">New signing</span>' : ''}</small><h1>${esc(e.web_name)}</h1><span class="ppfull">${esc(e.first_name)} ${esc(e.second_name)}${country(e) ? ' · ' + esc(country(e)) : ''}</span>
 <div class="ppchips"><b class="ppp">${money(e.now_cost)}</b>${chg(e.cost_change_event, 'wk')}${chg(e.cost_change_start, 'season')}<span class="sigchip ${sig[1]}">${sig[0]}</span></div>
@@ -10789,7 +10806,7 @@ ${t.c.slice(1).length ? `<div class="alt">Or: ${t.c.slice(1).map((x) => `${nm(x.
       return `<button class="chipt ${PLAN.chip === k ? 'on' : ok ? '' : 'na'}" type="button" data-chip="${k}" aria-pressed="${PLAN.chip === k}" title="${ok ? 'Plan it for GW' + g0 : 'Not available this week: preview only'}"><b>${lab}</b>${st}${best}</button>`; }).join('');
     const chipNote = free ? `<div class="chipnote"><b>${PLAN.chip === 'wildcard' ? 'Wildcard' : 'Free Hit'} squad for GW${g0}</b> built within your budget of ${money(PLAN.enter.reduce((a, x) => a + x.sell, 0) + PLAN.bank0)} (selling value + bank), every player at today's price, ${money(PLAN.chipBank || 0)} left, max 3 per club.${(() => { const k = PLAN.line.filter((x) => x.keep != null && x.keep < x.e.now_cost); return k.length ? ` <span style="color:var(--gold)">Kept at a lower selling price: ${k.map((x) => `${esc(x.e.web_name)} ${money(x.keep)}`).join(', ')}. The squad fits even if you remove and re-add them on the FPL site.</span>` : ''; })()}${PLAN.chip === 'freehit' ? ' Your normal squad returns the week after.' : ' Later weeks start from this squad.'}<br><span class="dn">Out (${PLAN.chipOut.length}):</span> ${PLAN.chipOut.map((e) => esc(e.web_name)).join(', ') || '–'}<br><span class="up">In (${PLAN.chipIn.length}):</span> ${PLAN.chipIn.map((e) => nm(e)).join(', ') || '–'}</div>` : PLAN.chip === 'bboost' ? `<div class="chipnote"><b>Bench Boost in GW${g0}:</b> your 4 bench players add ${f1(draft.slice(11).reduce((a, x) => a + P(x.e, g0), 0))} projected pts.</div>` : PLAN.chip === '3xc' ? `<div class="chipnote"><b>Triple Captain in GW${g0}:</b> ${PLAN.cap ? nm(PLAN.cap.e) : '–'} scores ×3, worth +${f1(PLAN.cap ? P(PLAN.cap.e, g0) : 0)} extra projected pts.</div>` : '';
     const H = A.html || {};
-    const TABS = [['do', 'Do this now'], ['targets', 'Targets'], ['auto', 'Plan ahead'], ['diffs', 'Differentials'], ['chips', 'Chips']];
+    const TABS = [['do', 'Do this now'], ['targets', 'Targets'], ['diffs', 'Differentials'], ['chips', 'Chips']];
     if (!TABS.some(([k]) => k === PLAN.tab)) PLAN.tab = 'do';
     let body;
     if (PLAN.tab === 'auto') body = autoHtml(nm);
@@ -11256,7 +11273,7 @@ ${urgent.length || knownXI.length ? '<p class="note" style="margin:6px 0 0">Re-c
     const homeHtml = `<section class="s home" id="s-home">
 ${MYID && MYID !== A.id ? `<div class="viewing"><span>Viewing <b>${esc(entry.name)}</b> · ${esc(entry.player_first_name)} ${esc(entry.player_last_name)} · ID ${A.id}</span><button class="try" type="button" data-back="1">Back to my team</button></div>` : ''}
 ${(() => { const rg = REGION[entry.player_region_id], code = rg ? rg[0] : '', ini = (entry.name || '?').replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).map((w) => w[0]).join('').slice(0, 3).toUpperCase() || '?';
-  return `<div class="pph hbn${rg ? ' fl' : ''}${code === 'eg' ? ' egy' : ''}"${rg ? ` style="--flagb:url('${flagPng(code)}')"` : ''}>${rg ? `<i class="pflag l" aria-hidden="true"></i><i class="pflag r" aria-hidden="true"></i><i class="pflag c wv" aria-hidden="true">${FLAGW}</i><i class="pflag t" aria-hidden="true"></i>` : ''}
+  return `<div class="pph hbn${rg ? ' fl' : ''}${code === 'eg' ? ' egy' : ''}"${rg ? ` style="--flagb:url('${flagPng(code)}')"` : ''}>${rg ? `<i class="pflag l" aria-hidden="true"></i><i class="pflag r" aria-hidden="true"></i><i class="pflag c wv" aria-hidden="true">${code === 'eg' ? FLAGW : FLAGW2}</i><i class="pflag t" aria-hidden="true"></i>` : ''}
 <div class="hbav" aria-hidden="true"><i class="hblion"></i>${rg ? `<img class="hbfl" src="https://flagcdn.com/w80/${code}.png" alt="">` : ''}</div>
 <div class="hbtx"><small class="eyebrow">${nxt ? `Next: GW${g0}` : 'Season complete'}</small><h2>${esc(entry.name)}</h2><span class="hbsub">${esc(entry.player_first_name)} ${esc(entry.player_last_name)}${rg ? ' · ' + esc(entry.player_region_name || rg[1]) : ''} · ID ${A.id}</span></div>
 <div class="hbkp"><div><small>Overall rank</small><b>${(entry.summary_overall_rank || 0).toLocaleString()}</b></div><div><small>Points</small><b>${entry.summary_overall_points}</b></div></div></div>`; })()}

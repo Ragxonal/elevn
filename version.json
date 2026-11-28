@@ -1,10 +1,10 @@
 {
-  "version": "3.86",
-  "date": "2026-11-27",
-  "notes": "Explain this number, win-the-league lens, plan ahead (8 GWs + chip timing), what-if ranges, season story and share cards, FPL's official price figures (midnight UK), high-end projection correction, public track record, Android widget and alerts",
+  "version": "3.87",
+  "date": "2026-11-28",
+  "notes": "Fixture chips fit the name plate; points slider and Plan ahead removed; smooth full-size waving flags on player pages.",
   "files": {
-    "apk": "dist/Elevn-Android-v3-86.apk",
-    "zip": "dist/Elevn-Chrome-v3-86.zip",
+    "apk": "dist/Elevn-Android-v3-87.apk",
+    "zip": "dist/Elevn-Chrome-v3-87.zip",
     "userscript": "dist/Elevn.user.js"
   }
 }
